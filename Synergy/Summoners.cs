@@ -65,11 +65,12 @@ namespace Synergy
 
         static void Drawing_OnDraw(EventArgs args)
         {
+            var smiteslot = ObjectManager.Player.GetSpellSlot("summonersmite");
+            if (smiteslot == SpellSlot.Unknown)
+                return;
+
             if (Main.Item("drawSmite").GetValue<bool>() && !Me.IsDead)
-            {
-                if (Me.SummonerSpellbook.CanUseSpell(Me.GetSpellSlot("summonersmite")) != SpellState.Unknown)
-                    Utility.DrawCircle(Me.Position, 760, Color.White, 1, 1);
-            }
+                Utility.DrawCircle(Me.Position, 760, Color.White, 1, 1);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
