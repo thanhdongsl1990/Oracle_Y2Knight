@@ -10,7 +10,7 @@ namespace Synergy
         private static Menu Main, Config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Game_OnGameLoad(Menu Root)
+        public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
          
@@ -25,7 +25,7 @@ namespace Synergy
             Locket.AddItem(new MenuItem("useLocket", "Use Locket")).SetValue(true);
             Locket.AddItem(new MenuItem("useLocketPct", "Use Locket on HP %")).SetValue(new Slider(45));
             Locket.AddItem(new MenuItem("useLocketDmg", "Use Locket on Dmg %")).SetValue(new Slider(40));
-            Locket.AddItem(new MenuItem("useLocketExt", "Use Locket on Dangerous")).SetValue(true);
+            //Locket.AddItem(new MenuItem("useLocketExt", "Use Locket on Dangerous")).SetValue(true);
             
             Main.AddSubMenu(Locket);
 
@@ -33,21 +33,21 @@ namespace Synergy
             Face.AddItem(new MenuItem("useMounain", "Use Mounain")).SetValue(true);
             Face.AddItem(new MenuItem("useMounainPct", "Use Mounain on HP %")).SetValue(new Slider(45));
             Face.AddItem(new MenuItem("useMountainDmg", "Use Mountain on Dmg %")).SetValue(new Slider(40));
-            Face.AddItem(new MenuItem("useMounainExt", "Use Mounain on Dangerous")).SetValue(true);
+            //Face.AddItem(new MenuItem("useMounainExt", "Use Mounain on Dangerous")).SetValue(true);
             Main.AddSubMenu(Face);
 
             Menu Seraphs = new Menu("Seraph's Embrace", "seraphs");
             Seraphs.AddItem(new MenuItem("useSeraphs", "Use Seraphs")).SetValue(true);
             Seraphs.AddItem(new MenuItem("useSeraphsPct", "Use Seraphs on HP %")).SetValue(new Slider(45));
             Seraphs.AddItem(new MenuItem("useSerpahsDmg", "Use Seraphs on Dmg %")).SetValue(new Slider(40));
-            Seraphs.AddItem(new MenuItem("useSeraphsExt", "Use Seraphs on Dangerous")).SetValue(true);
+            //Seraphs.AddItem(new MenuItem("useSeraphsExt", "Use Seraphs on Dangerous")).SetValue(true);
             Main.AddSubMenu(Seraphs);
 
             Menu Zhonyas = new Menu("Zhonya's Hourglass", "zhonyas");
             Zhonyas.AddItem(new MenuItem("useZhonyas", "Use Zhonyas")).SetValue(true);
             Zhonyas.AddItem(new MenuItem("useZhonyasPct", "Use Zhonyas on HP %")).SetValue(new Slider(45));
             Zhonyas.AddItem(new MenuItem("useZhonyasDmg", "Use Zhonyas on Dmg %")).SetValue(new Slider(40));
-            Zhonyas.AddItem(new MenuItem("useZhonyasExt", "Use Zhonyas on Dangerous")).SetValue(true);
+            //Zhonyas.AddItem(new MenuItem("useZhonyasExt", "Use Zhonyas on Dangerous")).SetValue(true);
             Main.AddSubMenu(Zhonyas);
 
             Menu Randuins = new Menu("Randuin's Omen", "Randuins");
@@ -91,12 +91,6 @@ namespace Synergy
                     if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);
                 }
-
-                else if (Main.Item("use" + name + "Ext").GetValue<bool>())
-                {
-                    
-                }
-
             }
         }
     }

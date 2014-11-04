@@ -10,7 +10,7 @@ namespace Synergy
         private static Menu Main, Config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Game_OnGameLoad(Menu Root)
+        public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
          
@@ -68,13 +68,12 @@ namespace Synergy
             Botrk.AddItem(new MenuItem("useBotrkPct", "Use on enemy HP %")).SetValue(new Slider(85, 1));
             Botrk.AddItem(new MenuItem("useBotrkMe", "Use on my HP %")).SetValue(new Slider(35, 1));
             Main.AddSubMenu(Botrk);
-
-      
+     
             Root.AddSubMenu(Main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
-        {
+        {          
             UseItem("Youmuus", 3142, 450f);
             UseItem("Tiamat", 3077, 450f);
             UseItem("Hydra", 3074, 450f);
@@ -83,30 +82,35 @@ namespace Synergy
             UseItem("Entropy", 3184, 450f, true);
             UseItem("Cutlass", 3144, 450f, true);
             UseItem("Botrk", 3153, 450f, true);
-
         }
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
             var enemyList = from enemy in ObjectManager.Get<Obj_AI_Hero>()
-                           where enemy.IsValid && enemy.IsVisible && enemy.Distance(Me.Position) < itemRange &&
-                                 enemy.Team != Me.Team
+                           where enemy.IsValidTarget(itemRange)
                           select enemy;
 
-            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId)) return;
+            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId) || !Main.Item("use" + name).GetValue<bool>()) 
+                return;
 
             foreach (var e in enemyList)
             {
-                var eHealthPercent = (int)((e.Health / e.MaxHealth) * 100);
+                var eHealthPercent = (int) ((e.Health/e.MaxHealth)*100);
+                var mHealthPercent = (int) ((Me.Health/e.MaxHealth)*100);
             
-                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
-                    Main.Item("ouseOn" + e.SkinName).GetValue<bool>() &&
-                    Main.Item("use" + name).GetValue<bool>()) 
+                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + e.SkinName).GetValue<bool>()) 
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId, e);
                     if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                    
+                }
+                else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + e.SkinName).GetValue<bool>())
+                {
+                    if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                        Items.UseItem(itemId, e);
+                    if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                        Items.UseItem(itemId);                      
                 }
             }
         }

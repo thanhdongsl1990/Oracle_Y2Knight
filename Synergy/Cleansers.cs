@@ -10,7 +10,7 @@ namespace Synergy
         private static Menu Config, Main;
         private static readonly Obj_AI_Hero Player = ObjectManager.Player;
 
-        public static void Game_OnGameLoad(Menu Root)
+        public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
 
@@ -72,7 +72,7 @@ namespace Synergy
 
         private static void UseItem(string name, int itemId, float itemRange = float.MaxValue, bool targeted = false, float dmg = 0)
         {
-            if (!Items.HasItem(itemId))
+            if (!Items.HasItem(itemId) || !Main.Item("use" + name).GetValue<bool>())
                 return;
   
             var allyList = from ally in ObjectManager.Get<Obj_AI_Hero>()
@@ -80,15 +80,11 @@ namespace Synergy
                                  ally.Team == Player.Team
                            select ally;
          
+            //TODO: Get ticktime and buff count
             foreach (var a in allyList)
-            {
-                Console.WriteLine("Hi");
-                if (a == null)
-                    return;
-               
+            {  
                 if (ccactive(a))
                 {
-
                     if (Main.Item("use" + name).GetValue<bool>() &&
                         Config.Item("cuseOn" + a.SkinName).GetValue<bool>())
                     {
@@ -155,6 +151,5 @@ namespace Synergy
                            
          return cc; 
         }
-
     }
 }

@@ -17,11 +17,11 @@ namespace Synergy
         private static void OnGameLoad(EventArgs args)
         {
             Root = new Menu("Synergy", "synergy", true);
-            Cleansers.Game_OnGameLoad(Root);
-            Defensives.Game_OnGameLoad(Root);
-            Offensives.Game_OnGameLoad(Root);
-            Summoners.Game_OnGameLoad(Root);
-            Consumables.Game_OnGameLoad(Root);
+            Cleansers.Initialize(Root);
+            Defensives.Initialize(Root);
+            Offensives.Initialize(Root);
+            Summoners.Initialize(Root);
+            Consumables.Initialize(Root);
             Root.AddToMainMenu();
 
             Game.PrintChat("Synergy Loaded - by Kurisu");

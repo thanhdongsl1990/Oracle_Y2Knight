@@ -9,7 +9,7 @@ namespace Synergy
         private static Menu Main, Config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Game_OnGameLoad(Menu Root)
+        public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
            
@@ -50,8 +50,7 @@ namespace Synergy
         {
             if (!Me.HasBuff("ItemCrystalFlask"))
             {
-                UseHealthPot(Program.IncomeDamage);
-                UseHealthPot(Program.MinionDamage);
+                UseHealthPot(Program.IncomeDamage, Program.MinionDamage);
 
                 var mManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
                 if (mManaPercent <= Main.Item("useManaPct").GetValue<Slider>().Value &&
@@ -64,17 +63,19 @@ namespace Synergy
             }
         }
 
-        private static void UseHealthPot(float incdmg)
+        private static void UseHealthPot(float incdmg = 0, float miniondmg = 0)
         {
             var mHealthPercent = (int)((Me.Health / Me.MaxHealth) * 100);
             var recievePercent = (int)(incdmg / Me.MaxHealth * 100);
 
-            if (mHealthPercent <= Main.Item("useHealthPct").GetValue<Slider>().Value &&
+            if ((mHealthPercent <= Main.Item("useHealthPct").GetValue<Slider>().Value) &&
                Main.Item("useHealth").GetValue<bool>())
             {
+                if (miniondmg > 0 && mHealthPercent <= 10)
+                    if (Items.HasItem(2003) && Items.CanUseItem(2003))
+                        Items.UseItem(2003);
                 if (recievePercent < Main.Item("useHealthDmg").GetValue<Slider>().Value) 
                     return;
-
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     if (Items.HasItem(2003) && Items.CanUseItem(2003))
                         Items.UseItem(2003);
@@ -84,7 +85,10 @@ namespace Synergy
                 recievePercent >= Main.Item("bHealthDmg").GetValue<Slider>().Value) &&
                 Main.Item("useBiscuit").GetValue<bool>())
             {
-                if (recievePercent < Main.Item("bHealthDmg").GetValue<Slider>().Value)
+                if (miniondmg > 0 && mHealthPercent <= 10)
+                    if (Items.HasItem(2009) && Items.CanUseItem(2009))
+                        Items.UseItem(2009);
+                if (incdmg < 50 || incdmg < Me.Health )
                     return;
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     if (Items.HasItem(2009) && Items.CanUseItem(2009))
