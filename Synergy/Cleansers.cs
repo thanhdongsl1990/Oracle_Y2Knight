@@ -25,7 +25,6 @@ namespace Synergy
             Config.AddItem(new MenuItem("charm", "Charms")).SetValue(true);
             Config.AddItem(new MenuItem("taunt", "Taunts")).SetValue(true);
             Config.AddItem(new MenuItem("fear", "Fears")).SetValue(true);
-            Config.AddItem(new MenuItem("flee", "Flees")).SetValue(true);
             Config.AddItem(new MenuItem("snare", "Snares")).SetValue(true);
             Config.AddItem(new MenuItem("silence", "Silences")).SetValue(true);
             Config.AddItem(new MenuItem("supression", "Supresses")).SetValue(true);
@@ -115,10 +114,6 @@ namespace Synergy
 
             if (Config.Item("fear").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Fear))
-                    cc = true;
-
-            if (Config.Item("flee").GetValue<bool>())
-                if (unit.HasBuffOfType(BuffType.Flee))
                     cc = true;
 
             if (Config.Item("snare").GetValue<bool>())

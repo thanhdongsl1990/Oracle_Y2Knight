@@ -7,61 +7,90 @@ namespace Synergy
 {
     class Program
     {
-        public static Menu Root;
+        //  _____                         
+        // |   __|_ _ ___ ___ ___ ___ _ _ 
+        // |__   | | |   | -_|  _| . | | |
+        // |_____|_  |_|_|___|_| |_  |_  |
+        //       |___|           |___|___|
+        // Copyright © Kurisu Solutions 2014
+        // This is not functional do not try to use just yet
+
+        public static Menu Origin;
+        public static Obj_AI_Hero DmgTarget;
+        public static double IncomeDamage, MinionDamage;
+
         private static void Main(string[] args)
         {
             Console.WriteLine("Synergy is loading...");
             CustomEvents.Game.OnGameLoad += OnGameLoad;
         }
-        public static float IncomeDamage, MinionDamage;
+
         private static void OnGameLoad(EventArgs args)
         {
-            Root = new Menu("Synergy", "synergy", true);
-            Cleansers.Initialize(Root);
-            Defensives.Initialize(Root);
-            Offensives.Initialize(Root);
-            Summoners.Initialize(Root);
-            Consumables.Initialize(Root);
-            Root.AddToMainMenu();
+            Origin = new Menu("Synergy", "synergy", true);
+            Cleansers.Initialize(Origin);
+            Defensives.Initialize(Origin);
+            Offensives.Initialize(Origin);
+            Summoners.Initialize(Origin);
+            Consumables.Initialize(Origin);
+            Origin.AddToMainMenu();
 
-            Game.PrintChat("Synergy Loaded - by Kurisu");
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.PrintChat("<font color=\"#1FFF8F\">Synergy -</font> by Kurisuu");
+            Console.WriteLine("Synergy is loaded!");
+
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            IncomeDamage = 0; MinionDamage = 0;  
+            IncomeDamage = 0; MinionDamage = 0;
+            DmgTarget = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == args.Target.NetworkId);
             if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy)
-            {
+            {          
                 var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
-                var attackslot = attacker.GetSpellSlot(args.SData.Name);
+                var attackerslot = attacker.GetSpellSlot(args.SData.Name);
 
-                foreach (var a in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
-                {
-                    if ((args.Target.IsAlly || args.Target.IsMe) && args.Target.Type == GameObjectType.obj_AI_Hero)
+                if (args.Target.NetworkId == DmgTarget.NetworkId  && args.Target.Type == GameObjectType.obj_AI_Hero &&
+                    attacker.Distance(DmgTarget.Position) <= 600)
+                {            
+                    switch (attackerslot)
                     {
-                        IncomeDamage += (float)attacker.GetAutoAttackDamage(a);
-                        if (a.Distance(args.End) <= 50f)
-                            IncomeDamage += (float)attacker.GetSpellDamage(a, args.SData.Name);
-                    }
-                }
-
-                // extreme spell that need to be shielded immediately
-                if (args.SData.Name == "")
-                {
-                    
+                        case SpellSlot.Q:
+                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.Q);
+                            break;
+                        case SpellSlot.W:
+                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.W);
+                            break;
+                        case SpellSlot.E:
+                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.E);
+                            break;
+                        case SpellSlot.R:
+                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.R);
+                            break;
+                        case SpellSlot.Unknown:
+                            IncomeDamage = attacker.GetAutoAttackDamage(DmgTarget);
+                            break;
+                    }       
                 }
             }
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)
             {
-                var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);
-                
-                foreach (var a in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly && x.Type == GameObjectType.obj_AI_Hero))
+                var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);            
+                if (args.Target.NetworkId == DmgTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
-                    if (args.Target == a && args.Target.Type == GameObjectType.obj_AI_Hero)
+                    MinionDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
+                }                        
+            }
+            else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)
+            {
+               
+                var attacker = ObjectManager.Get<Obj_AI_Turret>().First(x => x.NetworkId == sender.NetworkId);
+                if (args.Target.NetworkId == DmgTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
+                {
+                    if (attacker.Distance(ObjectManager.Player.Position) <= 900)
                     {
-                        MinionDamage += (float)attacker.CalcDamage(ObjectManager.Player, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
-                    }                        
+                        IncomeDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
+                    }
                 }
             }
         }

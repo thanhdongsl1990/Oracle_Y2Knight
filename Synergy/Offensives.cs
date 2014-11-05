@@ -17,7 +17,7 @@ namespace Synergy
             Main = new Menu("Offensives", "omenu");
             Config = new Menu("Offensive Config", "oconfig");
 
-            foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(700)))
+            foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsEnemy))
                 Config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
 
@@ -68,20 +68,24 @@ namespace Synergy
             Botrk.AddItem(new MenuItem("useBotrkPct", "Use on enemy HP %")).SetValue(new Slider(85, 1));
             Botrk.AddItem(new MenuItem("useBotrkMe", "Use on my HP %")).SetValue(new Slider(35, 1));
             Main.AddSubMenu(Botrk);
-     
+
+            Main.AddItem(new MenuItem("useCombo", "Use Items")).SetValue(new KeyBind(32, KeyBindType.Press));    
             Root.AddSubMenu(Main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
-        {          
-            UseItem("Youmuus", 3142, 450f);
-            UseItem("Tiamat", 3077, 450f);
-            UseItem("Hydra", 3074, 450f);
-            UseItem("Guardians", 2051, 450f);
-            UseItem("Hextech", 3146, 450f, true);
-            UseItem("Entropy", 3184, 450f, true);
-            UseItem("Cutlass", 3144, 450f, true);
-            UseItem("Botrk", 3153, 450f, true);
+        {
+            if (Main.Item("useCombo").GetValue<KeyBind>().Active)
+            {
+                UseItem("Youmuus", 3142, 450f);
+                UseItem("Tiamat", 3077, 200f);
+                UseItem("Hydra", 3074, 450f);
+                UseItem("Guardians", 2051, 450f);
+                UseItem("Hextech", 3146, 450f, true);
+                UseItem("Entropy", 3184, 450f, true);
+                UseItem("Cutlass", 3144, 450f, true);
+                UseItem("Botrk", 3153, 450f, true);
+            }
         }
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
@@ -90,7 +94,7 @@ namespace Synergy
                            where enemy.IsValidTarget(itemRange)
                           select enemy;
 
-            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId) || !Main.Item("use" + name).GetValue<bool>()) 
+            if (!Items.HasItem(itemId) && !Items.CanUseItem(itemId) || !Main.Item("use" + name).GetValue<bool>())
                 return;
 
             foreach (var e in enemyList)
@@ -102,14 +106,14 @@ namespace Synergy
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId, e);
-                    if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                    else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                    
                 }
                 else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + e.SkinName).GetValue<bool>())
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId, e);
-                    if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                    else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                      
                 }
             }

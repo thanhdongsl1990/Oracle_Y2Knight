@@ -11,12 +11,15 @@ namespace Synergy
 
         public static void Initialize(Menu Root)
         {
-            Game.OnGameUpdate += Game_OnGameUpdate;
-           
+            Game.OnGameUpdate += Game_OnGameUpdate;       
             Main = new Menu("Consumables", "imenu");
-            Config = new Menu("Consumable Config", "iconfig");
 
-            Main.AddSubMenu(Config);
+            Menu RegenBiscuit = new Menu("Biscuit", "dbiscuit");
+            RegenBiscuit.AddItem(new MenuItem("useBiscuit", "Use Biscuit")).SetValue(true);
+            RegenBiscuit.AddItem(new MenuItem("bHeathPct", "Use in min HP %")).SetValue(new Slider(40, 1));
+            RegenBiscuit.AddItem(new MenuItem("bManaPct", "Use in min Mana %")).SetValue(new Slider(35, 1));
+            RegenBiscuit.AddItem(new MenuItem("bHealthDmg", "Use on min Damage %")).SetValue(new Slider(35, 1));
+            Main.AddSubMenu(RegenBiscuit);
 
             Menu HealthPotions = new Menu("Health Potions", "hpotions");
             HealthPotions.AddItem(new MenuItem("useHealth", "Use Health Potions")).SetValue(true);
@@ -29,28 +32,22 @@ namespace Synergy
             ManaPotions.AddItem(new MenuItem("useManaPct", "Use in min Mana %")).SetValue(new Slider(40, 1));
             Main.AddSubMenu(ManaPotions);
 
-            Menu RegenBiscuit = new Menu("Delicious Biscuit", "dbiscuit");
-            RegenBiscuit.AddItem(new MenuItem("useBiscuit", "Use Biscuit")).SetValue(true);
-            RegenBiscuit.AddItem(new MenuItem("bHeathPct", "Use in min HP %")).SetValue(new Slider(40, 1));
-            RegenBiscuit.AddItem(new MenuItem("bManaPct", "Use in min Mana %")).SetValue(new Slider(35, 1));
-            RegenBiscuit.AddItem(new MenuItem("bHealthDmg", "Use on min Damage %")).SetValue(new Slider(35, 1));
-            Main.AddSubMenu(RegenBiscuit);
 
             Menu Crystaline = new Menu("Crystaline Flask", "cflask");
-            Crystaline.AddItem(new MenuItem("useFlask", "Use Crystaline Flask")).SetValue(true);
-            Crystaline.AddItem(new MenuItem("cHeathPct", "Use in min HP %")).SetValue(new Slider(40, 1));
-            Crystaline.AddItem(new MenuItem("cManaPct", "Use in min Mana %")).SetValue(new Slider(35, 1));
-            Crystaline.AddItem(new MenuItem("cHealthDmg", "Use on min Damage %")).SetValue(new Slider(35, 1));
+            //Crystaline.AddItem(new MenuItem("useFlask", "Use Crystaline Flask")).SetValue(true);
+            //Crystaline.AddItem(new MenuItem("cHeathPct", "Use in min HP %")).SetValue(new Slider(40, 1));
+            //Crystaline.AddItem(new MenuItem("cManaPct", "Use in min Mana %")).SetValue(new Slider(35, 1));
+            //Crystaline.AddItem(new MenuItem("cHealthDmg", "Use on min Damage %")).SetValue(new Slider(35, 1));
             Main.AddSubMenu(Crystaline);
 
             Root.AddSubMenu(Main);
         }
 
-        public static void Game_OnGameUpdate(EventArgs args)
+        private static void Game_OnGameUpdate(EventArgs args)
         {
             if (!Me.HasBuff("ItemCrystalFlask"))
             {
-                UseHealthPot(Program.IncomeDamage, Program.MinionDamage);
+                UseHealthPot((float)Program.IncomeDamage, (float)Program.MinionDamage);
 
                 var mManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
                 if (mManaPercent <= Main.Item("useManaPct").GetValue<Slider>().Value &&
@@ -66,33 +63,30 @@ namespace Synergy
         private static void UseHealthPot(float incdmg = 0, float miniondmg = 0)
         {
             var mHealthPercent = (int)((Me.Health / Me.MaxHealth) * 100);
-            var recievePercent = (int)(incdmg / Me.MaxHealth * 100);
+            var iPercent = (int) ((incdmg/Me.MaxHealth)*100);
+            var mPercent = (int) ((miniondmg/Me.MaxHealth)*100);
 
             if ((mHealthPercent <= Main.Item("useHealthPct").GetValue<Slider>().Value) &&
                Main.Item("useHealth").GetValue<bool>())
             {
-                if (miniondmg > 0 && mHealthPercent <= 10)
-                    if (Items.HasItem(2003) && Items.CanUseItem(2003))
-                        Items.UseItem(2003);
-                if (recievePercent < Main.Item("useHealthDmg").GetValue<Slider>().Value) 
-                    return;
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
-                    if (Items.HasItem(2003) && Items.CanUseItem(2003))
-                        Items.UseItem(2003);
+                {
+                    if (iPercent >= 2 || mPercent >= 2 || miniondmg > Me.Health)
+                        if (Items.HasItem(2003) && Items.CanUseItem(2003))
+                            Items.UseItem(2003);
+                }
             }
 
             if ((mHealthPercent <= Main.Item("bHeathPct").GetValue<Slider>().Value ||
-                recievePercent >= Main.Item("bHealthDmg").GetValue<Slider>().Value) &&
+                iPercent >= Main.Item("bHealthDmg").GetValue<Slider>().Value) &&
                 Main.Item("useBiscuit").GetValue<bool>())
             {
-                if (miniondmg > 0 && mHealthPercent <= 10)
-                    if (Items.HasItem(2009) && Items.CanUseItem(2009))
-                        Items.UseItem(2009);
-                if (incdmg < 50 || incdmg < Me.Health )
-                    return;
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
-                    if (Items.HasItem(2009) && Items.CanUseItem(2009))
-                        Items.UseItem(2009);
+                {
+                    if (iPercent >= 2 || mPercent >= 2 || miniondmg > Me.Health)
+                        if (Items.HasItem(2009) && Items.CanUseItem(2009))
+                            Items.UseItem(2009);
+                }
             }
         }
     }

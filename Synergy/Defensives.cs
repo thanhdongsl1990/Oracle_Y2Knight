@@ -17,7 +17,7 @@ namespace Synergy
             Main = new Menu("Defensives", "dmenu");
             Config = new Menu("Defensive Config", "dconfig");
 
-            foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(700, false) && x.IsAlly))
+            foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
                 Config.AddItem(new MenuItem("duseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
 
@@ -60,37 +60,40 @@ namespace Synergy
             
         }
 
+        
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("Zhonyas", 3157, 450f, false, Program.IncomeDamage);
-            UseItem("Locket", 3190, 600f, false, Program.IncomeDamage);
-            UseItem("Seraphs", 3048, 450f, false, Program.IncomeDamage);
-            UseItem("Randuins", 3143, 450f, false, Program.IncomeDamage);
-            UseItem("Mountain", 3401, 600f, true, Program.IncomeDamage);
+            //UseItem("Zhonyas", 3157, 450f, (float)Base.IncomeDamage);
+            //UseItem("Locket", 3190, 600f, (float)Program.IncomeDamage);
+            //UseItem("Seraphs", 3048, 450f, (float)Base.IncomeDamage);
+            //UseItem("Randuins", 3143, 450f, (float)Base.IncomeDamage);
+            //UseItem("Mountain", 3401, 600f, (float)Base.IncomeDamage);
         }
 
-        private static void UseItem(string name, int itemId, float itemRange, bool targeted = false, float incdmg = 0)
+        private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0)
         {
             var allyList = from ally in ObjectManager.Get<Obj_AI_Hero>()
                           where ally.IsValidTarget(itemRange, false) && ally.IsAlly
                          select ally;
 
-            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId)) return;
+            if (!Items.HasItem(itemId) && !Items.CanUseItem(itemId))
+                return;
+
             foreach (var a in allyList)
-            {
+            {           
                 var aHealthPercent = (int)((a.Health / a.MaxHealth) * 100);
-                var recievePercent = (int)(incdmg / Me.MaxHealth * 100);
-             
+                var iPercent = (int)(incdmg / a.MaxHealth * 100);
+                Console.WriteLine(Main.Item("use" + name + "Pct").GetValue<Slider>().Value);
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
-                    Main.Item("duseOn" + a.SkinName).GetValue<bool>()) 
-                {
-                    if (recievePercent < Main.Item("use" + name + "Dmg").GetValue<Slider>().Value)
-                        return;
-                    if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                    Main.Item("duseOn" + a.SkinName).GetValue<bool>())
+                {           
+                     //if (iPercent > 1 || incdmg > a.Health)
                         Items.UseItem(itemId, a);
-                    if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId);
                 }
+
+                if (iPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
+                    Main.Item("duseOn" + a.SkinName).GetValue<bool>())
+                            Items.UseItem(itemId, a);          
             }
         }
     }
