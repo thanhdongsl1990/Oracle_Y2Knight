@@ -105,7 +105,7 @@ namespace Synergy
                     }
                 }
             }
-            else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 0 &&
+            else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
                      Main.Item("useCombo").GetValue<KeyBind>().Active)
             {
                 var aaDmg = 0f;
