@@ -32,13 +32,16 @@ namespace Oracle
    
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("Locket", 3190, 600f, (float)Program.IncomeDamage);
-            UseItem("Seraphs", 3048, 450f, (float)Program.IncomeDamage);
-            UseItem("Wooglets", 3090, 450f,(float)Program.IncomeDamage);
-            UseItem("Zhonyas", 3157, 450f, (float)Program.IncomeDamage);
-            UseItem("Odyns", 3180, 450f, (float)Program.IncomeDamage);
-            UseItem("Randuins", 3143, 450f, (float)Program.IncomeDamage);
-            //UseItem("Mountain", 3401, 700f, (float)Program.IncomeDamage);
+            if (Program.IncomeDamage >= 1)
+            {
+                UseItem("Locket", 3190, 600f, (float) Program.IncomeDamage);
+                UseItem("Seraphs", 3048, 450f, (float) Program.IncomeDamage);
+                UseItem("Wooglets", 3090, 450f, (float) Program.IncomeDamage);
+                UseItem("Zhonyas", 3157, 450f, (float) Program.IncomeDamage);
+                UseItem("Odyns", 3180, 450f, (float) Program.IncomeDamage);
+                UseItem("Randuins", 3143, 450f, (float) Program.IncomeDamage);
+                //UseItem("Mountain", 3401, 700f, (float)Program.IncomeDamage);
+            }
         }
 
         private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0)
@@ -60,10 +63,8 @@ namespace Oracle
 
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                {
-                    if (incPercent >= 1 || incdmg >= target.Health)
+                    if ((incPercent >= 1 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
                         Items.UseItem(itemId);             
-                }
 
                 if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Policy;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -15,7 +16,7 @@ namespace Oracle
 
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
-        public static double IncomeDamage;
+        public static double IncomeDamage, MinionDamage;
 
         private static void Main(string[] args)
         {
@@ -76,9 +77,7 @@ namespace Oracle
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if(sender.IsMe)
-                Game.PrintChat(args.SData.Name);
-            IncomeDamage = 0;
+            IncomeDamage = 0; MinionDamage = 0;
             DmgTarget = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == args.Target.NetworkId);
             if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy)
             {          
@@ -113,7 +112,7 @@ namespace Oracle
                 var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);            
                 if (args.Target.NetworkId == DmgTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
-                    IncomeDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
+                    MinionDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
                 }                        
             }
             else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)

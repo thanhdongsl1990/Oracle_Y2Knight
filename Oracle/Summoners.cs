@@ -76,8 +76,11 @@ namespace Oracle
             CheckIgnite();
             CheckSmite();
             CheckClarity();
-            CheckHeal((float)Program.IncomeDamage);
-            CheckBarrier((float)Program.IncomeDamage);
+            if (Program.IncomeDamage >= 1)
+            {
+                CheckHeal((float) Program.IncomeDamage);
+                CheckBarrier((float) Program.IncomeDamage);
+            }
             //Console.WriteLine("Summoners.cs: " + Environment.TickCount);
         }
 

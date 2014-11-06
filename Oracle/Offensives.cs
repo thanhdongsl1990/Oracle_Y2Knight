@@ -36,6 +36,9 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            if (Program.EnemyTarget() == null)
+                return;
+
             if (Main.Item("useCombo").GetValue<KeyBind>().Active)
             {
                 UseItem("Youmuus", 3142, 450f);
@@ -51,13 +54,9 @@ namespace Oracle
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
-            if(!Main.Item("use" + name).GetValue<bool>())
-                return;
-
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-
-            if (Program.EnemyTarget() == null)
+            if(!Main.Item("use" + name).GetValue<bool>())
                 return;
 
             var target = Program.EnemyTarget();
