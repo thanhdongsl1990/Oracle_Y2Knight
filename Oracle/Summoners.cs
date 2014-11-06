@@ -101,7 +101,6 @@ namespace Oracle
                 CheckHeal((float) Program.IncomeDamage);
                 CheckBarrier((float) Program.IncomeDamage);
             }
-            //Console.WriteLine("Summoners.cs: " + Environment.TickCount);
         }
 
         private static void CheckIgnite()
@@ -193,7 +192,6 @@ namespace Oracle
             {
                 var target = Program.FriendlyTarget();
                 var incPercent = (int) ((incdmg/Me.MaxHealth)*100);
-                Console.WriteLine(incPercent);
                 if (target.Distance(ObjectManager.Player.Position) <= 600f)
                 {
                     

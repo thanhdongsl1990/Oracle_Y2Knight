@@ -102,7 +102,6 @@ namespace Oracle
                 return;
 
             var targeted = spellRange.ToString() != float.MaxValue.ToString();
-            Console.WriteLine(targeted);
 
             var target = targeted ? Program.FriendlyTarget() : ObjectManager.Player;
             if (target.Distance(ObjectManager.Player.Position) <= spellRange)
