@@ -58,22 +58,26 @@ namespace Oracle
             Offensives.Initialize(Origin);
             Consumables.Initialize(Origin);
             AutoSpells.Initialize(Origin);
-
+            Origin.AddItem(new MenuItem("debugmode", "Debug mode")).SetValue(false);
             Origin.AddItem(new MenuItem("testdamage", "Proc Damage")).SetValue(new KeyBind(78, KeyBindType.Press));
             Origin.AddToMainMenu();  
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            Console.WriteLine(Environment.TickCount);
+            
             FriendlyTarget();
-            IncomeDamage = 0;
-            DmgTarget = DmgTarget;
-
-            if (Origin.Item("testdamage").GetValue<KeyBind>().Active)
+            if (Origin.Item("debugmode").GetValue<bool>())
             {
-                DmgTarget = FriendlyTarget();
-                IncomeDamage = (ObjectManager.Player.MaxHealth / 3);
+                Console.WriteLine(Environment.TickCount);
+                //IncomeDamage = 0;
+                //DmgTarget = DmgTarget;
+
+                //if (Origin.Item("testdamage").GetValue<KeyBind>().Active)
+                //{
+                //    DmgTarget = FriendlyTarget();
+                //    IncomeDamage = (ObjectManager.Player.MaxHealth / 3);
+                //}
             }
         }
 
