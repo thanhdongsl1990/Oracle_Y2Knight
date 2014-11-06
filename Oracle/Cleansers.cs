@@ -5,7 +5,7 @@ using LeagueSharp.Common;
 
 namespace Oracle
 {
-    internal class Cleansers
+    internal static class Cleansers
     {
         private static Menu Config, Main;
         private static readonly Obj_AI_Hero Player = ObjectManager.Player;
@@ -38,8 +38,7 @@ namespace Oracle
             CreateMenuItem("Deverish Blade", "Deverish", 2, 2);
             CreateMenuItem("Mercurial Scimitar", "Mercurial", 2, 2);
             //CreateMenuItem("Mikael's Crucible", "Mikaels", 2, 2);
-            
-
+           
             Root.AddSubMenu(Main);
 
         }
@@ -52,7 +51,7 @@ namespace Oracle
             //UseItem("Mikaels", 3222, 600f, true);
         }
 
-        private static void UseItem(string name, int itemId, float itemRange = float.MaxValue, bool targeted = false, float dmg = 0)
+        private static void UseItem(string name, int itemId, float itemRange = float.MaxValue)
         {
             if (!Main.Item("use" + name).GetValue<bool>())
                 return;
@@ -70,10 +69,7 @@ namespace Oracle
                 {
                     Items.UseItem(itemId);
                 }
-
-
             }
-
         }
 
         private static void CreateMenuItem(string displayname, string name, int ccvalue, int timevalue, bool durationcount = true)

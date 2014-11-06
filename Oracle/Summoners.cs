@@ -6,11 +6,10 @@ using Color = System.Drawing.Color;
 
 namespace Oracle
 {
-    internal class Summoners
+    internal static class Summoners
     {
         private static Menu Main;
         private static Menu Config;
-        private static double MinionDamage, IncomeDamage;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu Root)

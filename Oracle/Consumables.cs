@@ -4,9 +4,9 @@ using LeagueSharp.Common;
 
 namespace Oracle
 {
-    internal class Consumables
+    internal static class Consumables
     {
-        private static Menu Main, Config;
+        private static Menu Main;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu Root)

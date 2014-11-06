@@ -5,7 +5,7 @@ using LeagueSharp.Common;
 
 namespace Oracle
 {
-    internal class Defensives
+    internal static class Defensives
     {
         private static Menu Main, Config;
         public static void Initialize(Menu Root)
@@ -26,7 +26,6 @@ namespace Oracle
             //CreateMenuItem("Face of the Mountain", "Mountain", 55, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 40, 40);
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
-
 
             Root.AddSubMenu(Main);
 
