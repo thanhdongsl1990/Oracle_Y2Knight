@@ -35,7 +35,7 @@ namespace Oracle
             Summoners.Initialize(Origin);
             Offensives.Initialize(Origin);
             Consumables.Initialize(Origin);
-            AutoShields.Initialize(Origin);
+            AutoSpells.Initialize(Origin);
             Origin.AddToMainMenu();  
         }
 

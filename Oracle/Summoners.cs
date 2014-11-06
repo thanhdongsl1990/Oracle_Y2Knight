@@ -78,7 +78,7 @@ namespace Oracle
             CheckClarity();
             CheckHeal((float)Program.IncomeDamage);
             CheckBarrier((float)Program.IncomeDamage);
-            Console.WriteLine("Summoners.cs: " + Environment.TickCount);
+            //Console.WriteLine("Summoners.cs: " + Environment.TickCount);
         }
 
         private static void CheckIgnite()
