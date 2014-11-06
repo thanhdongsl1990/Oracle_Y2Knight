@@ -103,7 +103,7 @@ namespace Oracle
                     }
                 }
             }
-            else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 0 &&
+            else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
                      Main.Item("useCombo").GetValue<KeyBind>().Active)
             {
                 var aaDmg = 0f;
@@ -118,6 +118,7 @@ namespace Oracle
                     aaDmg = Me.FlatPhysicalDamageMod * 9;
                 else if (aSpeed > 2.0f)
                     aaDmg = Me.FlatPhysicalDamageMod * 11;
+
                 if (Program.EnemyTarget() == null)
                     return;
 
@@ -180,7 +181,7 @@ namespace Oracle
                 if (aHealthPercent <= Main.Item("useHealPct").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (!Utility.InFountain() && !Me.HasBuff("Recall"))
-                        if ((incPercent >= 2 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
+                        if ((incPercent >= 1 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
                             Me.SummonerSpellbook.CastSpell(SpellSlot, target);
                 }
 
