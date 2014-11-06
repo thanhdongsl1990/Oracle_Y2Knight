@@ -3,7 +3,7 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace Synergy
+namespace Oracle
 {
     internal class Offensives
     {
@@ -90,29 +90,34 @@ namespace Synergy
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
-            var enemyList = from enemy in ObjectManager.Get<Obj_AI_Hero>()
-                           where enemy.IsValidTarget(itemRange)
-                          select enemy;
-
-            if (!Items.HasItem(itemId) && !Items.CanUseItem(itemId) || !Main.Item("use" + name).GetValue<bool>())
+            if(!Main.Item("use" + name).GetValue<bool>())
                 return;
 
-            foreach (var e in enemyList)
+            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
+                return;
+
+            if (Program.EnemyTarget() == null)
+                return;
+
+            var target = Program.EnemyTarget();
+            if (target.Distance(ObjectManager.Player.Position) <= itemRange)
             {
-                var eHealthPercent = (int) ((e.Health/e.MaxHealth)*100);
-                var mHealthPercent = (int) ((Me.Health/e.MaxHealth)*100);
+
+
+                var eHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
+                var mHealthPercent = (int) ((Me.Health/target.MaxHealth)*100);
             
-                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + e.SkinName).GetValue<bool>()) 
+                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + target.SkinName).GetValue<bool>()) 
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId, e);
+                        Items.UseItem(itemId, target);
                     else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                    
                 }
-                else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + e.SkinName).GetValue<bool>())
+                else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId, e);
+                        Items.UseItem(itemId, target);
                     else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                      
                 }

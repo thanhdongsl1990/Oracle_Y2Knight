@@ -4,7 +4,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using Color = System.Drawing.Color;
 
-namespace Synergy
+namespace Oracle
 {
     internal class Summoners
     {
@@ -74,9 +74,8 @@ namespace Synergy
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
-        {
-            Console.WriteLine("Summoners: " + Environment.TickCount);
-
+        {           
+            //Console.WriteLine("Summoners.cs: " + Environment.TickCount);
             CheckIgnite();
             CheckSmite();
             CheckClarity();
@@ -86,12 +85,12 @@ namespace Synergy
 
         private static void CheckIgnite()
         {
-            var iSpellSlot = Me.GetSpellSlot("summonerdot");
-            if (iSpellSlot == SpellSlot.Unknown)
+            var SpellSlot = Me.GetSpellSlot("summonerdot");
+            if (SpellSlot == SpellSlot.Unknown)
                 return;
             if (!Main.Item("useBarrier").GetValue<bool>())
                 return;
-            if (Me.SummonerSpellbook.CanUseSpell(iSpellSlot) != SpellState.Ready)
+            if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
                 return;
 
             if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 0)
@@ -101,11 +100,11 @@ namespace Synergy
                     if (target.Health < Me.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite))
                     {
                         if (!target.HasBuff("summonerdot", true))
-                            Me.SummonerSpellbook.CastSpell(iSpellSlot, target);
+                            Me.SummonerSpellbook.CastSpell(SpellSlot, target);
                     }
                 }
             }
-            else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
+            else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 0 &&
                      Main.Item("useCombo").GetValue<KeyBind>().Active)
             {
                 var aaDmg = 0f;
@@ -120,8 +119,11 @@ namespace Synergy
                     aaDmg = Me.FlatPhysicalDamageMod * 9;
                 else if (aSpeed > 2.0f)
                     aaDmg = Me.FlatPhysicalDamageMod * 11;
+                if (Program.EnemyTarget() == null)
+                    return;
 
-                foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(600)))
+                var target = Program.EnemyTarget();
+                if (target.Distance(ObjectManager.Player.Position) <= 600f)
                 {
                     float dmg = (Me.Level * 20) + 50;
                     float regenpersec = (target.FlatHPRegenMod + (target.HPRegenRate * target.Level));
@@ -130,7 +132,7 @@ namespace Synergy
                     if (target.Health < (dmgafter + aaDmg))
                     {
                         if (!target.HasBuff("summonerdot", true))
-                            Me.SummonerSpellbook.CastSpell(iSpellSlot, target);
+                            Me.SummonerSpellbook.CastSpell(SpellSlot, target);
                     }
                 }
             }
@@ -138,86 +140,92 @@ namespace Synergy
 
         private static void CheckBarrier(float incdmg = 0)
         {
-            var bSpellSlot = Me.GetSpellSlot("summonerbarrier");
-            if (bSpellSlot == SpellSlot.Unknown)
+            var SpellSlot = Me.GetSpellSlot("summonerbarrier");
+            if (SpellSlot == SpellSlot.Unknown)
                 return;
             if (!Main.Item("useBarrier").GetValue<bool>())
                 return;
-            if (Me.SummonerSpellbook.CanUseSpell(bSpellSlot) != SpellState.Ready)
+            if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
                 return;
 
-            var iPercent = (int)((incdmg / Me.MaxHealth) * 100);
+            var incPercent = (int)((incdmg / Me.MaxHealth) * 100);
             var mHealthPercent = (int)((Me.Health / Me.MaxHealth) * 100);
 
             if (mHealthPercent <= Main.Item("useBarrierPct").GetValue<Slider>().Value)
-                if ((iPercent >= 1 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
-                    Me.SummonerSpellbook.CastSpell(bSpellSlot, Me);
+                if ((incPercent >= 1 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                    Me.SummonerSpellbook.CastSpell(SpellSlot, Me);
 
-            if (iPercent >= Main.Item("useBarrierDmg").GetValue<Slider>().Value)
-                Me.SummonerSpellbook.CastSpell(bSpellSlot, Me);
+            if (incPercent >= Main.Item("useBarrierDmg").GetValue<Slider>().Value)
+                Me.SummonerSpellbook.CastSpell(SpellSlot, Me);
         }
 
 
         private static void CheckHeal(float incdmg = 0)
         {
-            var hSpellSlot = Me.GetSpellSlot("summonerheal");
-            if (hSpellSlot == SpellSlot.Unknown)
+            var SpellSlot = Me.GetSpellSlot("summonerheal");
+            if (SpellSlot == SpellSlot.Unknown)
                 return;
             if (!Main.Item("useHeal").GetValue<bool>())
                 return;
-            if (Me.SummonerSpellbook.CanUseSpell(hSpellSlot) != SpellState.Ready)
+            if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
                 return;
 
-            var iPercent = (int)((incdmg / Me.MaxHealth) * 100);
-            foreach (var a in ObjectManager.Get<Obj_AI_Base>()
-                .Where(x => x.IsValidTarget(600, false) && x.IsAlly))
+            if (Program.FriendlyTarget() == null)
+                return;
+
+            var target = Program.FriendlyTarget();
+            var incPercent = (int)((incdmg / Me.MaxHealth) * 100);
+            if (target.Distance(ObjectManager.Player.Position) <= 600f)
             {
-                var aHealthPercent = (int) ((a.Health/a.MaxHealth)*100);
-                if (aHealthPercent <= Main.Item("useHealPct").GetValue<Slider>().Value && Config.Item("suseOn" + a.SkinName).GetValue<bool>())
+                var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
+                if (aHealthPercent <= Main.Item("useHealPct").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (!Utility.InFountain() && !Me.HasBuff("Recall"))
-                        if ((iPercent >= 2 || incdmg >= a.Health) && Program.DmgTarget.NetworkId == a.NetworkId)
-                            Me.SummonerSpellbook.CastSpell(hSpellSlot, a);
+                        if ((incPercent >= 2 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
+                            Me.SummonerSpellbook.CastSpell(SpellSlot, target);
                 }
 
-                if (iPercent >= Main.Item("useHealDmg").GetValue<Slider>().Value && Config.Item("suseOn" + a.SkinName).GetValue<bool>())
+                if (incPercent >= Main.Item("useHealDmg").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (!Utility.InFountain() && !Me.HasBuff("Recall"))    
-                        Me.SummonerSpellbook.CastSpell(hSpellSlot, a);
+                        Me.SummonerSpellbook.CastSpell(SpellSlot, target);
                 }                 
             }
         }
    
         private static void CheckClarity()
         {
-            var mSpellSlot = Me.GetSpellSlot("summonermana");
-            if (mSpellSlot == SpellSlot.Unknown)
+            var SpellSlot = Me.GetSpellSlot("summonermana");
+            if (SpellSlot == SpellSlot.Unknown)
                 return;
             if (!Main.Item("useClarity").GetValue<bool>())
                 return;
-            if (Me.SummonerSpellbook.CanUseSpell(mSpellSlot) != SpellState.Ready)
+            if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
+                return;
+            if (Program.FriendlyTarget() == null)
                 return;
 
-            foreach (var a in ObjectManager.Get<Obj_AI_Base>().Where(x => x.IsValidTarget(600, false) && x.IsAlly))
+            var target = Program.FriendlyTarget();
+            if (target.Distance(ObjectManager.Player.Position) <= 600f)
             {
-                var aManaPercent = (int) ((a.Mana/a.MaxMana)*100);
+                var aManaPercent = (int) ((target.Mana/target.MaxMana)*100);
                 if (aManaPercent <= Main.Item("useClarityPct").GetValue<Slider>().Value 
-                    && Config.Item("suseOn" + a.SkinName).GetValue<bool>())
+                    && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (!Utility.InFountain() && !Me.HasBuff("Recall"))
-                        Me.SummonerSpellbook.CastSpell(mSpellSlot, a);
+                        Me.SummonerSpellbook.CastSpell(SpellSlot, target);
                 }
             }
         }
 
         private static void CheckSmite()
         {
-            var sSpellSlot = Me.GetSpellSlot("summonersmite");
-            if (sSpellSlot == SpellSlot.Unknown)
+            var SpellSlot = Me.GetSpellSlot("summonersmite");
+            if (SpellSlot == SpellSlot.Unknown)
                 return;
             if (!Main.Item("useSmite").GetValue<KeyBind>().Active)
                 return;
-            if (Me.SummonerSpellbook.CanUseSpell(sSpellSlot) != SpellState.Ready)
+            if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
                 return;
             string[] epicminions =
             {
@@ -242,7 +250,7 @@ namespace Synergy
                     if (Minion.Health < Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                     {
                         if (Main.Item("smiteLarge").GetValue<bool>())
-                            Me.SummonerSpellbook.CastSpell(sSpellSlot, Minion);
+                            Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
                     }
                 }
 
@@ -250,14 +258,14 @@ namespace Synergy
                 {
                     if (Minion.Health < Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                         if (Main.Item("smiteSmall").GetValue<bool>())
-                            Me.SummonerSpellbook.CastSpell(sSpellSlot, Minion);
+                            Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
                 }
 
                 else if (epicminions.Any(name => Minion.Name.StartsWith(name)))
                 {
                     if (Minion.Health < Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                         if (Main.Item("smiteEpic").GetValue<bool>())
-                            Me.SummonerSpellbook.CastSpell(sSpellSlot, Minion);
+                            Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
                 }
             }
         }

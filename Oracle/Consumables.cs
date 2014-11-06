@@ -2,7 +2,7 @@
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace Synergy
+namespace Oracle
 {
     internal class Consumables
     {

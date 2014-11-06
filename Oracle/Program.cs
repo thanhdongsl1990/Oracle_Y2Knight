@@ -3,15 +3,14 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace Synergy
+namespace Oracle
 {
     class Program
     {
-        //  _____                         
-        // |   __|_ _ ___ ___ ___ ___ _ _ 
-        // |__   | | |   | -_|  _| . | | |
-        // |_____|_  |_|_|___|_| |_  |_  |
-        //       |___|           |___|___|
+        // _____             _     
+        // |     |___ ___ ___| |___ 
+        // |  |  |  _| .'|  _| | -_|
+        // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
         // This is not functional do not try to use just yet
 
@@ -21,24 +20,63 @@ namespace Synergy
 
         private static void Main(string[] args)
         {
-            Console.WriteLine("Synergy is loading...");
+            Console.WriteLine("Oracle is loading...");
             CustomEvents.Game.OnGameLoad += OnGameLoad;
         }
 
         private static void OnGameLoad(EventArgs args)
         {
-            Origin = new Menu("Synergy", "synergy", true);
+            Game.OnGameUpdate += Game_OnGameUpdate;
+
+            Origin = new Menu("Oracle", "oracle", true);
             Cleansers.Initialize(Origin);
             Defensives.Initialize(Origin);
-            Offensives.Initialize(Origin);
             Summoners.Initialize(Origin);
+            Offensives.Initialize(Origin);
             Consumables.Initialize(Origin);
             Origin.AddToMainMenu();
 
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.PrintChat("<font color=\"#1FFF8F\">Synergy -</font> by Kurisuu");
-            Console.WriteLine("Synergy is loaded!");
 
+
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu");
+            Console.WriteLine("Oracle is loaded!");
+
+        }
+
+        private static void Game_OnGameUpdate(EventArgs args)
+        {
+            FriendlyTarget();
+            EnemyTarget();
+        }
+
+        public static Obj_AI_Hero FriendlyTarget()
+        {
+            Obj_AI_Hero target = null;
+            var allyList = from ally in ObjectManager.Get<Obj_AI_Hero>()
+                           where ally.IsAlly && ally.IsValidTarget(900, false)
+                           select ally;
+            foreach (var xe in allyList)
+            {
+                target = xe;
+            }
+
+            return target;
+        }
+
+        public static Obj_AI_Hero EnemyTarget()
+        {
+            Obj_AI_Hero target = null;
+            var enemyList = from enemy in ObjectManager.Get<Obj_AI_Hero>()
+                           where enemy.IsEnemy && enemy.IsValidTarget(900, false)
+                          select enemy;
+
+            foreach (var xe in enemyList)
+            {
+                target = xe;
+            }
+
+            return target;
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
