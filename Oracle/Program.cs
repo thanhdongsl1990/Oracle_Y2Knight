@@ -27,6 +27,8 @@ namespace Oracle
         private static void OnGameLoad(EventArgs args)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu");
 
             Origin = new Menu("Oracle", "oracle", true);
             Cleansers.Initialize(Origin);
@@ -34,20 +36,14 @@ namespace Oracle
             Summoners.Initialize(Origin);
             Offensives.Initialize(Origin);
             Consumables.Initialize(Origin);
-            Origin.AddToMainMenu();
 
-
-
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu");
-            Console.WriteLine("Oracle is loaded!");
-
+            Origin.AddToMainMenu();  
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            FriendlyTarget();
             EnemyTarget();
+            FriendlyTarget();      
         }
 
         public static Obj_AI_Hero FriendlyTarget()
