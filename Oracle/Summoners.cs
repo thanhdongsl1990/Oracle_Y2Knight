@@ -183,7 +183,6 @@ namespace Oracle
 
         private static void CheckHeal(float incdmg = 0)
         {
-            Game.PrintChat("DDD");
             var hSlot = Me.GetSpellSlot("summonerheal");
             if (hSlot == SpellSlot.Unknown)
                 return;
