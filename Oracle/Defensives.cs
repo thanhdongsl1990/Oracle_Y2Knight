@@ -17,8 +17,8 @@ namespace Oracle
 
             foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
                 Config.AddItem(new MenuItem("duseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
-
-            Main.AddSubMenu(Config);        
+            Main.AddSubMenu(Config);     
+   
             CreateMenuItem("Randuin's Omen", "Randuins", 40, 40, true);
             CreateMenuItem("Seraph's Embrace", "Seraphs", 55, 40);
             CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40);
@@ -26,7 +26,6 @@ namespace Oracle
             //CreateMenuItem("Face of the Mountain", "Mountain", 55, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 40, 40);
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
-
             Root.AddSubMenu(Main);
 
         }
@@ -63,12 +62,7 @@ namespace Oracle
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (incPercent >= 1 || incdmg >= target.Health)
-                        if (itemId == 3401)
-                            Items.UseItem(itemId, target);
-                        else
-                        {
-                            Items.UseItem(itemId);
-                        }
+                        Items.UseItem(itemId);             
                 }
 
                 if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
@@ -79,15 +73,15 @@ namespace Oracle
 
         private static void CreateMenuItem(string displayname, string name, int hpvalue, int dmgvalue, bool itemcount = false)
         {
-            Menu menuName = new Menu(displayname, name);
+            Menu menuName = new Menu(displayname, name.ToLower());
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
             menuName.AddItem(new MenuItem("use" + name + "Pct", "Use " + name + " on HP %")).SetValue(new Slider(hpvalue));
             if (!itemcount)
                 menuName.AddItem(new MenuItem("use" + name + "Dmg", "Use " + name + " on Dmg %")).SetValue(new Slider(dmgvalue));
             if (itemcount)
                 menuName.AddItem(new MenuItem("use" + name + "Count", "Use " + name + " on Count")).SetValue(new Slider(3, 1, 5));
-
             Main.AddSubMenu(menuName);
         }
+
     }
 }

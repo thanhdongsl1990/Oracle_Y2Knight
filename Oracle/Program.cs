@@ -5,18 +5,17 @@ using LeagueSharp.Common;
 
 namespace Oracle
 {
-    class Program
+    static class Program
     {
-        // _____             _     
+        //  _____             _     
         // |     |___ ___ ___| |___ 
         // |  |  |  _| .'|  _| | -_|
         // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
-        // This is not functional do not try to use just yet
 
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
-        public static double IncomeDamage, MinionDamage;
+        public static double IncomeDamage;
 
         private static void Main(string[] args)
         {
@@ -36,7 +35,7 @@ namespace Oracle
             Summoners.Initialize(Origin);
             Offensives.Initialize(Origin);
             Consumables.Initialize(Origin);
-
+            AutoShields.Initialize(Origin);
             Origin.AddToMainMenu();  
         }
 
@@ -77,7 +76,9 @@ namespace Oracle
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            IncomeDamage = 0; MinionDamage = 0;
+            if(sender.IsMe)
+                Game.PrintChat(args.SData.Name);
+            IncomeDamage = 0;
             DmgTarget = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == args.Target.NetworkId);
             if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy)
             {          
@@ -112,7 +113,7 @@ namespace Oracle
                 var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);            
                 if (args.Target.NetworkId == DmgTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
-                    MinionDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
+                    IncomeDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
                 }                        
             }
             else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)

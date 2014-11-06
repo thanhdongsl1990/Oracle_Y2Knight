@@ -87,8 +87,8 @@ namespace Oracle
         {
             Menu menuName = new Menu(displayname, name.ToLower());
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
-            menuName.AddItem(new MenuItem("use" + name + "Pct", "Use " + name + " on enemy HP %")).SetValue(new Slider(evalue));
-            menuName.AddItem(new MenuItem("use" + name + "Me", "Use " + name + " on my HP %")).SetValue(new Slider(avalue));
+            menuName.AddItem(new MenuItem("use" + name + "Pct", "Use on enemy HP %")).SetValue(new Slider(evalue));
+            menuName.AddItem(new MenuItem("use" + name + "Me", "Use  on my HP %")).SetValue(new Slider(avalue));
             Main.AddSubMenu(menuName);
 
         }
