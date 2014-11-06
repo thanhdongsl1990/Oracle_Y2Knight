@@ -15,7 +15,7 @@ namespace Oracle
         // Copyright © Kurisu Solutions 2014
 
         public static Menu Origin;
-        public static Obj_AI_Hero DmgTarget;
+        public static Obj_AI_Hero DmgTarget, EnemyTarget;
         public static double IncomeDamage, MinionDamage;
 
         private static void Main(string[] args)
@@ -42,7 +42,6 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            EnemyTarget();
             FriendlyTarget();      
         }
 
@@ -60,20 +59,6 @@ namespace Oracle
             return target;
         }
 
-        public static Obj_AI_Hero EnemyTarget()
-        {
-            Obj_AI_Hero target = null;
-            var enemyList = from enemy in ObjectManager.Get<Obj_AI_Hero>()
-                           where enemy.IsEnemy && enemy.IsValidTarget(900, false)
-                          select enemy;
-
-            foreach (var xe in enemyList)
-            {
-                target = xe;
-            }
-
-            return target;
-        }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {

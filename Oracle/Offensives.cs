@@ -8,6 +8,7 @@ namespace Oracle
     internal static class Offensives
     {
         private static Menu Main, Config;
+        private static Obj_AI_Hero Target;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu Root)
@@ -36,19 +37,20 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Program.EnemyTarget() == null)
-                return;
-
-            if (Main.Item("useCombo").GetValue<KeyBind>().Active)
+            Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
+            if (Target != null)
             {
-                UseItem("Youmuus", 3142, 450f);
-                UseItem("Tiamat", 3077, 200f);
-                UseItem("Hydra", 3074, 450f);
-                UseItem("Guardians", 2051, 450f);
-                UseItem("Hextech", 3146, 450f, true);
-                UseItem("Entropy", 3184, 450f, true);
-                UseItem("Cutlass", 3144, 450f, true);
-                UseItem("Botrk", 3153, 450f, true);
+                if (Main.Item("useCombo").GetValue<KeyBind>().Active)
+                {
+                    UseItem("Youmuus", 3142, 450f);
+                    UseItem("Tiamat", 3077, 200f);
+                    UseItem("Hydra", 3074, 450f);
+                    UseItem("Guardians", 2051, 450f);
+                    UseItem("Hextech", 3146, 450f, true);
+                    UseItem("Entropy", 3184, 450f, true);
+                    UseItem("Cutlass", 3144, 450f, true);
+                    UseItem("Botrk", 3153, 450f, true);
+                }
             }
         }
 
@@ -58,24 +60,23 @@ namespace Oracle
                 return;
             if(!Main.Item("use" + name).GetValue<bool>())
                 return;
-
-            var target = Program.EnemyTarget();
-            if (target.Distance(ObjectManager.Player.Position) <= itemRange)
+            ;
+            if (Target.Distance(ObjectManager.Player.Position) <= itemRange)
             {
-                var eHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
-                var mHealthPercent = (int) ((Me.Health/target.MaxHealth)*100);
+                var eHealthPercent = (int) ((Target.Health/Target.MaxHealth)*100);
+                var mHealthPercent = (int) ((Me.Health/Target.MaxHealth)*100);
             
-                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + target.SkinName).GetValue<bool>()) 
+                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>()) 
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId, target);
+                        Items.UseItem(itemId, Target);
                     else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                    
                 }
-                else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + target.SkinName).GetValue<bool>())
+                else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId, target);
+                        Items.UseItem(itemId, Target);
                     else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                         Items.UseItem(itemId);                      
                 }
