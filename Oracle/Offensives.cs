@@ -42,11 +42,11 @@ namespace Oracle
             {
                 if (Main.Item("useCombo").GetValue<KeyBind>().Active)
                 {
-                    UseItem("Youmuus", 3142, 450f);
-                    UseItem("Tiamat", 3077, 200f);
-                    UseItem("Hydra", 3074, 450f);
+                    UseItem("Youmuus", 3142, 650f);
+                    UseItem("Tiamat", 3077, 250f);
+                    UseItem("Hydra", 3074, 250f);
                     UseItem("Guardians", 2051, 450f);
-                    UseItem("Hextech", 3146, 450f, true);
+                    UseItem("Hextech", 3146, 700f, true);
                     UseItem("Entropy", 3184, 450f, true);
                     UseItem("Cutlass", 3144, 450f, true);
                     UseItem("Botrk", 3153, 450f, true);

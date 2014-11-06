@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -15,8 +15,29 @@ namespace Oracle
         // Copyright © Kurisu Solutions 2014
 
         public static Menu Origin;
-        public static Obj_AI_Hero DmgTarget, EnemyTarget;
+        public static Obj_AI_Hero DmgTarget;
         public static double IncomeDamage, MinionDamage;
+        public static List<String> DangerousList = new List<string>()
+        {           
+            "AzirR", 
+            "CurseoftheSadMummy",
+            "InfernalGuardian", 
+            "BrandWildfire",
+            //"CaitlynAceintheHole",
+            "CassiopeiaPetrifyingGaze",
+            "DariusExecute",
+            //"DravenRCast",
+            //"EnchantedCrystalArrow",
+            "EvelynnR",
+            //"EzrealTrueshotBarrage",
+            "GalioIdolOfDurand",
+            "GarenR",
+            "GravesChargeShot",
+            "HecarimUlt",
+            "LissandraR",
+            "LuxMaliceCannon",
+            "UFSlash",                
+        };
 
         private static void Main(string[] args)
         {
@@ -37,12 +58,23 @@ namespace Oracle
             Offensives.Initialize(Origin);
             Consumables.Initialize(Origin);
             AutoSpells.Initialize(Origin);
+
+            Origin.AddItem(new MenuItem("testdamage", "Proc Damage")).SetValue(new KeyBind(78, KeyBindType.Press));
             Origin.AddToMainMenu();  
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            FriendlyTarget();      
+            Console.WriteLine(Environment.TickCount);
+            FriendlyTarget();
+            IncomeDamage = 0;
+            DmgTarget = DmgTarget;
+
+            if (Origin.Item("testdamage").GetValue<KeyBind>().Active)
+            {
+                DmgTarget = FriendlyTarget();
+                IncomeDamage = (ObjectManager.Player.MaxHealth / 3);
+            }
         }
 
         public static Obj_AI_Hero FriendlyTarget()
@@ -58,7 +90,6 @@ namespace Oracle
 
             return target;
         }
-
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {

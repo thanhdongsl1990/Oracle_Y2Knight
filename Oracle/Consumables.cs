@@ -18,13 +18,13 @@ namespace Oracle
             RegenBiscuit.AddItem(new MenuItem("useBiscuit", "Use Biscuit")).SetValue(true);
             RegenBiscuit.AddItem(new MenuItem("bHeathPct", "Use in min HP %")).SetValue(new Slider(40, 1));
             RegenBiscuit.AddItem(new MenuItem("bManaPct", "Use in min Mana %")).SetValue(new Slider(35, 1));
-            RegenBiscuit.AddItem(new MenuItem("bHealthDmg", "Use on Damage %")).SetValue(new Slider(35, 1));
+            RegenBiscuit.AddItem(new MenuItem("bHealthDmg", "Use on Damage % taken")).SetValue(new Slider(25, 1));
             Main.AddSubMenu(RegenBiscuit);
 
             Menu HealthPotions = new Menu("Health Potions", "hpotions");
             HealthPotions.AddItem(new MenuItem("useHealth", "Use Health Potions")).SetValue(true);
             HealthPotions.AddItem(new MenuItem("useHealthPct", "Use in min HP %")).SetValue(new Slider(40, 1));
-            HealthPotions.AddItem(new MenuItem("useHealthDmg", "Use on Damage %")).SetValue(new Slider(35, 1));
+            HealthPotions.AddItem(new MenuItem("useHealthDmg", "Use on Damage % taken")).SetValue(new Slider(25, 1));
             Main.AddSubMenu(HealthPotions);
 
             Menu ManaPotions = new Menu("Mana Potions", "mpotions");
@@ -70,14 +70,15 @@ namespace Oracle
                 {
                     if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     {
-                        if (iPercent >= 2 || incdmg >= Me.Health)
+                        if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
                             if (Items.HasItem(2003) && Items.CanUseItem(2003))
                                 Items.UseItem(2003);
                     }
                 }
-                else if (iPercent >= Main.Item("useHealthDmg").GetValue<Slider>().Value)
+
+                if (iPercent >= Main.Item("useHealthDmg").GetValue<Slider>().Value)
                 {
-                    if (iPercent >= 2 || incdmg >= Me.Health)
+                    if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
                         if (Items.HasItem(2003) && Items.CanUseItem(2003))
                             Items.UseItem(2003);
                 }
@@ -89,14 +90,15 @@ namespace Oracle
                 {
                     if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     {
-                        if (iPercent >= 2 || incdmg >= Me.Health)
+                        if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
                             if (Items.HasItem(2009) && Items.CanUseItem(2009))
                                 Items.UseItem(2009);
                     }
                 }
-                else if (iPercent >= Main.Item("bHealthDmg").GetValue<Slider>().Value)
+
+                if (iPercent >= Main.Item("bHealthDmg").GetValue<Slider>().Value)
                 {
-                    if (iPercent >= 2 || incdmg >= Me.Health)
+                    if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
                         if (Items.HasItem(2003) && Items.CanUseItem(2003))
                             Items.UseItem(2003);
                 }

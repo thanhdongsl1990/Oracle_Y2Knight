@@ -23,7 +23,7 @@ namespace Oracle
             CreateMenuItem("Seraph's Embrace", "Seraphs", 55, 40);
             CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40);
             CreateMenuItem("Wooglet's Witchcap", "Wooglets", 35, 40);
-            //CreateMenuItem("Face of the Mountain", "Mountain", 55, 40);
+            CreateMenuItem("Face of the Mountain", "Mountain", 55, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 40, 40);
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
             Root.AddSubMenu(Main);
@@ -40,11 +40,11 @@ namespace Oracle
                 UseItem("Zhonyas", 3157, 450f, (float) Program.IncomeDamage);
                 UseItem("Odyns", 3180, 450f, (float) Program.IncomeDamage);
                 UseItem("Randuins", 3143, 450f, (float) Program.IncomeDamage);
-                //UseItem("Mountain", 3401, 700f, (float)Program.IncomeDamage);
+                UseItem("Mountain", 3401, 700f, (float)Program.IncomeDamage, true);
             }
         }
 
-        private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0)
+        private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0, bool targeted = false)
         {
             if (!Main.Item("use" + name).GetValue<bool>())
                 return;
@@ -55,7 +55,7 @@ namespace Oracle
             if (Program.FriendlyTarget() == null) 
                 return;
 
-            var target = Program.FriendlyTarget();
+            var target = targeted ? Program.FriendlyTarget() : ObjectManager.Player;
             if (target.Distance(ObjectManager.Player.Position) <= itemRange)
             {
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
@@ -64,11 +64,21 @@ namespace Oracle
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
                     if ((incPercent >= 1 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
-                        Items.UseItem(itemId);             
+                    {
+                        if (targeted)
+                            Items.UseItem(itemId, target);
+                        else 
+                            Items.UseItem(itemId);
+                    }
 
                 if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                    Items.UseItem(itemId);
+                {
+                    if (targeted)
+                        Items.UseItem(itemId, target);
+                    else
+                        Items.UseItem(itemId);
+                }
             }
         }
 
