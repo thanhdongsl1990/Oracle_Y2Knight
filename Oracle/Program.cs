@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -16,7 +17,7 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
         public static double IncomeDamage, MinionDamage;
-        public const int Revision = 144;
+        public const int Revision = 145;
 
         private static void Main(string[] args)
         {
@@ -28,7 +29,7 @@ namespace Oracle
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisu: r" + Revision);
+            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisu: r." + Revision);
 
             Origin = new Menu("Oracle", "oracle", true);
             Cleansers.Initialize(Origin);
@@ -128,5 +129,29 @@ namespace Oracle
             }
 
         }
+
+
+        public static List<String> OnHitEffectList = new List<string>()
+        {
+            "DariusNoxianTacticsONH", 
+            "RengarQ", 
+            "RenektonPreExecute", 
+            "JaxEmpowerTwo",
+            "JayceHyperChargeRangedAttack",
+            "MissFortuneRicochetShot",
+            "SivirW",
+            "TalonNoxianDiplomacy",
+            "Parley",
+            "YasuoQW", 
+            "NasusQ",
+            "EzrealMysticShot", 
+            "FizzPiercingStrike", 
+            "MasterYiDoubleStrike", 
+            "ShyvanaDoubleAttack", 
+            "ShyvanaDoubleAttackHitDragon", 
+            "InfiniteDuress", 
+            "IreliaGatotsu", 
+            "LucianPassiveShot"
+        };
     }
 }

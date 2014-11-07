@@ -10,6 +10,9 @@ namespace Oracle
     internal static class Defensives
     {
         private static Menu Main, Config;
+        private static string onProcessSpell;
+        private static Vector3 onProcessEnd;
+        private static Obj_AI_Hero onProcessTarget;
         public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -35,6 +38,8 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            if (Program.FriendlyTarget() == null)
+                return;
             if (Program.IncomeDamage >= 1)
             {
                 UseItem("Locket", 3190, 600f, (float) Program.IncomeDamage);
@@ -55,9 +60,6 @@ namespace Oracle
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            if (Program.FriendlyTarget() == null) 
-                return;
-
             var target = targeted ? Program.FriendlyTarget() : ObjectManager.Player;
             if (target.Distance(ObjectManager.Player.Position) <= itemRange)
             {
@@ -75,7 +77,7 @@ namespace Oracle
                             Items.UseItem(itemId);
                     }
 
-                if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
+                else if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
                 {
                     if (targeted)
@@ -84,7 +86,7 @@ namespace Oracle
                         Items.UseItem(itemId);
                 }
 
-                if (argsSpell != null && (argsTarget.Distance(target.Position) <= 400f || target.Distance(argsEnd) <= 250f))
+                if (onProcessSpell != null && (onProcessTarget.Distance(target.Position) <= 400f || target.Distance(onProcessEnd) <= 250f))
                 {
                     if (Main.Item("use" + name + "Danger").GetValue<bool>())
                     {
@@ -94,8 +96,6 @@ namespace Oracle
                             Items.UseItem(itemId);
                     }
                 }
-
-
             }
         }
 
@@ -112,18 +112,15 @@ namespace Oracle
             Main.AddSubMenu(menuName);
         }
 
-        private static string argsSpell;
-        private static Obj_AI_Hero argsTarget;
-        private static Vector3 argsEnd;
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.IsEnemy && sender.Type == ObjectManager.Player.Type)
             {
                 if (DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    argsSpell = args.SData.Name;
-                    argsEnd = args.End;
-                    argsTarget = (Obj_AI_Hero)sender;
+                    onProcessSpell = args.SData.Name;
+                    onProcessEnd = args.End;
+                    onProcessTarget = (Obj_AI_Hero)sender;
                 }
             }
         }

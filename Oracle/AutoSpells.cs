@@ -66,7 +66,7 @@ namespace Oracle
                 UseSpell("GarenW", "garenshield", (float)Program.IncomeDamage, float.MaxValue, false);
                 UseSpell("EyeOfTheStorm", "jannashield", (float)Program.IncomeDamage, 800f);
                 UseSpell("KarmaSolKimShield", "karmashield", (float)Program.IncomeDamage, 800f);
-                //UseSpell("LuxPrismaticWave", "luxshield", (float)Program.IncomeDamage, 1075f);
+                UseSpell("LuxPrismaticWave", "luxshield", (float)Program.IncomeDamage, 1075f);
                 UseSpell("NautilusPiercingGaze", "nautshield", (float)Program.IncomeDamage);
                 UseSpell("OrianaRedactCommand", "oriannashield", 1100f, (float)Program.IncomeDamage);
                 UseSpell("ShenFeint", "shenshield", (float)Program.IncomeDamage, float.MaxValue, false);
@@ -128,16 +128,38 @@ namespace Oracle
                                 pSpell.Cast(target);
                     }
 
-                    if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
+                    else if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                     {
                         if (ObjectManager.Player.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
                         if (manaPercent >= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                             pSpell.Cast(target);
+                    }           
+                    else if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value &&
+                        menuvar == "luxshield")
+                    {
+                        var pi = new PredictionInput
+                        {
+                            Aoe = true,
+                            Collision = false,
+                            Delay = 0.25f,
+                            From = ObjectManager.Player.Position,
+                            Radius = 250f,
+                            Range = 1075f,
+                            Speed = 1500f,
+                            Unit = target,
+                            Type = SkillshotType.SkillshotLine
+                        };
+                        var po = Prediction.GetPrediction(pi);
+                        if (po.Hitchance >= HitChance.Medium && !target.IsMe)
+                            pSpell.Cast(po.CastPosition);
+                        else
+                        {
+                            pSpell.Cast(Game.CursorPos);
+                        }
                     }
-
                     else if (incPercent >= Main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
-                        pSpell.Cast(target);             
+                        pSpell.Cast(target);  
                 }
             }
         }
