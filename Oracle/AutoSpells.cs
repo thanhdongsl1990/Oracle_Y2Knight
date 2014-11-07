@@ -24,7 +24,7 @@ namespace Oracle
             CreateMenuItem("EyeOfTheStorm", "Eye of the Storm", "jannashield", SpellSlot.E);
             CreateMenuItem("KarmaSolKimShield", "Inspire", "karmashield", SpellSlot.E);
             CreateMenuItem("LuluE", "Help Pix!", "lulushield", SpellSlot.E);
-            CreateMenuItem("LuxPrismaticWave", "Prismatic Barrier", "luxshield", SpellSlot.W);
+            //CreateMenuItem("LuxPrismaticWave", "Prismatic Barrier", "luxshield", SpellSlot.W);
             CreateMenuItem("NautilusPiercingGaze", "Titans Wraith", "nautshield", SpellSlot.W);
             CreateMenuItem("OrianaRedactCommand", "Command Protect", "oriannashield", SpellSlot.E);
             CreateMenuItem("ShenFeint", "Feint", "shenshield", SpellSlot.W, false);
@@ -59,14 +59,14 @@ namespace Oracle
             if (Program.IncomeDamage >= 1)
             {
                 // auto shields
-                UseSpell("BlackShield", "morgshield", (float)Program.IncomeDamage, 750f);
+                //UseSpell("BlackShield", "morgshield", (float)Program.IncomeDamage, 750f);
                 UseSpell("BraumE", "braumshield", (float)Program.IncomeDamage);
                 UseSpell("DianaOrbs", "dianashield", (float)Program.IncomeDamage);
                 UseSpell("GalioBulwark", "galioshield", (float)Program.IncomeDamage, 800f);
                 UseSpell("GarenW", "garenshield", (float)Program.IncomeDamage, float.MaxValue, false);
                 UseSpell("EyeOfTheStorm", "jannashield", (float)Program.IncomeDamage, 800f);
                 UseSpell("KarmaSolKimShield", "karmashield", (float)Program.IncomeDamage, 800f);
-                UseSpell("LuxPrismaticWave", "luxshield", (float)Program.IncomeDamage, 1075f);
+                //UseSpell("LuxPrismaticWave", "luxshield", (float)Program.IncomeDamage, 1075f);
                 UseSpell("NautilusPiercingGaze", "nautshield", (float)Program.IncomeDamage);
                 UseSpell("OrianaRedactCommand", "oriannashield", 1100f, (float)Program.IncomeDamage);
                 UseSpell("ShenFeint", "shenshield", (float)Program.IncomeDamage, float.MaxValue, false);
