@@ -37,28 +37,31 @@ namespace Oracle
             CreateMenuItem("Quicksilver Sash", "Quicksilver", 2, 2);
             CreateMenuItem("Deverish Blade", "Deverish", 2, 2);
             CreateMenuItem("Mercurial Scimitar", "Mercurial", 2, 2);
-            //CreateMenuItem("Mikael's Crucible", "Mikaels", 2, 2);
-           
+            CreateMenuItem("Mikael's Crucible", "Mikaels", 2, 2);
+                     
+
             Root.AddSubMenu(Main);
 
         }
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("Quicksilver", 3140);
-            UseItem("Mercurial", 3139);    
-            UseItem("Deverish", 3137);
-            //UseItem("Mikaels", 3222, 600f, true);
+            UseItem("Mikaels", 3222, 600f);
+            if (Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
+            {
+                UseItem("Quicksilver", 3140);
+                UseItem("Mercurial", 3139);
+                UseItem("Deverish", 3137);
+            }
+
         }
 
         private static void UseItem(string name, int itemId, float itemRange = float.MaxValue)
         {
             if (!Main.Item("use" + name).GetValue<bool>())
                 return;
-
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-
             if (Program.FriendlyTarget() == null)
                 return;
 
@@ -66,9 +69,7 @@ namespace Oracle
             if (target.Distance(ObjectManager.Player.Position) <= itemRange)
             {
                 if (BuffCount(target) >= 1)
-                {
-                    Items.UseItem(itemId);
-                }
+                    Items.UseItem(itemId, target);
             }
         }
 
@@ -77,8 +78,8 @@ namespace Oracle
             Menu menuName = new Menu(displayname, name);
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
             menuName.AddItem(new MenuItem(name + "Count", "Min spells to use")).SetValue(new Slider(ccvalue, 1, 5));
-            if (durationcount)
-                menuName.AddItem(new MenuItem(name + "Time", "Debuff durration to use")).SetValue(new Slider(timevalue, 1, 5));
+            //if (durationcount)
+            //    menuName.AddItem(new MenuItem(name + "Time", "Debuff durration to use")).SetValue(new Slider(timevalue, 1, 5));
 
             Main.AddSubMenu(menuName);
         }

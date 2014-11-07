@@ -22,16 +22,15 @@ namespace Oracle
                 Config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
 
-            CreateMenuItem("Tiamat", "Tiamat", 80, 30);
-            CreateMenuItem("Entropy", "Entropy", 80, 30);
-            CreateMenuItem("Ravenous Hydra", "Hydra", 80, 30);
+            CreateMenuItem("Tiamat", "Tiamat", 90, 30);
+            CreateMenuItem("Entropy", "Entropy", 90, 30);
+            CreateMenuItem("Ravenous Hydra", "Hydra", 90, 30);
             CreateMenuItem("Youmuu's Ghostblade", "Youmuus", 90, 30);
-            CreateMenuItem("Bilgewater's Cutlass", "Cutlass", 80, 30);
-            CreateMenuItem("Guardians Horn", "Guardians", 80, 30);
-            CreateMenuItem("Hextech Gunblade", "Hextech", 80, 30);
+            CreateMenuItem("Bilgewater's Cutlass", "Cutlass", 90, 30);
+            CreateMenuItem("Guardians Horn", "Guardians", 90, 30);
+            CreateMenuItem("Hextech Gunblade", "Hextech", 90, 30);
             CreateMenuItem("Blade of the Ruined King", "Botrk", 70, 70);
-
-            Main.AddItem(new MenuItem("useCombo", "Use Items")).SetValue(new KeyBind(32, KeyBindType.Press));    
+ 
             Root.AddSubMenu(Main);
         }
 
@@ -40,7 +39,7 @@ namespace Oracle
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
             if (Target != null)
             {
-                if (Main.Item("useCombo").GetValue<KeyBind>().Active)
+                if (Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
                     UseItem("Youmuus", 3142, 650f);
                     UseItem("Tiamat", 3077, 250f);

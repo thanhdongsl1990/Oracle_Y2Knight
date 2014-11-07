@@ -17,6 +17,49 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
         public static double IncomeDamage, MinionDamage;
+
+        private static void Main(string[] args)
+        {
+            Console.WriteLine("Oracle is loading...");
+            CustomEvents.Game.OnGameLoad += OnGameLoad;
+        }
+
+        private static void OnGameLoad(EventArgs args)
+        {
+            Game.OnGameUpdate += Game_OnGameUpdate;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu");
+
+            Origin = new Menu("Oracle", "oracle", true);
+            Cleansers.Initialize(Origin);
+            Defensives.Initialize(Origin);
+            Summoners.Initialize(Origin);
+            Offensives.Initialize(Origin);
+            Consumables.Initialize(Origin);
+            AutoSpells.Initialize(Origin);
+            Origin.AddItem(new MenuItem("ComboKey", "Combo Key").SetValue(new KeyBind(32, KeyBindType.Press)));
+            Origin.AddToMainMenu();  
+        }
+
+        private static void Game_OnGameUpdate(EventArgs args)
+        {       
+            FriendlyTarget();
+        }
+
+        public static Obj_AI_Hero FriendlyTarget()
+        {
+            Obj_AI_Hero target = null;
+            var allyList = from ally in ObjectManager.Get<Obj_AI_Hero>()
+                           where ally.IsAlly && ally.IsValidTarget(900, false)
+                           select ally;
+            foreach (var xe in allyList)
+            {
+                target = xe;
+            }
+
+            return target;
+        }
+
         public static List<String> DangerousList = new List<string>()
         {           
             "AzirR", 
@@ -39,73 +82,20 @@ namespace Oracle
             "UFSlash",                
         };
 
-        private static void Main(string[] args)
-        {
-            Console.WriteLine("Oracle is loading...");
-            CustomEvents.Game.OnGameLoad += OnGameLoad;
-        }
-
-        private static void OnGameLoad(EventArgs args)
-        {
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu");
-
-            Origin = new Menu("Oracle", "oracle", true);
-            Cleansers.Initialize(Origin);
-            Defensives.Initialize(Origin);
-            Summoners.Initialize(Origin);
-            Offensives.Initialize(Origin);
-            Consumables.Initialize(Origin);
-            AutoSpells.Initialize(Origin);
-            Origin.AddItem(new MenuItem("debugmode", "Debug mode")).SetValue(false);
-            Origin.AddItem(new MenuItem("testdamage", "Proc Damage")).SetValue(new KeyBind(78, KeyBindType.Press));
-            Origin.AddToMainMenu();  
-        }
-
-        private static void Game_OnGameUpdate(EventArgs args)
-        {
-            
-            FriendlyTarget();
-            if (Origin.Item("debugmode").GetValue<bool>())
-            {
-                Console.WriteLine(Environment.TickCount);
-                //IncomeDamage = 0;
-                //DmgTarget = DmgTarget;
-
-                //if (Origin.Item("testdamage").GetValue<KeyBind>().Active)
-                //{
-                //    DmgTarget = FriendlyTarget();
-                //    IncomeDamage = (ObjectManager.Player.MaxHealth / 3);
-                //}
-            }
-        }
-
-        public static Obj_AI_Hero FriendlyTarget()
-        {
-            Obj_AI_Hero target = null;
-            var allyList = from ally in ObjectManager.Get<Obj_AI_Hero>()
-                           where ally.IsAlly && ally.IsValidTarget(900, false)
-                           select ally;
-            foreach (var xe in allyList)
-            {
-                target = xe;
-            }
-
-            return target;
-        }
-
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             IncomeDamage = 0; MinionDamage = 0;
-            DmgTarget = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == args.Target.NetworkId);
+            DmgTarget = ObjectManager.Get<Obj_AI_Hero>()
+                .First(x => x.NetworkId == args.Target.NetworkId || args.End.Distance(x.Position) <= 450);
             if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy)
             {          
                 var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
                 var attackerslot = attacker.GetSpellSlot(args.SData.Name);
+                //Console.WriteLine("A: " + attacker.SkinName);
+                //Console.WriteLine("D: " +DmgTarget.Distance(args.End));
 
-                if (args.Target.NetworkId == DmgTarget.NetworkId  && args.Target.Type == GameObjectType.obj_AI_Hero &&
-                    attacker.Distance(DmgTarget.Position) <= 600)
+
+                if (args.Target.NetworkId == DmgTarget.NetworkId || args.End.Distance(DmgTarget.Position) <= 200)
                 {            
                     switch (attackerslot)
                     {
@@ -124,7 +114,9 @@ namespace Oracle
                         case SpellSlot.Unknown:
                             IncomeDamage = attacker.GetAutoAttackDamage(DmgTarget);
                             break;
-                    }       
+                         
+                    } 
+                    //Console.WriteLine("S: " + attackerslot);
                 }
             }
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)
@@ -147,6 +139,14 @@ namespace Oracle
                     }
                 }
             }
+            if (IncomeDamage > 0)
+            {
+                
+                //Console.WriteLine("INCDMG: " + IncomeDamage);
+                //Console.WriteLine("============");
+                //Console.WriteLine("");
+            }
+
         }
     }
 }

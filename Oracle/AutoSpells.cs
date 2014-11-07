@@ -27,13 +27,13 @@ namespace Oracle
             CreateMenuItem("LuxPrismaticWave", "Prismatic Barrier", "luxshield", SpellSlot.W);
             CreateMenuItem("NautilusPiercingGaze", "Titans Wraith", "nautshield", SpellSlot.W);
             CreateMenuItem("OrianaRedactCommand", "Command Protect", "oriannashield", SpellSlot.E);
-            CreateMenuItem("ShenFeint", "Feint", "shenshield", SpellSlot.W);
+            CreateMenuItem("ShenFeint", "Feint", "shenshield", SpellSlot.W, false);
             //CreateMenuItem("SivirE", "SpellShield", "sivirshield", SpellSlot.E);
             CreateMenuItem("MoltenShield", "Molten Shield", "annieshield", SpellSlot.E);
             CreateMenuItem("JarvanIVGoldenAegis", "Golden Aegis", "j4shield", SpellSlot.W);
-            CreateMenuItem("BlindMonkWOne", "Safegaurd", "leeshield", SpellSlot.W);
-            CreateMenuItem("RivenFeint", "Valor", "valor", SpellSlot.E);
-            CreateMenuItem("RumbleShield", "Scrap Shield", "rumbleshield", SpellSlot.W);
+            CreateMenuItem("BlindMonkWOne", "Safegaurd", "leeshield", SpellSlot.W, false);
+            CreateMenuItem("RivenFeint", "Valor", "valor", SpellSlot.E, false);
+            CreateMenuItem("RumbleShield", "Scrap Shield", "rumbleshield", SpellSlot.W, false);
             CreateMenuItem("SionW", "Soul Furnace", "sionshield", SpellSlot.W);
             CreateMenuItem("SkarnerExoskeleton", "Exoskeleton", "skarnershield", SpellSlot.W);
             CreateMenuItem("UrgotTerrorCapacitorActive2", "Terror Capacitor", "urgotshield", SpellSlot.W);
@@ -92,15 +92,12 @@ namespace Oracle
         {        
             SpellSlot pSlot = ObjectManager.Player.GetSpellSlot(sdataname);
             if (pSlot == SpellSlot.Unknown)
-                return;
-            
+                return;          
             if (pSlot != SpellSlot.Unknown && !Main.Item("use" + menuvar).GetValue<bool>())
-                return;
-            
+                return;      
             var pSpell = new Spell(pSlot, spellRange);
             if (!pSpell.IsReady())
                 return;
-
             var targeted = spellRange.ToString() != float.MaxValue.ToString();
 
             var target = targeted ? Program.FriendlyTarget() : ObjectManager.Player;
@@ -112,14 +109,17 @@ namespace Oracle
 
                 if (!Config.Item("ason" + target.SkinName).GetValue<bool>())
                     return;
+                if (Program.DmgTarget.Distance(ObjectManager.Player.Position) > pSpell.Range)
+                    return;
                 if (!ObjectManager.Player.HasBuff("Recall") && !ObjectManager.Player.HasBuff("OdynRecall") && !Utility.InFountain())
                 {
                     if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
                     {
                         if (usemana && manaPercent <= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value) 
                             return;
-                        if ((incPercent >= 1 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
-                            pSpell.Cast(target);
+                        if ((incPercent >= 1 || incdmg >= target.Health))
+                            if (Program.DmgTarget.NetworkId == target.NetworkId)
+                                pSpell.Cast(target);
                     }
                     
                     if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)

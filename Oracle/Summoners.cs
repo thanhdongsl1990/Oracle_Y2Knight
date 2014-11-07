@@ -166,12 +166,13 @@ namespace Oracle
                 return;
             if (bSlot != SpellSlot.Unknown && !Main.Item("useBarrier").GetValue<bool>()) 
                 return;
+
             if (Me.SummonerSpellbook.CanUseSpell(bSlot) == SpellState.Ready)
             {
                 var incPercent = (int) ((incdmg/Me.MaxHealth)*100);
                 var mHealthPercent = (int) ((Me.Health/Me.MaxHealth)*100);
 
-                if (mHealthPercent <= Main.Item("useBarrierPct").GetValue<Slider>().Value)
+                if (mHealthPercent <= Main.Item("useBarrierPct").GetValue<Slider>().Value && Config.Item("suseOn" + Me.SkinName).GetValue<bool>())
                     if ((incPercent >= 1 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
                         Me.SummonerSpellbook.CastSpell(bSlot, Me);
 
@@ -192,18 +193,20 @@ namespace Oracle
             {
                 var target = Program.FriendlyTarget();
                 var incPercent = (int) ((incdmg/Me.MaxHealth)*100);
-                if (target.Distance(ObjectManager.Player.Position) <= 600f)
+                if (target.Distance(ObjectManager.Player.Position) <= 500f)
                 {
-                    
                     var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                     if (aHealthPercent <= Main.Item("useHealPct").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
                     {
                         if (!Utility.InFountain() && !Me.HasBuff("Recall"))
+                        {
                             if ((incPercent >= 1 || incdmg >= target.Health))
                             {
-                                Game.PrintChat("HEAL" + target.SkinName);
                                 Me.SummonerSpellbook.CastSpell(hSlot, target);
+                                //Game.PrintChat("Healed " + target.SkinName);
                             }
+                        }
+
                     }
 
                     if (incPercent >= Main.Item("useHealDmg").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
