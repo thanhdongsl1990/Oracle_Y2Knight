@@ -2,13 +2,14 @@
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using OC = Oracle.Program;
 
 namespace Oracle
 {
     internal static class Cleansers
     {
         private static Menu Config, Main;
-        private static readonly Obj_AI_Hero Player = ObjectManager.Player;
+        private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu Root)
         {
@@ -17,7 +18,7 @@ namespace Oracle
             Main = new Menu("Cleansers", "cmenu");
             Config = new Menu("Cleanse Config", "cconfig");
 
-            foreach (var a in ObjectManager.Get<Obj_AI_Hero>().Where(a => a.Team == Player.Team))
+            foreach (var a in ObjectManager.Get<Obj_AI_Hero>().Where(a => a.Team == Me.Team))
                 Config.AddItem(new MenuItem("cuseOn" + a.SkinName, "Use for " + a.SkinName)).SetValue(true);
 
             Config.AddItem(new MenuItem("sep1", "=== Buff Types"));
@@ -34,10 +35,10 @@ namespace Oracle
             Config.AddItem(new MenuItem("poison", "Poisons")).SetValue(false);
             Main.AddSubMenu(Config);
 
-            CreateMenuItem("Quicksilver Sash", "Quicksilver", 2, 2);
-            CreateMenuItem("Deverish Blade", "Deverish", 2, 2);
-            CreateMenuItem("Mercurial Scimitar", "Mercurial", 2, 2);
-            CreateMenuItem("Mikael's Crucible", "Mikaels", 2, 2);
+            CreateMenuItem("Quicksilver Sash", "Quicksilver", 2);
+            CreateMenuItem("Deverish Blade", "Deverish", 2);
+            CreateMenuItem("Mercurial Scimitar", "Mercurial", 2);
+            CreateMenuItem("Mikael's Crucible", "Mikaels", 2);
                      
 
             Root.AddSubMenu(Main);
@@ -47,7 +48,7 @@ namespace Oracle
         public static void Game_OnGameUpdate(EventArgs args)
         {
             UseItem("Mikaels", 3222, 600f);
-            if (Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
+            if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
             {
                 UseItem("Quicksilver", 3140);
                 UseItem("Mercurial", 3139);
@@ -62,18 +63,18 @@ namespace Oracle
                 return;
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-            if (Program.FriendlyTarget() == null)
+            if (OC.FriendlyTarget() == null)
                 return;
 
-            var target = Program.FriendlyTarget();
-            if (target.Distance(ObjectManager.Player.Position) <= itemRange)
+            var target = OC.FriendlyTarget();
+            if (target.Distance(Me.Position) <= itemRange)
             {
                 if (BuffCount(target) >= 1)
                     Items.UseItem(itemId, target);
             }
         }
 
-        private static void CreateMenuItem(string displayname, string name, int ccvalue, int timevalue, bool durationcount = true)
+        private static void CreateMenuItem(string displayname, string name, int ccvalue)
         {
             Menu menuName = new Menu(displayname, name);
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
@@ -84,7 +85,7 @@ namespace Oracle
             Main.AddSubMenu(menuName);
         }
 
-        private static int BuffCount(Obj_AI_Hero unit)
+        private static int BuffCount(Obj_AI_Base unit)
         {
             int cc = 0;
 

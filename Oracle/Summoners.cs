@@ -3,6 +3,7 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using Color = System.Drawing.Color;
+using OC = Oracle.Program;
 
 namespace Oracle
 {
@@ -82,13 +83,46 @@ namespace Oracle
             Root.AddSubMenu(Main);
         }
 
-        static void Drawing_OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
-            if (Me.GetSpellSlot("summonersmite") == SpellSlot.Unknown)
+            if (Me.GetSpellSlot("summonersmite") == SpellSlot.Unknown) 
+                return;
+            if (!Main.Item("drawSmite").GetValue<bool>() || Me.IsDead) 
                 return;
 
-            if (Main.Item("drawSmite").GetValue<bool>() && !Me.IsDead)
-                Utility.DrawCircle(Me.Position, 760, Color.White, 1, 1);
+            Utility.DrawCircle(Me.Position, 760, Color.White, 1, 1);
+
+            var MinionList =
+                MinionManager.GetMinions(Me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
+            if (!MinionList.Any())
+                return;
+            foreach (Obj_AI_Base m in MinionList)
+            {
+                bool valid;
+                if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+                {
+                    valid = m.IsHPBarRendered && !m.IsDead &&
+                           (largeminions.Any(n => m.Name.Substring(0, m.Name.Length - 5).Equals(n) || 
+                                                  epicminions.Any(nx => m.Name.Substring(0, m.Name.Length - 5).Equals(nx))));
+                }
+                else
+                {
+                    valid = m.IsHPBarRendered && !m.IsDead && 
+                           (largeminions.Any(n => m.Name.StartsWith(n) ||epicminions.Any(nx => m.Name.StartsWith(nx))));
+                }
+
+                if (valid)
+                {
+                    SharpDX.Vector2 hpBarPos = m.HPBarPosition;
+                    hpBarPos.X += 44;
+                    hpBarPos.Y += 18;
+                    int smiteDmg = (int) Me.GetSummonerSpellDamage(m, Damage.SummonerSpell.Smite);
+                    var damagePercent = smiteDmg/m.MaxHealth;
+                    float hpXPos = hpBarPos.X + (63*damagePercent);
+
+                    Drawing.DrawLine(hpXPos, hpBarPos.Y, hpXPos, hpBarPos.Y + 5, 2, smiteDmg > m.Health ? Color.Lime : Color.White);
+                }
+            }
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -96,10 +130,10 @@ namespace Oracle
             CheckIgnite();
             CheckSmite();
             CheckClarity();
-            if (Program.IncomeDamage >= 1)
+            if (OC.IncomeDamage >= 1)
             {
-                CheckHeal((float) Program.IncomeDamage);
-                CheckBarrier((float) Program.IncomeDamage);
+                CheckHeal((float) OC.IncomeDamage);
+                CheckBarrier((float) OC.IncomeDamage);
             }
         }
 
@@ -143,7 +177,7 @@ namespace Oracle
                     if (target == null)
                         return;
                     
-                    if (target.Distance(ObjectManager.Player.Position) <= 600f)
+                    if (target.Distance(Me.Position) <= 600f)
                     {
                         float dmg = (Me.Level*20) + 50;
                         float regenpersec = (target.FlatHPRegenMod + (target.HPRegenRate*target.Level));
@@ -173,10 +207,10 @@ namespace Oracle
                 var mHealthPercent = (int) ((Me.Health/Me.MaxHealth)*100);
 
                 if (mHealthPercent <= Main.Item("useBarrierPct").GetValue<Slider>().Value && Config.Item("suseOn" + Me.SkinName).GetValue<bool>())
-                    if ((incPercent >= 1 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                    if ((incPercent >= 1 || incdmg >= Me.Health) && OC.LethalTarget.NetworkId == Me.NetworkId)
                         Me.SummonerSpellbook.CastSpell(bSlot, Me);
 
-                if (incPercent >= Main.Item("useBarrierDmg").GetValue<Slider>().Value)
+                else if (incPercent >= Main.Item("useBarrierDmg").GetValue<Slider>().Value)
                     Me.SummonerSpellbook.CastSpell(bSlot, Me);
             }
         }
@@ -191,9 +225,9 @@ namespace Oracle
                 return;
             if (Me.SummonerSpellbook.CanUseSpell(hSlot) == SpellState.Ready)
             {
-                var target = Program.FriendlyTarget();
+                var target = OC.FriendlyTarget();
                 var incPercent = (int) ((incdmg/Me.MaxHealth)*100);
-                if (target.Distance(ObjectManager.Player.Position) <= 500f)
+                if (target.Distance(Me.Position) <= 500f)
                 {
                     var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                     if (aHealthPercent <= Main.Item("useHealPct").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
@@ -201,13 +235,12 @@ namespace Oracle
                         if (!Utility.InFountain() && !Me.HasBuff("Recall"))
                         {
                             if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)) 
-                                && Program.DmgTarget.NetworkId == target.NetworkId)
+                                && OC.LethalTarget.NetworkId == target.NetworkId)
                                     Me.SummonerSpellbook.CastSpell(hSlot, target);
                         }
-
                     }
 
-                    if (incPercent >= Main.Item("useHealDmg").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
+                    else if (incPercent >= Main.Item("useHealDmg").GetValue<Slider>().Value && Config.Item("suseOn" + target.SkinName).GetValue<bool>())
                     {
                         if (!Utility.InFountain() && !Me.HasBuff("Recall"))
                             Me.SummonerSpellbook.CastSpell(hSlot, target);
@@ -225,8 +258,8 @@ namespace Oracle
                 return;
             if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) == SpellState.Ready)
             {
-                var target = Program.FriendlyTarget();
-                if (target.Distance(ObjectManager.Player.Position) <= 600f)
+                var target = OC.FriendlyTarget();
+                if (target.Distance(Me.Position) <= 600f)
                 {
                     var aManaPercent = (int) ((target.Mana/target.MaxMana)*100);
                     if (aManaPercent <= Main.Item("useClarityPct").GetValue<Slider>().Value
@@ -248,18 +281,7 @@ namespace Oracle
                 return;
             if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
                 return;
-
-
-            string[] smallminions = { "Wraith", "Golem", "GreatWraith", "GiantWolf" };
-            string[] epicminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline) 
-                ? new[] {"TT_Spiderboss"} 
-                : new[] { "Worm", "Dragon" };
-            string[] largeminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
-                ? new[] {"TT_NWraith", "TT_NGolem", "TT_NWolf"}
-                : new[] {"AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf"};
-
-
-            var MinionList = MinionManager.GetMinions(ObjectManager.Player.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
+            var MinionList = MinionManager.GetMinions(Me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
             if (!MinionList.Any()) 
                 return;
             foreach (var Minion in MinionList.Where(m => m.IsValidTarget(760f)))
@@ -288,5 +310,13 @@ namespace Oracle
                 }
             }
         }
+
+        private static readonly string[] smallminions = { "Wraith", "Golem", "GreatWraith", "GiantWolf" };
+        private static readonly string[] epicminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
+            ? new[] { "TT_Spiderboss" }
+            : new[] { "Worm", "Dragon" };
+        private static readonly string[] largeminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
+            ? new[] { "TT_NWraith", "TT_NGolem", "TT_NWolf" }
+            : new[] { "AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf" };
     }
 }

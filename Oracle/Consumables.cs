@@ -1,6 +1,7 @@
 ﻿using System;
 using LeagueSharp;
 using LeagueSharp.Common;
+using OC = Oracle.Program;
 
 namespace Oracle
 {
@@ -47,7 +48,7 @@ namespace Oracle
         {
             if (!Me.HasBuff("ItemCrystalFlask"))
             {
-                UseHealthPot((float)Program.IncomeDamage);
+                UseHealthPot((float)OC.IncomeDamage);
 
                 var mManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
                 if (mManaPercent <= Main.Item("useManaPct").GetValue<Slider>().Value &&
@@ -70,7 +71,7 @@ namespace Oracle
                 {
                     if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     {
-                        if ((iPercent >= 1 || incdmg >= Me.Health || Me.HasBuffOfType(BuffType.Damage)) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                        if ((iPercent >= 1 || incdmg >= Me.Health || Me.HasBuffOfType(BuffType.Damage)) && OC.LethalTarget.NetworkId == Me.NetworkId)
                             if (Items.HasItem(2003) && Items.CanUseItem(2003))
                                 Items.UseItem(2003);
                     }
@@ -78,7 +79,7 @@ namespace Oracle
 
                 if (iPercent >= Main.Item("useHealthDmg").GetValue<Slider>().Value)
                 {
-                    if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                    if ((iPercent >= 2 || incdmg >= Me.Health) && OC.LethalTarget.NetworkId == Me.NetworkId)
                         if (Items.HasItem(2003) && Items.CanUseItem(2003))
                             Items.UseItem(2003);
                 }
@@ -90,7 +91,7 @@ namespace Oracle
                 {
                     if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     {
-                        if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                        if ((iPercent >= 2 || incdmg >= Me.Health) && OC.LethalTarget.NetworkId == Me.NetworkId)
                             if (Items.HasItem(2009) && Items.CanUseItem(2009))
                                 Items.UseItem(2009);
                     }
@@ -98,7 +99,7 @@ namespace Oracle
 
                 if (iPercent >= Main.Item("bHealthDmg").GetValue<Slider>().Value)
                 {
-                    if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                    if ((iPercent >= 2 || incdmg >= Me.Health) && OC.LethalTarget.NetworkId == Me.NetworkId)
                         if (Items.HasItem(2003) && Items.CanUseItem(2003))
                             Items.UseItem(2003);
                 }

@@ -4,6 +4,7 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using OC = Oracle.Program;
 
 namespace Oracle
 {
@@ -13,6 +14,7 @@ namespace Oracle
         private static string onProcessSpell;
         private static Vector3 onProcessEnd;
         private static Obj_AI_Hero onProcessTarget;
+        private static readonly Obj_AI_Hero Me = ObjectManager.Player;
         public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -29,8 +31,8 @@ namespace Oracle
             CreateMenuItem("Seraph's Embrace", "Seraphs", 55, 40);
             CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40);
             CreateMenuItem("Wooglet's Witchcap", "Wooglets", 35, 40);
-            CreateMenuItem("Face of the Mountain", "Mountain", 55, 40);
-            CreateMenuItem("Locket of Iron Solari", "Locket", 50, 40);
+            CreateMenuItem("Face of the Mountain", "Mountain", 20, 40);
+            CreateMenuItem("Locket of Iron Solari", "Locket", 45, 40);
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
             Root.AddSubMenu(Main);
 
@@ -38,17 +40,17 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Program.FriendlyTarget() == null)
+            if (OC.FriendlyTarget() == null)
                 return;
-            if (Program.IncomeDamage >= 1)
+            if (OC.IncomeDamage >= 1)
             {
-                UseItem("Locket", 3190, 600f, (float) Program.IncomeDamage);
-                UseItem("Seraphs", 3048, 450f, (float) Program.IncomeDamage);
-                UseItem("Wooglets", 3090, 450f, (float) Program.IncomeDamage);
-                UseItem("Zhonyas", 3157, 450f, (float) Program.IncomeDamage);
-                UseItem("Odyns", 3180, 450f, (float) Program.IncomeDamage);
-                UseItem("Randuins", 3143, 450f, (float) Program.IncomeDamage);
-                UseItem("Mountain", 3401, 700f, (float)Program.IncomeDamage, true);
+                UseItem("Locket", 3190, 600f, (float) OC.IncomeDamage);
+                UseItem("Seraphs", 3048, 450f, (float) OC.IncomeDamage);
+                UseItem("Wooglets", 3090, 450f, (float) OC.IncomeDamage);
+                UseItem("Zhonyas", 3157, 450f, (float) OC.IncomeDamage);
+                UseItem("Odyns", 3180, 450f, (float) OC.IncomeDamage);
+                UseItem("Randuins", 3143, 450f, (float) OC.IncomeDamage);
+                UseItem("Mountain", 3401, 700f, (float)OC.IncomeDamage, true);
             }
         }
 
@@ -60,8 +62,8 @@ namespace Oracle
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            var target = targeted ? Program.FriendlyTarget() : ObjectManager.Player;
-            if (target.Distance(ObjectManager.Player.Position) <= itemRange)
+            var target = targeted ? OC.FriendlyTarget() : Me;
+            if (target.Distance(Me.Position) <= itemRange)
             {
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                 var incPercent = (int) (incdmg/target.MaxHealth*100);
@@ -69,7 +71,7 @@ namespace Oracle
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
                     if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) 
-                        && Program.DmgTarget.NetworkId == target.NetworkId))
+                        && OC.LethalTarget.NetworkId == target.NetworkId))
                     {
                         if (targeted)
                             Items.UseItem(itemId, target);
@@ -114,7 +116,7 @@ namespace Oracle
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsEnemy && sender.Type == ObjectManager.Player.Type)
+            if (sender.IsEnemy && sender.Type == Me.Type)
             {
                 if (DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {

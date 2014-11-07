@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -15,9 +14,9 @@ namespace Oracle
         // Copyright © Kurisu Solutions 2014
 
         public static Menu Origin;
-        public static Obj_AI_Hero DmgTarget;
+        public static Obj_AI_Hero LethalTarget;
         public static double IncomeDamage, MinionDamage;
-        public const int Revision = 145;
+        public const int Revision = 146;
 
         private static void Main(string[] args)
         {
@@ -64,7 +63,7 @@ namespace Oracle
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             IncomeDamage = 0; MinionDamage = 0;
-            DmgTarget = ObjectManager.Get<Obj_AI_Hero>()
+            LethalTarget = ObjectManager.Get<Obj_AI_Hero>()
                 .First(x => (x.NetworkId == args.Target.NetworkId || args.End.Distance(x.Position) <= 350) 
                     && x.IsValidTarget(float.MaxValue, false) && x.IsAlly);
 
@@ -76,24 +75,24 @@ namespace Oracle
                 //Console.WriteLine("D: " +DmgTarget.Distance(args.End));
 
 
-                if (args.Target.NetworkId == DmgTarget.NetworkId || args.End.Distance(DmgTarget.Position) <= 200)
+                if (args.Target.NetworkId == LethalTarget.NetworkId || args.End.Distance(LethalTarget.Position) <= 200)
                 {            
                     switch (attackerslot)
                     {
                         case SpellSlot.Q:
-                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.Q);
+                            IncomeDamage = attacker.GetSpellDamage(LethalTarget, SpellSlot.Q);
                             break;
                         case SpellSlot.W:
-                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.W);
+                            IncomeDamage = attacker.GetSpellDamage(LethalTarget, SpellSlot.W);
                             break;
                         case SpellSlot.E:
-                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.E);
+                            IncomeDamage = attacker.GetSpellDamage(LethalTarget, SpellSlot.E);
                             break;
                         case SpellSlot.R:
-                            IncomeDamage = attacker.GetSpellDamage(DmgTarget, SpellSlot.R);
+                            IncomeDamage = attacker.GetSpellDamage(LethalTarget, SpellSlot.R);
                             break;
                         case SpellSlot.Unknown:
-                            IncomeDamage = attacker.GetAutoAttackDamage(DmgTarget);
+                            IncomeDamage = attacker.GetAutoAttackDamage(LethalTarget);
                             break;
                          
                     } 
@@ -103,20 +102,20 @@ namespace Oracle
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)
             {
                 var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);            
-                if (args.Target.NetworkId == DmgTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
+                if (args.Target.NetworkId == LethalTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
-                    MinionDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
+                    MinionDamage = attacker.CalcDamage(LethalTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
                 }                        
             }
             else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)
             {
                
                 var attacker = ObjectManager.Get<Obj_AI_Turret>().First(x => x.NetworkId == sender.NetworkId);
-                if (args.Target.NetworkId == DmgTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
+                if (args.Target.NetworkId == LethalTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
                     if (attacker.Distance(ObjectManager.Player.Position) <= 900)
                     {
-                        IncomeDamage = attacker.CalcDamage(DmgTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
+                        IncomeDamage = attacker.CalcDamage(LethalTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
                     }
                 }
             }
@@ -129,29 +128,5 @@ namespace Oracle
             }
 
         }
-
-
-        public static List<String> OnHitEffectList = new List<string>()
-        {
-            "DariusNoxianTacticsONH", 
-            "RengarQ", 
-            "RenektonPreExecute", 
-            "JaxEmpowerTwo",
-            "JayceHyperChargeRangedAttack",
-            "MissFortuneRicochetShot",
-            "SivirW",
-            "TalonNoxianDiplomacy",
-            "Parley",
-            "YasuoQW", 
-            "NasusQ",
-            "EzrealMysticShot", 
-            "FizzPiercingStrike", 
-            "MasterYiDoubleStrike", 
-            "ShyvanaDoubleAttack", 
-            "ShyvanaDoubleAttackHitDragon", 
-            "InfiniteDuress", 
-            "IreliaGatotsu", 
-            "LucianPassiveShot"
-        };
     }
 }

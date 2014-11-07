@@ -2,12 +2,14 @@
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using OC = Oracle.Program;
 
 namespace Oracle
 {
     internal static class AutoSpells
     {
         private static Menu Main, Config;
+        private static Obj_AI_Hero Me = ObjectManager.Player;
         public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate; 
@@ -54,32 +56,32 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Program.FriendlyTarget() == null)
+            if (OC.FriendlyTarget() == null)
                 return;
-            if (Program.IncomeDamage >= 1)
+            if (OC.IncomeDamage >= 1)
             {
                 // auto shields
-                //UseSpell("BlackShield", "morgshield", (float)Program.IncomeDamage, 750f);
-                UseSpell("BraumE", "braumshield", (float)Program.IncomeDamage);
-                UseSpell("DianaOrbs", "dianashield", (float)Program.IncomeDamage);
-                UseSpell("GalioBulwark", "galioshield", (float)Program.IncomeDamage, 800f);
-                UseSpell("GarenW", "garenshield", (float)Program.IncomeDamage, float.MaxValue, false);
-                UseSpell("EyeOfTheStorm", "jannashield", (float)Program.IncomeDamage, 800f);
-                UseSpell("KarmaSolKimShield", "karmashield", (float)Program.IncomeDamage, 800f);
-                UseSpell("LuxPrismaticWave", "luxshield", (float)Program.IncomeDamage, 1075f);
-                UseSpell("NautilusPiercingGaze", "nautshield", (float)Program.IncomeDamage);
-                UseSpell("OrianaRedactCommand", "oriannashield", 1100f, (float)Program.IncomeDamage);
-                UseSpell("ShenFeint", "shenshield", (float)Program.IncomeDamage, float.MaxValue, false);
-                UseSpell("JarvanIVGoldenAegis", "j4shield", (float)Program.IncomeDamage);
-                UseSpell("BlindMonkWOne", "leeshield", (float)Program.IncomeDamage, 700f, false);
-                UseSpell("RivenFeint", "rivenshield", (float)Program.IncomeDamage, float.MaxValue, false);
-                UseSpell("RumbleShield", "rumbleshield", (float)Program.IncomeDamage);
-                UseSpell("SionW", "sionshield", (float)Program.IncomeDamage);
-                UseSpell("SkarnerExoskeleton", "skarnershield", (float)Program.IncomeDamage);
-                UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", (float)Program.IncomeDamage);
-                UseSpell("MoltenShield", "annieshield", (float)Program.IncomeDamage);
-                UseSpell("Obduracy", "malphshield", (float)Program.IncomeDamage);
-                UseSpell("DefensiveBallCurl", "rammusshield", (float)Program.IncomeDamage);
+                //UseSpell("BlackShield", "morgshield", (float)OC.IncomeDamage, 750f);
+                UseSpell("BraumE", "braumshield", (float)OC.IncomeDamage);
+                UseSpell("DianaOrbs", "dianashield", (float)OC.IncomeDamage);
+                UseSpell("GalioBulwark", "galioshield", (float)OC.IncomeDamage, 800f);
+                UseSpell("GarenW", "garenshield", (float)OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("EyeOfTheStorm", "jannashield", (float)OC.IncomeDamage, 800f);
+                UseSpell("KarmaSolKimShield", "karmashield", (float)OC.IncomeDamage, 800f);
+                UseSpell("LuxPrismaticWave", "luxshield", (float)OC.IncomeDamage, 1075f);
+                UseSpell("NautilusPiercingGaze", "nautshield", (float)OC.IncomeDamage);
+                UseSpell("OrianaRedactCommand", "oriannashield", 1100f, (float)OC.IncomeDamage);
+                UseSpell("ShenFeint", "shenshield", (float)OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("JarvanIVGoldenAegis", "j4shield", (float)OC.IncomeDamage);
+                UseSpell("BlindMonkWOne", "leeshield", (float)OC.IncomeDamage, 700f, false);
+                UseSpell("RivenFeint", "rivenshield", (float)OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("RumbleShield", "rumbleshield", (float)OC.IncomeDamage);
+                UseSpell("SionW", "sionshield", (float)OC.IncomeDamage);
+                UseSpell("SkarnerExoskeleton", "skarnershield", (float)OC.IncomeDamage);
+                UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", (float)OC.IncomeDamage);
+                UseSpell("MoltenShield", "annieshield", (float)OC.IncomeDamage);
+                UseSpell("Obduracy", "malphshield", (float)OC.IncomeDamage);
+                UseSpell("DefensiveBallCurl", "rammusshield", (float)OC.IncomeDamage);
             }
             // auto heals
             UseSpell("TriumphantRoar", "troar", 0, 575f, true, true);
@@ -94,7 +96,7 @@ namespace Oracle
 
         private static void UseSpell(string sdataname, string menuvar, float incdmg, float spellRange = float.MaxValue, bool usemana = true, bool isheal = false)
         {        
-            SpellSlot pSlot = ObjectManager.Player.GetSpellSlot(sdataname);
+            SpellSlot pSlot = Me.GetSpellSlot(sdataname);
             if (pSlot == SpellSlot.Unknown)
                 return;          
             if (pSlot != SpellSlot.Unknown && !Main.Item("use" + menuvar).GetValue<bool>())
@@ -104,33 +106,33 @@ namespace Oracle
                 return;
             var targeted = spellRange.ToString() != float.MaxValue.ToString();
 
-            var target = targeted ? Program.FriendlyTarget() : ObjectManager.Player;
-            if (target.Distance(ObjectManager.Player.Position) <= spellRange)
+            var target = targeted ? OC.FriendlyTarget() : Me;
+            if (target.Distance(Me.Position) <= spellRange)
             {
-                var manaPercent = (int) ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100);
+                var manaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                 var incPercent = (int) ((incdmg/target.MaxHealth)*100);
 
                 if (!Config.Item("ason" + target.SkinName).GetValue<bool>())
                     return;
-                if (Program.DmgTarget.Distance(ObjectManager.Player.Position) > pSpell.Range)
+                if (OC.LethalTarget.Distance(Me.Position) > pSpell.Range)
                     return;
-                if (!ObjectManager.Player.HasBuff("Recall") && !ObjectManager.Player.HasBuff("OdynRecall") && !Utility.InFountain())
+                if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
                 {
                     if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
                     {
                         if (usemana && manaPercent <= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value) 
                             return;
-                        if (ObjectManager.Player.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
+                        if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
                         if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)  && 
-                            Program.DmgTarget.NetworkId == target.NetworkId))
+                            OC.LethalTarget.NetworkId == target.NetworkId))
                                 pSpell.Cast(target);
                     }
 
                     else if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                     {
-                        if (ObjectManager.Player.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
+                        if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
                         if (manaPercent >= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                             pSpell.Cast(target);
@@ -143,7 +145,7 @@ namespace Oracle
                             Aoe = true,
                             Collision = false,
                             Delay = 0.25f,
-                            From = ObjectManager.Player.Position,
+                            From = Me.Position,
                             Radius = 250f,
                             Range = 1075f,
                             Speed = 1500f,
@@ -166,7 +168,7 @@ namespace Oracle
 
         private static void CreateMenuItem(string sdataname, string displayname, string menuvar, SpellSlot slot, bool usemana = true)
         {
-            var champslot = ObjectManager.Player.GetSpellSlot(sdataname);
+            var champslot = Me.GetSpellSlot(sdataname);
             if (champslot != SpellSlot.Unknown && champslot == slot)
             {
                 foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
@@ -176,7 +178,7 @@ namespace Oracle
                 menuName.AddItem(new MenuItem("use" + menuvar, "Enable " + displayname)).SetValue(true);
                 menuName.AddItem(new MenuItem("use" + menuvar + "Pct", "Use spell on HP %")).SetValue(new Slider(90));
                 menuName.AddItem(new MenuItem("use" + menuvar + "Dmg", "Use spell on Dmg %")).SetValue(new Slider(45));
-                if (ObjectManager.Player.SkinName == "Soraka")
+                if (Me.SkinName == "Soraka")
                     menuName.AddItem(new MenuItem("useSorakaMana", "Minimum HP % to use")).SetValue(new Slider(35));
                 if (usemana)
                     menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Minimum mana % to use")).SetValue(new Slider(45));
