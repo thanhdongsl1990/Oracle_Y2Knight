@@ -24,7 +24,7 @@ namespace Oracle
             CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40);
             CreateMenuItem("Wooglet's Witchcap", "Wooglets", 35, 40);
             CreateMenuItem("Face of the Mountain", "Mountain", 55, 40);
-            CreateMenuItem("Locket of Iron Solari", "Locket", 40, 40);
+            CreateMenuItem("Locket of Iron Solari", "Locket", 50, 40);
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
             Root.AddSubMenu(Main);
 
