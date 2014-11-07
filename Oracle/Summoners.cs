@@ -251,27 +251,24 @@ namespace Oracle
             if (Me.SummonerSpellbook.CanUseSpell(SpellSlot) != SpellState.Ready)
                 return;
 
-            string[] epicminions =
-            {
-                "Worm", "Dragon"
-            };
 
-            string[] smallminions =
-            {
-                "Wraith", "Golem", "GreatWraith", "GiantWolf"
-            };
+            string[] smallminions = { "Wraith", "Golem", "GreatWraith", "GiantWolf" };
+            string[] epicminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline) 
+                ? new[] {"TT_Spiderboss"} 
+                : new[] { "Worm", "Dragon" };
+            string[] largeminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
+                ? new[] {"TT_NWraith", "TT_NGolem", "TT_NWolf"}
+                : new[] {"AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf"};
 
-            string[] largeminions =
-            {
-                "AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf"
-            };
 
-            var MinionList = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.IsValidTarget(760));
-            foreach (var Minion in MinionList)
+            var MinionList = MinionManager.GetMinions(ObjectManager.Player.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
+            if (!MinionList.Any()) 
+                return;
+            foreach (var Minion in MinionList.Where(m => m.IsValidTarget(760f)))
             {
                 if (largeminions.Any(name => Minion.Name.StartsWith(name)))
                 {
-                    if (Minion.Health < Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
+                    if (Minion.Health <= Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                     {
                         if (Main.Item("smiteLarge").GetValue<bool>())
                             Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
@@ -280,14 +277,14 @@ namespace Oracle
 
                 else if (smallminions.Any(name => Minion.Name.StartsWith(name)))
                 {
-                    if (Minion.Health < Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
+                    if (Minion.Health <= Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                         if (Main.Item("smiteSmall").GetValue<bool>())
                             Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
                 }
 
                 else if (epicminions.Any(name => Minion.Name.StartsWith(name)))
                 {
-                    if (Minion.Health < Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
+                    if (Minion.Health <= Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                         if (Main.Item("smiteEpic").GetValue<bool>())
                             Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
                 }

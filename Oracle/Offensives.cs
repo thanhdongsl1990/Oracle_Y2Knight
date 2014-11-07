@@ -13,6 +13,8 @@ namespace Oracle
 
         public static void Initialize(Menu Root)
         {
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            Obj_AI_Base.OnPlayAnimation += Obj_AI_Base_OnPlayAnimation;
             Game.OnGameUpdate += Game_OnGameUpdate;
          
             Main = new Menu("Offensives", "omenu");
@@ -22,6 +24,7 @@ namespace Oracle
                 Config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
 
+            CreateMenuItem("Muramana", "Muramana", 90, 30, true);
             CreateMenuItem("Tiamat", "Tiamat", 90, 30);
             CreateMenuItem("Entropy", "Entropy", 90, 30);
             CreateMenuItem("Ravenous Hydra", "Hydra", 90, 30);
@@ -35,10 +38,52 @@ namespace Oracle
             Root.AddSubMenu(Main);
         }
 
+        private static void Obj_AI_Base_OnPlayAnimation(GameObject sender, GameObjectPlayAnimationEventArgs args)
+        {
+            if (!sender.IsMe) 
+                return;
+            var mmslot = ObjectManager.Player.GetSpellSlot("Muramana");
+            if (mmslot != SpellSlot.Unknown)
+            {
+                if (Target == null) 
+                    return;
+                if (Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
+                {
+                    var manaPercent = (int) ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100);
+                    if (args.Animation.Contains("Attack"))
+                    {
+                        if (ObjectManager.Player.Spellbook.CanUseSpell(mmslot) == SpellState.Unknown)
+                            return;
+                        if (!ObjectManager.Player.HasBuff("Muramana") && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
+                            if (manaPercent > Main.Item("useMuramanaMana").GetValue<Slider>().Value)
+                                ObjectManager.Player.Spellbook.CastSpell(mmslot);
+                    }
+                }
+            }
+        }
+
+        private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            Utility.DelayAction.Add(1000, delegate
+            {
+                if (!unit.IsMe)
+                    return;
+                var mmslot = ObjectManager.Player.GetSpellSlot("Muramana");
+                if (mmslot != SpellSlot.Unknown)
+                {
+                    if (ObjectManager.Player.Spellbook.CanUseSpell(mmslot) == SpellState.Unknown)
+                        return;
+                    if (ObjectManager.Player.HasBuff("Muramana"))
+                        ObjectManager.Player.Spellbook.CastSpell(mmslot);
+                }
+            });
+        }
+
+
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
-
             if (Target != null)
             {
                 UseItem("Frostclaim", 3092, 850f);
@@ -57,13 +102,13 @@ namespace Oracle
             }
         }
 
+
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
             if(!Main.Item("use" + name).GetValue<bool>())
                 return;
-            ;
             if (Target.Distance(ObjectManager.Player.Position) <= itemRange)
             {
                 var eHealthPercent = (int) ((Target.Health/Target.MaxHealth)*100);
@@ -94,6 +139,10 @@ namespace Oracle
                         if (po.Hitchance >= HitChance.Medium)
                             Items.UseItem(itemId, po.CastPosition);
                     }
+                    else if (itemId == 3042)
+                    {
+                        
+                    }
                 }
                 else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
                 {
@@ -105,12 +154,15 @@ namespace Oracle
             }
         }
 
-        private static void CreateMenuItem(string displayname, string name, int evalue, int avalue)
+        private static void CreateMenuItem(string displayname, string name, int evalue, int avalue, bool usemana = false)
         {
             Menu menuName = new Menu(displayname, name.ToLower());
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
             menuName.AddItem(new MenuItem("use" + name + "Pct", "Use on enemy HP %")).SetValue(new Slider(evalue));
-            menuName.AddItem(new MenuItem("use" + name + "Me", "Use  on my HP %")).SetValue(new Slider(avalue));
+            if (!usemana)
+                menuName.AddItem(new MenuItem("use" + name + "Me", "Use  on my HP %")).SetValue(new Slider(avalue));
+            if (usemana)
+                menuName.AddItem(new MenuItem("use" + name + "Mana", "Minimum mana % to use")).SetValue(35);
             Main.AddSubMenu(menuName);
         }
     }
