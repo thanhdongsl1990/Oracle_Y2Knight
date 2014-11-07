@@ -17,6 +17,7 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
         public static double IncomeDamage, MinionDamage;
+        public const int Revision = 140;
 
         private static void Main(string[] args)
         {
@@ -28,7 +29,7 @@ namespace Oracle
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu");
+            Game.PrintChat("<font color=\"#1FFF8F\">Oracle -</font> by Kurisuu: r" + Revision);
 
             Origin = new Menu("Oracle", "oracle", true);
             Cleansers.Initialize(Origin);
