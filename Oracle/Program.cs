@@ -43,7 +43,7 @@ namespace Oracle
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
-        {       
+        {
             FriendlyTarget();
         }
 
@@ -87,7 +87,7 @@ namespace Oracle
         {
             IncomeDamage = 0; MinionDamage = 0;
             DmgTarget = ObjectManager.Get<Obj_AI_Hero>()
-                .First(x => (x.NetworkId == args.Target.NetworkId || args.End.Distance(x.Position) <= 350) && x.IsValidTarget(900, false) && x.IsAlly);
+                .First(x => (x.NetworkId == args.Target.NetworkId || args.End.Distance(x.Position) <= 350) && x.IsValidTarget(float.MaxValue, false) && x.IsAlly);
             if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy)
             {          
                 var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
