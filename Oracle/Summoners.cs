@@ -93,8 +93,6 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            Console.WriteLine("DD");
-            Console.WriteLine(Program.DmgTarget.SkinName);
             CheckIgnite();
             CheckSmite();
             CheckClarity();

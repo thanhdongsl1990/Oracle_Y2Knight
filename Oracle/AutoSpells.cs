@@ -37,6 +37,7 @@ namespace Oracle
             CreateMenuItem("SionW", "Soul Furnace", "sionshield", SpellSlot.W);
             CreateMenuItem("SkarnerExoskeleton", "Exoskeleton", "skarnershield", SpellSlot.W);
             CreateMenuItem("UrgotTerrorCapacitorActive2", "Terror Capacitor", "urgotshield", SpellSlot.W);
+            CreateMenuItem("Obduracy", "Brutal Strikes", "malphshield", SpellSlot.W);
             // auto heals
             CreateMenuItem("TriumphantRoar", "Triumphant Roar", "troar", SpellSlot.E);
             CreateMenuItem("PrimalSurge", "Primal Surge", "psurge", SpellSlot.E);
@@ -76,6 +77,7 @@ namespace Oracle
                 UseSpell("SkarnerExoskeleton", "skarnershield", (float)Program.IncomeDamage);
                 UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", (float)Program.IncomeDamage);
                 UseSpell("MoltenShield", "annieshield", (float)Program.IncomeDamage);
+                UseSpell("Obduracy", "malphshield", (float)Program.IncomeDamage);
             }
             // auto heals
             UseSpell("TriumphantRoar", "troar", 0, 575f, true, true);

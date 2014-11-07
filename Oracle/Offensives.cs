@@ -30,6 +30,7 @@ namespace Oracle
             CreateMenuItem("Guardians Horn", "Guardians", 90, 30);
             CreateMenuItem("Hextech Gunblade", "Hextech", 90, 30);
             CreateMenuItem("Blade of the Ruined King", "Botrk", 70, 70);
+            CreateMenuItem("Frost Queen's Claim", "Frostclaim", 90, 30);
  
             Root.AddSubMenu(Main);
         }
@@ -38,8 +39,10 @@ namespace Oracle
         {
             Console.WriteLine(Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active);
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
+
             if (Target != null)
             {
+                UseItem("Frostclaim", 3092, 850f);
                 if (Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
                     UseItem("Youmuus", 3142, 650f);
@@ -50,6 +53,7 @@ namespace Oracle
                     UseItem("Entropy", 3184, 450f, true);
                     UseItem("Cutlass", 3144, 450f, true);
                     UseItem("Botrk", 3153, 450f, true);
+
                 }
             }
         }
@@ -68,10 +72,29 @@ namespace Oracle
             
                 if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>()) 
                 {
-                    if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                    if (targeted)
                         Items.UseItem(itemId, Target);
-                    else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId);                    
+                    else 
+                        Items.UseItem(itemId);
+
+                    if (itemId == 3092)
+                    {
+                        var pi = new PredictionInput
+                        {
+                            Aoe = true,
+                            Collision = false,
+                            Delay = 0.0f,
+                            From = ObjectManager.Player.Position,
+                            Radius = 250f,
+                            Range = 850f,
+                            Speed = 1500f,
+                            Unit = Target,
+                            Type = SkillshotType.SkillshotCircle
+                        };
+                        var po = Prediction.GetPrediction(pi);
+                        if (po.Hitchance >= HitChance.Medium)
+                            Items.UseItem(itemId, po.CastPosition);
+                    }
                 }
                 else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
                 {
@@ -90,7 +113,6 @@ namespace Oracle
             menuName.AddItem(new MenuItem("use" + name + "Pct", "Use on enemy HP %")).SetValue(new Slider(evalue));
             menuName.AddItem(new MenuItem("use" + name + "Me", "Use  on my HP %")).SetValue(new Slider(avalue));
             Main.AddSubMenu(menuName);
-
         }
     }
 }
