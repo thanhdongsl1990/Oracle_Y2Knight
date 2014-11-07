@@ -139,10 +139,6 @@ namespace Oracle
                         if (po.Hitchance >= HitChance.Medium)
                             Items.UseItem(itemId, po.CastPosition);
                     }
-                    else if (itemId == 3042)
-                    {
-                        
-                    }
                 }
                 else if (mHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
                 {
