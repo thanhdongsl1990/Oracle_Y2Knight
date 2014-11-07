@@ -12,6 +12,13 @@ namespace Oracle
         private static Menu Main;
         private static Menu Config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
+        private static readonly string[] smallminions = { "Wraith", "Golem", "GreatWraith", "GiantWolf" };
+        private static readonly string[] epicminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
+            ? new[] { "TT_Spiderboss" }
+            : new[] { "Worm", "Dragon" };
+        private static readonly string[] largeminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
+            ? new[] { "TT_NWraith", "TT_NGolem", "TT_NWolf" }
+            : new[] { "AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf" };
 
         public static void Initialize(Menu Root)
         {
@@ -310,13 +317,5 @@ namespace Oracle
                 }
             }
         }
-
-        private static readonly string[] smallminions = { "Wraith", "Golem", "GreatWraith", "GiantWolf" };
-        private static readonly string[] epicminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
-            ? new[] { "TT_Spiderboss" }
-            : new[] { "Worm", "Dragon" };
-        private static readonly string[] largeminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
-            ? new[] { "TT_NWraith", "TT_NGolem", "TT_NWolf" }
-            : new[] { "AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf" };
     }
 }

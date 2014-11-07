@@ -44,17 +44,6 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Main.Item("useMuramana").GetValue<bool>())
-            {
-                if (Me.HasBuff("Muramana") && CastTime + 400 < Environment.TickCount)
-                {
-                    var mmslot = Me.GetSpellSlot("Muramana");
-                    if (mmslot != SpellSlot.Unknown)
-                    {
-                        Me.Spellbook.CastSpell(mmslot);
-                    }
-                }
-            }
 
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
             if (Target != null)
@@ -72,8 +61,17 @@ namespace Oracle
                     UseItem("Botrk", 3153, 450f, true);
                 }
             }
-        }
 
+            if (Main.Item("useMuramana").GetValue<bool>())
+            {
+                var mmslot = Me.GetSpellSlot("Muramana");
+                if (mmslot != SpellSlot.Unknown)
+                {
+                    if (Me.HasBuff("Muramana") && CastTime + 400 < Environment.TickCount)
+                        Me.Spellbook.CastSpell(mmslot);
+                }
+            }
+        }
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
