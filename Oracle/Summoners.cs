@@ -200,7 +200,7 @@ namespace Oracle
                     {
                         if (!Utility.InFountain() && !Me.HasBuff("Recall"))
                         {
-                            if ((incPercent >= 1 || incdmg >= target.Health))
+                            if ((incPercent >= 1 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
                             {
                                 Me.SummonerSpellbook.CastSpell(hSlot, target);
                                 //Game.PrintChat("Healed " + target.SkinName);

@@ -36,6 +36,7 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            Console.WriteLine(Program.Origin.Item("ComboKey").GetValue<KeyBind>().Active);
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
             if (Target != null)
             {
