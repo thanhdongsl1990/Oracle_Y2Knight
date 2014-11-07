@@ -24,7 +24,7 @@ namespace Oracle
             CreateMenuItem("EyeOfTheStorm", "Eye of the Storm", "jannashield", SpellSlot.E);
             CreateMenuItem("KarmaSolKimShield", "Inspire", "karmashield", SpellSlot.E);
             CreateMenuItem("LuluE", "Help Pix!", "lulushield", SpellSlot.E);
-            //CreateMenuItem("LuxPrismaticWave", "Prismatic Barrier", "luxshield", SpellSlot.W);
+            CreateMenuItem("LuxPrismaticWave", "Prismatic Barrier", "luxshield", SpellSlot.W);
             CreateMenuItem("NautilusPiercingGaze", "Titans Wraith", "nautshield", SpellSlot.W);
             CreateMenuItem("OrianaRedactCommand", "Command Protect", "oriannashield", SpellSlot.E);
             CreateMenuItem("ShenFeint", "Feint", "shenshield", SpellSlot.W, false);
