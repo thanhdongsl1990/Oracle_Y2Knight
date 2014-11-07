@@ -38,6 +38,7 @@ namespace Oracle
             CreateMenuItem("SkarnerExoskeleton", "Exoskeleton", "skarnershield", SpellSlot.W);
             CreateMenuItem("UrgotTerrorCapacitorActive2", "Terror Capacitor", "urgotshield", SpellSlot.W);
             CreateMenuItem("Obduracy", "Brutal Strikes", "malphshield", SpellSlot.W);
+            CreateMenuItem("DefensiveBallCurl", "Defensive Ball Curl", "rammusshield", SpellSlot.W);
             // auto heals
             CreateMenuItem("TriumphantRoar", "Triumphant Roar", "troar", SpellSlot.E);
             CreateMenuItem("PrimalSurge", "Primal Surge", "psurge", SpellSlot.E);
@@ -78,6 +79,7 @@ namespace Oracle
                 UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", (float)Program.IncomeDamage);
                 UseSpell("MoltenShield", "annieshield", (float)Program.IncomeDamage);
                 UseSpell("Obduracy", "malphshield", (float)Program.IncomeDamage);
+                UseSpell("DefensiveBallCurl", "rammusshield", (float)Program.IncomeDamage);
             }
             // auto heals
             UseSpell("TriumphantRoar", "troar", 0, 575f, true, true);
@@ -119,11 +121,11 @@ namespace Oracle
                     {
                         if (usemana && manaPercent <= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value) 
                             return;
-                        if ((incPercent >= 1 || incdmg >= target.Health))
-                            if (Program.DmgTarget.NetworkId == target.NetworkId)
+                        if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)) && 
+                            Program.DmgTarget.NetworkId == target.NetworkId) 
                                 pSpell.Cast(target);
                     }
-                    
+
                     if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                     {
                         if (manaPercent >= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 namespace Oracle
 {
@@ -11,6 +13,7 @@ namespace Oracle
         public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
          
             Main = new Menu("Defensives", "dmenu");
             Config = new Menu("Defensive Config", "dconfig");
@@ -29,8 +32,8 @@ namespace Oracle
             Root.AddSubMenu(Main);
 
         }
-   
-        public static void Game_OnGameUpdate(EventArgs args)
+
+        private static void Game_OnGameUpdate(EventArgs args)
         {
             if (Program.IncomeDamage >= 1)
             {
@@ -63,7 +66,7 @@ namespace Oracle
 
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                    if ((incPercent >= 1 || incdmg >= target.Health) && Program.DmgTarget.NetworkId == target.NetworkId)
+                    if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)) && Program.DmgTarget.NetworkId == target.NetworkId)
                     {
                         if (targeted)
                             Items.UseItem(itemId, target);
@@ -79,6 +82,19 @@ namespace Oracle
                     else
                         Items.UseItem(itemId);
                 }
+
+                if (argsSpell != null && (argsTarget.Distance(target.Position) <= 400f || target.Distance(argsEnd) <= 250f))
+                {
+                    if (Main.Item("use" + name + "Danger").GetValue<bool>())
+                    {
+                        if (targeted)
+                            Items.UseItem(itemId, target);
+                        else
+                            Items.UseItem(itemId);
+                    }
+                }
+
+
             }
         }
 
@@ -91,8 +107,50 @@ namespace Oracle
                 menuName.AddItem(new MenuItem("use" + name + "Dmg", "Use " + name + " on Dmg %")).SetValue(new Slider(dmgvalue));
             if (itemcount)
                 menuName.AddItem(new MenuItem("use" + name + "Count", "Use " + name + " on Count")).SetValue(new Slider(3, 1, 5));
+            menuName.AddItem(new MenuItem("use" + name + "Danger", "Use " + name + " on Dangerous")).SetValue(true);
             Main.AddSubMenu(menuName);
         }
+
+        private static string argsSpell;
+        private static Obj_AI_Hero argsTarget;
+        private static Vector3 argsEnd;
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsEnemy && sender.Type == ObjectManager.Player.Type)
+            {
+                if (DangerousList.Any(spell => spell.Contains(args.SData.Name)))
+                {
+                    argsSpell = args.SData.Name;
+                    argsEnd = args.End;
+                    argsTarget = (Obj_AI_Hero)sender;
+                }
+            }
+        }
+
+        private static readonly List<String> DangerousList = new List<string>()
+        {           
+            "AzirR", 
+            "CurseoftheSadMummy",
+            "InfernalGuardian", 
+            "ZyraBrambleZone",
+            "BrandWildfire",
+            "MonkeyKingSpinToWin",
+            "LeonaSolarFlare",
+            //"CaitlynAceintheHole",
+            "CassiopeiaPetrifyingGaze",
+            "DariusExecute",
+            //"DravenRCast",
+            //"EnchantedCrystalArrow",
+            "EvelynnR",
+            //"EzrealTrueshotBarrage",
+            "GalioIdolOfDurand",
+            "GarenR",
+            "GravesChargeShot",
+            "HecarimUlt",
+            "LissandraR",
+            "LuxMaliceCannon",
+            "UFSlash",                
+        };
 
     }
 }

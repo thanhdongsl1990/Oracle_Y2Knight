@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -17,7 +16,7 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
         public static double IncomeDamage, MinionDamage;
-        public const int Revision = 140;
+        public const int Revision = 142;
 
         private static void Main(string[] args)
         {
@@ -60,28 +59,6 @@ namespace Oracle
 
             return target;
         }
-
-        public static List<String> DangerousList = new List<string>()
-        {           
-            "AzirR", 
-            "CurseoftheSadMummy",
-            "InfernalGuardian", 
-            "BrandWildfire",
-            //"CaitlynAceintheHole",
-            "CassiopeiaPetrifyingGaze",
-            "DariusExecute",
-            //"DravenRCast",
-            //"EnchantedCrystalArrow",
-            "EvelynnR",
-            //"EzrealTrueshotBarrage",
-            "GalioIdolOfDurand",
-            "GarenR",
-            "GravesChargeShot",
-            "HecarimUlt",
-            "LissandraR",
-            "LuxMaliceCannon",
-            "UFSlash",                
-        };
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
