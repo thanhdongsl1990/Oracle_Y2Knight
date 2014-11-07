@@ -66,7 +66,8 @@ namespace Oracle
 
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                    if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)) && Program.DmgTarget.NetworkId == target.NetworkId)
+                    if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) 
+                        && Program.DmgTarget.NetworkId == target.NetworkId))
                     {
                         if (targeted)
                             Items.UseItem(itemId, target);

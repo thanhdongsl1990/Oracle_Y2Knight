@@ -16,7 +16,7 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero DmgTarget;
         public static double IncomeDamage, MinionDamage;
-        public const int Revision = 143;
+        public const int Revision = 144;
 
         private static void Main(string[] args)
         {

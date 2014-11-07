@@ -88,7 +88,7 @@ namespace Oracle
             UseSpell("JudicatorDivineBlessing", "dblessing", 0, 900f, true, true);
             UseSpell("NamiE", "eflow", 0, 725f, true, true);
             UseSpell("SonaW", "sonaheal", 0, 1000f, true, true);
-            UseSpell("SorakaW", "ainfusion", 0, 450f, true, true);
+            UseSpell("SorakaW", "ainfusion", 0, 450f, false, true);
             UseSpell("Imbue", "imbue", 0, 750f, true, true);
         }
 
@@ -121,13 +121,17 @@ namespace Oracle
                     {
                         if (usemana && manaPercent <= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value) 
                             return;
-                        if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)) && 
-                            Program.DmgTarget.NetworkId == target.NetworkId) 
+                        if (ObjectManager.Player.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
+                            return;
+                        if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)  && 
+                            Program.DmgTarget.NetworkId == target.NetworkId))
                                 pSpell.Cast(target);
                     }
 
                     if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                     {
+                        if (ObjectManager.Player.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
+                            return;
                         if (manaPercent >= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                             pSpell.Cast(target);
                     }
@@ -150,6 +154,8 @@ namespace Oracle
                 menuName.AddItem(new MenuItem("use" + menuvar, "Enable " + displayname)).SetValue(true);
                 menuName.AddItem(new MenuItem("use" + menuvar + "Pct", "Use spell on HP %")).SetValue(new Slider(90));
                 menuName.AddItem(new MenuItem("use" + menuvar + "Dmg", "Use spell on Dmg %")).SetValue(new Slider(45));
+                if (ObjectManager.Player.SkinName == "Soraka")
+                    menuName.AddItem(new MenuItem("useSorakaMana", "Minimum HP % to use")).SetValue(new Slider(35));
                 if (usemana)
                     menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Minimum mana % to use")).SetValue(new Slider(45));
                 Main.AddSubMenu(menuName);

@@ -70,7 +70,7 @@ namespace Oracle
                 {
                     if (!Me.HasBuff("Recall") && !Me.HasBuff("Health Potion") && !Utility.InFountain())
                     {
-                        if ((iPercent >= 2 || incdmg >= Me.Health) && Program.DmgTarget.NetworkId == Me.NetworkId)
+                        if ((iPercent >= 1 || incdmg >= Me.Health || Me.HasBuffOfType(BuffType.Damage)) && Program.DmgTarget.NetworkId == Me.NetworkId)
                             if (Items.HasItem(2003) && Items.CanUseItem(2003))
                                 Items.UseItem(2003);
                     }
