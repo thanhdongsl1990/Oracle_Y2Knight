@@ -45,6 +45,8 @@ namespace Oracle
             oMenu.AddItem(new MenuItem("useOracles", "Use Oracle's on Stealth")).SetValue(true);
             //oMenu.AddItem(new MenuItem("usePink", "Use Pink Ward")).SetValue(true);
             oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] {"Always", "Combo"}));
+            Main.AddSubMenu(oMenu);
+            
             Root.AddSubMenu(Main);
         }
 
