@@ -214,7 +214,7 @@ namespace Oracle
                 var mHealthPercent = (int) ((Me.Health/Me.MaxHealth)*100);
 
                 if (mHealthPercent <= Main.Item("useBarrierPct").GetValue<Slider>().Value && Config.Item("suseOn" + Me.SkinName).GetValue<bool>())
-                    if ((incPercent >= 1 || incdmg >= Me.Health) && OC.LethalTarget.NetworkId == Me.NetworkId)
+                    if ((incPercent >= 1 || incdmg >= Me.Health) && OC.AggroTarget.NetworkId == Me.NetworkId)
                         Me.SummonerSpellbook.CastSpell(bSlot, Me);
 
                 else if (incPercent >= Main.Item("useBarrierDmg").GetValue<Slider>().Value)
@@ -242,7 +242,7 @@ namespace Oracle
                         if (!Utility.InFountain() && !Me.HasBuff("Recall"))
                         {
                             if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)) 
-                                && OC.LethalTarget.NetworkId == target.NetworkId)
+                                && OC.AggroTarget.NetworkId == target.NetworkId)
                                     Me.SummonerSpellbook.CastSpell(hSlot, target);
                         }
                     }

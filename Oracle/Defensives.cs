@@ -34,23 +34,55 @@ namespace Oracle
             CreateMenuItem("Face of the Mountain", "Mountain", 20, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 45, 40);
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
-            Root.AddSubMenu(Main);
 
+            Menu bMenu = new Menu("Banner of Command", "bannerc");
+            bMenu.AddItem(new MenuItem("useBanner", "Use Banner of Command")).SetValue(true);
+            Main.AddSubMenu(bMenu);
+
+            Menu oMenu = new Menu("Oracle's Lens", "olens");
+            oMenu.AddItem(new MenuItem("useOracles", "Use Oracle's on Stealth")).SetValue(true);
+            Root.AddSubMenu(Main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (OC.FriendlyTarget() == null)
-                return;
-            if (OC.IncomeDamage >= 1)
+            if (Items.HasItem(3351) && Main.Item("useOracles").GetValue<bool>())
             {
-                UseItem("Locket", 3190, 600f, (float) OC.IncomeDamage);
-                UseItem("Seraphs", 3048, 450f, (float) OC.IncomeDamage);
-                UseItem("Wooglets", 3090, 450f, (float) OC.IncomeDamage);
-                UseItem("Zhonyas", 3157, 450f, (float) OC.IncomeDamage);
-                UseItem("Odyns", 3180, 450f, (float) OC.IncomeDamage);
-                UseItem("Randuins", 3143, 450f, (float) OC.IncomeDamage);
-                UseItem("Mountain", 3401, 700f, (float)OC.IncomeDamage, true);
+                if (!Items.CanUseItem(3351))
+                    return;
+                foreach (var ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(750)))
+                {
+                    if (ene.HasBuffOfType(BuffType.Invisibility) 
+                        && Config.Item("duseOn" + ene.SkinName).GetValue<bool>())
+                            Items.UseItem(3351);
+                }
+            }
+
+            if (Items.HasItem(3060) && Main.Item("useBanner").GetValue<bool>())
+            {
+                var MinionList = MinionManager.GetMinions(Me.Position, 1000);
+                if (!MinionList.Any())
+                    return;
+
+                foreach (var m in MinionList.Where(minion => minion.IsValidTarget(1000)
+                    && minion.BaseSkinName.Contains("MechCannon")))
+                {
+                    Items.UseItem(3060, m);
+                }
+            }
+
+            if (OC.FriendlyTarget() != null)
+            {
+                if (OC.IncomeDamage >= 1)
+                {
+                    UseItem("Locket", 3190, 600f, (float) OC.IncomeDamage);
+                    UseItem("Seraphs", 3048, 450f, (float) OC.IncomeDamage);
+                    UseItem("Wooglets", 3090, 450f, (float) OC.IncomeDamage);
+                    UseItem("Zhonyas", 3157, 450f, (float) OC.IncomeDamage);
+                    UseItem("Odyns", 3180, 450f, (float) OC.IncomeDamage);
+                    UseItem("Randuins", 3143, 450f, (float) OC.IncomeDamage);
+                    UseItem("Mountain", 3401, 700f, (float) OC.IncomeDamage, true);
+                }
             }
         }
 
@@ -71,7 +103,7 @@ namespace Oracle
                 if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
                     Main.Item("duseOn" + target.SkinName).GetValue<bool>())
                     if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) 
-                        && OC.LethalTarget.NetworkId == target.NetworkId))
+                        && OC.AggroTarget.NetworkId == target.NetworkId))
                     {
                         if (targeted)
                             Items.UseItem(itemId, target);

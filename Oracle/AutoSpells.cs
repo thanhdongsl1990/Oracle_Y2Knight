@@ -115,7 +115,7 @@ namespace Oracle
 
                 if (!Config.Item("ason" + target.SkinName).GetValue<bool>())
                     return;
-                if (OC.LethalTarget.Distance(Me.Position) > pSpell.Range)
+                if (OC.AggroTarget.Distance(Me.Position) > pSpell.Range)
                     return;
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
                 {
@@ -126,7 +126,7 @@ namespace Oracle
                         if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
                         if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)  && 
-                            OC.LethalTarget.NetworkId == target.NetworkId))
+                            OC.AggroTarget.NetworkId == target.NetworkId))
                                 pSpell.Cast(target);
                     }
 
