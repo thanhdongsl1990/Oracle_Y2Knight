@@ -11,9 +11,11 @@ namespace Oracle
     internal static class Defensives
     {
         private static Menu Main, Config;
-        private static string onProcessSpell;
-        private static Vector3 onProcessEnd;
-        private static Obj_AI_Hero onProcessTarget;
+        private static bool Stealth;
+        private static string OnProcessSpell;
+        private static Obj_AI_Hero StealthTarget;
+        private static Vector3 OnProcessEnd;
+        private static Obj_AI_Hero OnProcessTarget;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
         public static void Initialize(Menu Root)
         {
@@ -41,6 +43,7 @@ namespace Oracle
 
             Menu oMenu = new Menu("Oracle's Lens", "olens");
             oMenu.AddItem(new MenuItem("useOracles", "Use Oracle's on Stealth")).SetValue(true);
+            oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] {"Always", "Combo"}));
             Root.AddSubMenu(Main);
         }
 
@@ -48,12 +51,18 @@ namespace Oracle
         {
             if (Items.HasItem(3351) && Main.Item("useOracles").GetValue<bool>())
             {
-                if (!Items.CanUseItem(3351))
+               if (!Items.CanUseItem(3351))
                     return;
-                foreach (var ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(750)))
+                if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
+                    Main.Item("oracleMode").GetValue<StringList>().SelectedIndex == 1)
+                    return;
+                var target = OC.FriendlyTarget();
+                foreach (var ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(600)))
                 {
-                    if (ene.HasBuffOfType(BuffType.Invisibility) 
-                        && Config.Item("duseOn" + ene.SkinName).GetValue<bool>())
+                    if (target.Distance(Me.Position) > 600)
+                        return;
+                    if ((ene.NetworkId == StealthTarget.NetworkId && Stealth) || target.HasBuff("RengarRBuff", true))
+                        if (Config.Item("duseOn" + ene.SkinName).GetValue<bool>())
                             Items.UseItem(3351);
                 }
             }
@@ -120,7 +129,7 @@ namespace Oracle
                         Items.UseItem(itemId);
                 }
 
-                if (onProcessSpell != null && (onProcessTarget.Distance(target.Position) <= 400f || target.Distance(onProcessEnd) <= 250f))
+                if (OnProcessSpell != null && (OnProcessTarget.Distance(target.Position) <= 400f || target.Distance(OnProcessEnd) <= 250f))
                 {
                     if (Main.Item("use" + name + "Danger").GetValue<bool>())
                     {
@@ -148,41 +157,47 @@ namespace Oracle
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
+            Stealth = false;
             if (sender.IsEnemy && sender.Type == Me.Type)
             {
                 if (DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    onProcessSpell = args.SData.Name;
-                    onProcessEnd = args.End;
-                    onProcessTarget = (Obj_AI_Hero)sender;
+                    OnProcessSpell = args.SData.Name;
+                    OnProcessEnd = args.End;
+                    OnProcessTarget = (Obj_AI_Hero)sender;
+                }
+
+                else if (InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
+                {
+                    Stealth = true;
+                    StealthTarget = (Obj_AI_Hero)sender;
                 }
             }
         }
 
-        private static readonly List<String> DangerousList = new List<string>()
-        {           
-            "AzirR", 
-            "CurseoftheSadMummy",
-            "InfernalGuardian", 
-            "ZyraBrambleZone",
-            "BrandWildfire",
-            "MonkeyKingSpinToWin",
-            "LeonaSolarFlare",
-            //"CaitlynAceintheHole",
-            "CassiopeiaPetrifyingGaze",
-            "DariusExecute",
-            //"DravenRCast",
-            //"EnchantedCrystalArrow",
-            "EvelynnR",
-            //"EzrealTrueshotBarrage",
-            "GalioIdolOfDurand",
-            "GarenR",
-            "GravesChargeShot",
-            "HecarimUlt",
-            "LissandraR",
-            "LuxMaliceCannon",
-            "UFSlash",                
+        private static readonly List<String> InvisibleList = new List<string>()
+        {
+            "AkaliSmokeBomb",
+            "KhazixR",
+            "TwitchHideInShadows",
+            "Deceive",
+            "TalonShadowAssault",
+            "MonkeyKingDecoy"
+
         };
 
+        private static readonly List<String> DangerousList = new List<string>()
+        {
+            "AzirR", "CurseoftheSadMummy", " InfernalGuardian", 
+            "ZyraBrambleZone", "BrandWildfire","MonkeyKingSpinToWin",
+            //"EzrealTrueshotBarrage",       
+            "LeonaSolarFlare", 
+            //"CaitlynAceintheHole",
+            "CassiopeiaPetrifyingGaze","DariusExecute",
+            //"DravenRCast", 
+            //"EnchantedCrystalArrow",
+            "GalioIdolOfDurand", "GarenR", "GravesChargeShot", "HecarimUlt",
+            "LissandraR", "LuxMaliceCannon", "UFSlash", "EvelynnR"    
+        };
     }
 }
