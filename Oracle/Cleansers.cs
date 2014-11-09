@@ -47,7 +47,7 @@ namespace Oracle
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("Mikaels", 3222, 600f);
+            UseItem("Mikaels", 3222, 600f, false);
             if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
             {
                 UseItem("Quicksilver", 3140);
@@ -57,7 +57,7 @@ namespace Oracle
 
         }
 
-        private static void UseItem(string name, int itemId, float itemRange = float.MaxValue)
+        private static void UseItem(string name, int itemId, float itemRange = float.MaxValue, bool selfuse = true)
         {
             if (!Main.Item("use" + name).GetValue<bool>())
                 return;
@@ -66,11 +66,12 @@ namespace Oracle
             if (OC.FriendlyTarget() == null)
                 return;
 
-            var target = OC.FriendlyTarget();
+            var target = selfuse ? Me : OC.FriendlyTarget();
             if (target.Distance(Me.Position) <= itemRange)
             {
-                if (BuffCount(target) >= 1 && Config.Item("cuseOn" + target.SkinName).GetValue<bool>())
-                    Items.UseItem(itemId, target);
+                if (BuffCount(target) >= Main.Item(name + "Count").GetValue<Slider>().Value && 
+                    Config.Item("cuseOn" + target.SkinName).GetValue<bool>())
+                        Items.UseItem(itemId, target);
             }
         }
 
