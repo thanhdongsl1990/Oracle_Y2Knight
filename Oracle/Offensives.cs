@@ -49,9 +49,10 @@ namespace Oracle
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
             if (Target != null)
             {
+                Console.WriteLine(OC.DamageCheck(Me, Target));
                 if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
-                    UseItem("Frostclaim", 3092, 850f);
+                    UseItem("Frostclaim", 3092, 850f, true);
                     UseItem("Youmuus", 3142, 650f);
                     UseItem("Tiamat", 3077, 250f);
                     UseItem("Hydra", 3074, 250f);
