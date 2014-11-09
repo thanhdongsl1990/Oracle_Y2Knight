@@ -78,13 +78,16 @@ namespace Oracle
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
+            var damage = 0f;
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
             if(!Main.Item("use" + name).GetValue<bool>())
                 return;
+            if (itemId == 3128)
+                damage = OC.DamageCheck(Me, Target);
             if (Target.Distance(Me.Position) <= itemRange)
             {
-                var damage = OC.DamageCheck(Me, Target);
+                
                 var eHealthPercent = (int) ((Target.Health/Target.MaxHealth)*100);
                 var mHealthPercent = (int) ((Me.Health/Target.MaxHealth)*100);
             
