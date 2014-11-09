@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -36,20 +35,18 @@ namespace Oracle
             CreateMenuItem("Face of the Mountain", "Mountain", 20, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 45, 40);
 
-            Menu oMenu = new Menu("Oracle's Lens", "olens");
-            oMenu.AddItem(new MenuItem("useOracles", "Use Oracle's on Stealth")).SetValue(true);
-            //oMenu.AddItem(new MenuItem("usePink", "Use Pink Ward")).SetValue(true);
-            oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
-            Main.AddSubMenu(oMenu);
-
             Menu bMenu = new Menu("Banner of Command", "bannerc");
             bMenu.AddItem(new MenuItem("useBanner", "Use Banner of Command")).SetValue(true);
             Main.AddSubMenu(bMenu);
 
-            CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
+            Menu oMenu = new Menu("Oracle's Lens", "olens");
+            oMenu.AddItem(new MenuItem("useOracles", "Use on Stealth")).SetValue(true);
+            //oMenu.AddItem(new MenuItem("usePink", "Use Pink Ward?")).SetValue(true);
+            oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
+            Main.AddSubMenu(oMenu);
 
 
-            
+            CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);        
             Root.AddSubMenu(Main);
         }
 
@@ -90,13 +87,13 @@ namespace Oracle
             {
                 if (OC.IncomeDamage >= 1)
                 {
-                    UseItem("Locket", 3190, 600f, (float) OC.IncomeDamage);
-                    UseItem("Seraphs", 3048, 450f, (float) OC.IncomeDamage, true);
-                    UseItem("Wooglets", 3090, 450f, (float) OC.IncomeDamage, true);
-                    UseItem("Zhonyas", 3157, 450f, (float) OC.IncomeDamage, true);
-                    UseItem("Odyns", 3180, 450f, (float) OC.IncomeDamage);
-                    UseItem("Randuins", 3143, 450f, (float) OC.IncomeDamage);
-                    UseItem("Mountain", 3401, 700f, (float) OC.IncomeDamage, true);
+                    UseItem("Locket", 3190, 600f, OC.IncomeDamage);
+                    UseItem("Seraphs", 3048, 450f, OC.IncomeDamage, true);
+                    UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
+                    UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
+                    UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
+                    UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
+                    UseItem("Mountain", 3401, 700f, OC.IncomeDamage, true);
                 }
             }
         }
@@ -140,7 +137,6 @@ namespace Oracle
                                 Items.UseItem(itemId);
                         }
                     }
-
                     else if (OnProcessSpell != null && (OnProcessTarget.Distance(target.Position) <= 400f || target.Distance(OnProcessEnd) <= 250f))
                     {
                         if (Main.Item("use" + name + "Danger").GetValue<bool>())
@@ -159,12 +155,12 @@ namespace Oracle
         {
             Menu menuName = new Menu(displayname, name.ToLower());
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
-            menuName.AddItem(new MenuItem("use" + name + "Pct", "Use " + name + " on HP %")).SetValue(new Slider(hpvalue));
+            menuName.AddItem(new MenuItem("use" + name + "Pct", "Use on HP %")).SetValue(new Slider(hpvalue));
             if (!itemcount)
-                menuName.AddItem(new MenuItem("use" + name + "Dmg", "Use " + name + " on Dmg %")).SetValue(new Slider(dmgvalue));
+                menuName.AddItem(new MenuItem("use" + name + "Dmg", "Use on Dmg %")).SetValue(new Slider(dmgvalue));
             if (itemcount)
-                menuName.AddItem(new MenuItem("use" + name + "Count", "Use " + name + " on Count")).SetValue(new Slider(3, 1, 5));
-            menuName.AddItem(new MenuItem("use" + name + "Danger", "Use " + name + " on Dangerous")).SetValue(true);
+                menuName.AddItem(new MenuItem("use" + name + "Count", "Use on Count")).SetValue(new Slider(3, 1, 5));
+            menuName.AddItem(new MenuItem("use" + name + "Danger", "Use on Dangerous")).SetValue(true);
             Main.AddSubMenu(menuName);
         }
 
@@ -173,44 +169,21 @@ namespace Oracle
             Stealth = false;
             if (sender.IsEnemy && sender.Type == Me.Type)
             {
-                if (DangerousList.Any(spell => spell.Contains(args.SData.Name)))
+                if (sender.Distance(Me.Position) > 750f)
+                    return;
+                if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
                     OnProcessSpell = args.SData.Name;
                     OnProcessEnd = args.End;
                     OnProcessTarget = (Obj_AI_Hero)sender;
                 }
 
-                if (InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
+                if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
                 {
                     Stealth = true;
                     StealthTarget = (Obj_AI_Hero)sender;
                 }
             }
         }
-
-        private static readonly List<String> InvisibleList = new List<string>()
-        {
-            "AkaliSmokeBomb",
-            "KhazixR",
-            "TwitchHideInShadows",
-            "Deceive",
-            "TalonShadowAssault",
-            "MonkeyKingDecoy"
-
-        };
-
-        private static readonly List<String> DangerousList = new List<string>()
-        {
-            "AzirR", "CurseoftheSadMummy", " InfernalGuardian", 
-            "ZyraBrambleZone", "BrandWildfire","MonkeyKingSpinToWin",
-            //"EzrealTrueshotBarrage",       
-            "LeonaSolarFlare", 
-            //"CaitlynAceintheHole",
-            "CassiopeiaPetrifyingGaze","DariusExecute",
-            //"DravenRCast", 
-            //"EnchantedCrystalArrow",
-            "GalioIdolOfDurand", "GarenR", "GravesChargeShot", "HecarimUlt",
-            "LissandraR", "LuxMaliceCannon", "UFSlash", "EvelynnR"    
-        };
     }
 }

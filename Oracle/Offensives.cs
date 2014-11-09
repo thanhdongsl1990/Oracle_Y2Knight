@@ -28,10 +28,10 @@ namespace Oracle
                 Config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
 
-            CreateMenuItem("Deathfire Grasp", "DFG", 100, 30);
-            CreateMenuItem("Muramana", "Muramana", 90, 30, true);
             CreateMenuItem("Tiamat", "Tiamat", 90, 30);
             CreateMenuItem("Entropy", "Entropy", 90, 30);
+            CreateMenuItem("Muramana", "Muramana", 90, 30, true);
+            CreateMenuItem("Deathfire Grasp", "DFG", 100, 30);
             CreateMenuItem("Ravenous Hydra", "Hydra", 90, 30);
             CreateMenuItem("Youmuu's Ghostblade", "Youmuus", 90, 30);
             CreateMenuItem("Bilgewater's Cutlass", "Cutlass", 90, 30);
@@ -39,6 +39,7 @@ namespace Oracle
             CreateMenuItem("Hextech Gunblade", "Hextech", 90, 30);
             CreateMenuItem("Blade of the Ruined King", "Botrk", 70, 70);
             CreateMenuItem("Frost Queen's Claim", "Frostclaim", 90, 30);
+            CreateMenuItem("Sword of Divine", "Divine", 90, 30);
  
             Root.AddSubMenu(Main);
         }
@@ -49,7 +50,6 @@ namespace Oracle
             Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
             if (Target != null)
             {
-                Console.WriteLine(OC.DamageCheck(Me, Target));
                 if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
                     UseItem("Frostclaim", 3092, 850f, true);
@@ -61,6 +61,7 @@ namespace Oracle
                     UseItem("Entropy", 3184, 450f, true);
                     UseItem("Cutlass", 3144, 450f, true);
                     UseItem("Botrk", 3153, 450f, true);
+                    UseItem("Divine", 3131, 650f);
                     UseItem("DFG", 3128, 750f, true);
                 }
             }
@@ -138,7 +139,7 @@ namespace Oracle
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
             menuName.AddItem(new MenuItem("use" + name + "Pct", "Use on enemy HP %")).SetValue(new Slider(evalue));
             if (!usemana)
-                menuName.AddItem(new MenuItem("use" + name + "Me", "Use  on my HP %")).SetValue(new Slider(avalue));
+                menuName.AddItem(new MenuItem("use" + name + "Me", "Use on my HP %")).SetValue(new Slider(avalue));
             if (usemana)
                 menuName.AddItem(new MenuItem("use" + name + "Mana", "Minimum mana % to use")).SetValue(35);
             Main.AddSubMenu(menuName);

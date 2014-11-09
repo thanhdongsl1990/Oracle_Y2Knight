@@ -9,7 +9,7 @@ namespace Oracle
     internal static class AutoSpells
     {
         private static Menu Main, Config;
-        private static Obj_AI_Hero Me = ObjectManager.Player;
+        private static readonly Obj_AI_Hero Me = ObjectManager.Player;
         public static void Initialize(Menu Root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate; 
@@ -34,7 +34,7 @@ namespace Oracle
             CreateMenuItem("MoltenShield", "Molten Shield", "annieshield", SpellSlot.E);
             CreateMenuItem("JarvanIVGoldenAegis", "Golden Aegis", "j4shield", SpellSlot.W);
             CreateMenuItem("BlindMonkWOne", "Safegaurd", "leeshield", SpellSlot.W, false);
-            CreateMenuItem("RivenFeint", "Valor", "valor", SpellSlot.E, false);
+            CreateMenuItem("RivenFeint", "Valor", "rivenshield", SpellSlot.E, false);
             CreateMenuItem("RumbleShield", "Scrap Shield", "rumbleshield", SpellSlot.W, false);
             CreateMenuItem("SionW", "Soul Furnace", "sionshield", SpellSlot.W);
             CreateMenuItem("SkarnerExoskeleton", "Exoskeleton", "skarnershield", SpellSlot.W);
@@ -61,27 +61,28 @@ namespace Oracle
             if (OC.IncomeDamage >= 1)
             {
                 // auto shields
-                //UseSpell("BlackShield", "morgshield", (float)OC.IncomeDamage, 750f);
-                UseSpell("BraumE", "braumshield", (float)OC.IncomeDamage);
-                UseSpell("DianaOrbs", "dianashield", (float)OC.IncomeDamage);
-                UseSpell("GalioBulwark", "galioshield", (float)OC.IncomeDamage, 800f);
-                UseSpell("GarenW", "garenshield", (float)OC.IncomeDamage, float.MaxValue, false);
-                UseSpell("EyeOfTheStorm", "jannashield", (float)OC.IncomeDamage, 800f);
-                UseSpell("KarmaSolKimShield", "karmashield", (float)OC.IncomeDamage, 800f);
-                UseSpell("LuxPrismaticWave", "luxshield", (float)OC.IncomeDamage, 1075f);
-                UseSpell("NautilusPiercingGaze", "nautshield", (float)OC.IncomeDamage);
-                UseSpell("OrianaRedactCommand", "oriannashield", 1100f, (float)OC.IncomeDamage);
-                UseSpell("ShenFeint", "shenshield", (float)OC.IncomeDamage, float.MaxValue, false);
-                UseSpell("JarvanIVGoldenAegis", "j4shield", (float)OC.IncomeDamage);
-                UseSpell("BlindMonkWOne", "leeshield", (float)OC.IncomeDamage, 700f, false);
-                UseSpell("RivenFeint", "rivenshield", (float)OC.IncomeDamage, float.MaxValue, false);
-                UseSpell("RumbleShield", "rumbleshield", (float)OC.IncomeDamage);
-                UseSpell("SionW", "sionshield", (float)OC.IncomeDamage);
-                UseSpell("SkarnerExoskeleton", "skarnershield", (float)OC.IncomeDamage);
-                UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", (float)OC.IncomeDamage);
-                UseSpell("MoltenShield", "annieshield", (float)OC.IncomeDamage);
-                UseSpell("Obduracy", "malphshield", (float)OC.IncomeDamage);
-                UseSpell("DefensiveBallCurl", "rammusshield", (float)OC.IncomeDamage);
+                //UseSpell("SiverE, "sivirshield", OC.IncomeDamage);
+                //UseSpell("BlackShield", "morgshield", OC.IncomeDamage, 750f);
+                UseSpell("BraumE", "braumshield", OC.IncomeDamage);
+                UseSpell("DianaOrbs", "dianashield", OC.IncomeDamage);
+                UseSpell("GalioBulwark", "galioshield", OC.IncomeDamage, 800f);
+                UseSpell("GarenW", "garenshield", OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("EyeOfTheStorm", "jannashield", OC.IncomeDamage, 800f);
+                UseSpell("KarmaSolKimShield", "karmashield", OC.IncomeDamage, 800f);
+                UseSpell("LuxPrismaticWave", "luxshield", OC.IncomeDamage, 1075f);
+                UseSpell("NautilusPiercingGaze", "nautshield", OC.IncomeDamage);
+                UseSpell("OrianaRedactCommand", "oriannashield", 1100f, OC.IncomeDamage);
+                UseSpell("ShenFeint", "shenshield", OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("JarvanIVGoldenAegis", "j4shield", OC.IncomeDamage);
+                UseSpell("BlindMonkWOne", "leeshield", OC.IncomeDamage, 700f, false);
+                UseSpell("RivenFeint", "rivenshield", OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("RumbleShield", "rumbleshield", OC.IncomeDamage);
+                UseSpell("SionW", "sionshield", OC.IncomeDamage);
+                UseSpell("SkarnerExoskeleton", "skarnershield", OC.IncomeDamage);
+                UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", OC.IncomeDamage);
+                UseSpell("MoltenShield", "annieshield", OC.IncomeDamage);
+                UseSpell("Obduracy", "malphshield", OC.IncomeDamage);
+                UseSpell("DefensiveBallCurl", "rammusshield", OC.IncomeDamage);
             }
             // auto heals
             UseSpell("TriumphantRoar", "troar", 0, 575f, true, true);
@@ -95,17 +96,16 @@ namespace Oracle
         }
 
         private static void UseSpell(string sdataname, string menuvar, float incdmg, float spellRange = float.MaxValue, bool usemana = true, bool isheal = false)
-        {        
-            SpellSlot pSlot = Me.GetSpellSlot(sdataname);
-            if (pSlot == SpellSlot.Unknown)
-                return;          
-            if (pSlot != SpellSlot.Unknown && !Main.Item("use" + menuvar).GetValue<bool>())
+        {
+            SpellSlot playerSlot = Me.GetSpellSlot(sdataname);
+            if (playerSlot == SpellSlot.Unknown)
+                return;
+            if (playerSlot != SpellSlot.Unknown && !Main.Item("use" + menuvar).GetValue<bool>())
                 return;      
-            var pSpell = new Spell(pSlot, spellRange);
-            if (!pSpell.IsReady())
+            var playerSpell = new Spell(playerSlot, spellRange);
+            if (!playerSpell.IsReady())
                 return;
             var targeted = spellRange.ToString() != float.MaxValue.ToString();
-
             var target = targeted ? OC.FriendlyTarget() : Me;
             if (target.Distance(Me.Position) <= spellRange)
             {
@@ -115,7 +115,7 @@ namespace Oracle
 
                 if (!Config.Item("ason" + target.SkinName).GetValue<bool>())
                     return;
-                if (OC.AggroTarget.Distance(Me.Position) > pSpell.Range)
+                if (OC.AggroTarget.Distance(Me.Position) > playerSpell.Range)
                     return;
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
                 {
@@ -125,9 +125,11 @@ namespace Oracle
                             return;
                         if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
-                        if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage)  && 
-                            OC.AggroTarget.NetworkId == target.NetworkId))
-                                pSpell.Cast(target);
+                        if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) &&
+                             OC.AggroTarget.NetworkId == target.NetworkId))
+                        {                          
+                                playerSpell.Cast(target);
+                        }
                     }
 
                     else if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
@@ -135,7 +137,7 @@ namespace Oracle
                         if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
                         if (manaPercent >= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
-                            pSpell.Cast(target);
+                            playerSpell.Cast(target);
                     }           
                     else if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value &&
                         menuvar == "luxshield")
@@ -154,14 +156,14 @@ namespace Oracle
                         };
                         var po = Prediction.GetPrediction(pi);
                         if (po.Hitchance >= HitChance.Medium && !target.IsMe)
-                            pSpell.Cast(po.CastPosition);
+                            playerSpell.Cast(po.CastPosition);
                         else
                         {
-                            pSpell.Cast(Game.CursorPos);
+                            playerSpell.Cast(Game.CursorPos);
                         }
                     }
                     else if (incPercent >= Main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
-                        pSpell.Cast(target);  
+                        playerSpell.Cast(target);  
                 }
             }
         }

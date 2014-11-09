@@ -5,7 +5,7 @@ using LeagueSharp.Common;
 
 namespace Oracle
 {
-    static class Program
+    internal static class Program
     {
         //  _____             _     
         // |     |___ ___ ___| |___ 
@@ -15,8 +15,8 @@ namespace Oracle
 
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
-        public static double IncomeDamage, MinionDamage;
-        public const int Revision = 150;
+        public static float IncomeDamage, MinionDamage;
+        public const string Revision = "151";
 
         private static void Main(string[] args)
         {
@@ -28,6 +28,7 @@ namespace Oracle
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+
             Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
 
             Origin = new Menu("Oracle", "oracle", true);
@@ -39,7 +40,7 @@ namespace Oracle
             Consumables.Initialize(Origin);
             AutoSpells.Initialize(Origin);
 
-            Origin.AddItem(new MenuItem("ComboKey", "Combo Key").SetValue(new KeyBind(32, KeyBindType.Press)));
+            Origin.AddItem(new MenuItem("ComboKey", "Combo (Active)").SetValue(new KeyBind(32, KeyBindType.Press)));
             Origin.AddToMainMenu();  
         }
 
@@ -62,10 +63,11 @@ namespace Oracle
             return target;
         }
 
-
         public static float DamageCheck(Obj_AI_Hero player, Obj_AI_Base target)
         {
             double damage = 0;
+            var ignite = player.GetSpellSlot("summonerdot");
+            bool igniteready = player.SummonerSpellbook.CanUseSpell(ignite) == SpellState.Ready;
 
             if (target != null)
             {
@@ -75,12 +77,13 @@ namespace Oracle
                 bool rready = player.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready;
 
                 var aa = player.GetAutoAttackDamage(target);
+                var ii = igniteready ? player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) : 0;
                 var qq = qready ? player.GetSpellDamage(target, SpellSlot.Q) : 0;
                 var ww = wready ? player.GetSpellDamage(target, SpellSlot.W) : 0;
                 var ee = eready ? player.GetSpellDamage(target, SpellSlot.E) : 0;
                 var rr = rready ? player.GetSpellDamage(target, SpellSlot.R) : 0;
 
-                damage = aa + qq + ww + ee + rr;
+                damage = aa + qq + ww + ee + rr + ii;
             }
 
             return (float) damage;
@@ -107,23 +110,22 @@ namespace Oracle
                     switch (attackerslot)
                     {
                         case SpellSlot.Q:
-                            IncomeDamage = attacker.GetSpellDamage(AggroTarget, SpellSlot.Q);
+                            IncomeDamage = (float)attacker.GetSpellDamage(AggroTarget, SpellSlot.Q);
                             break;
                         case SpellSlot.W:
-                            IncomeDamage = attacker.GetSpellDamage(AggroTarget, SpellSlot.W);
+                            IncomeDamage = (float)attacker.GetSpellDamage(AggroTarget, SpellSlot.W);
                             break;
                         case SpellSlot.E:
-                            IncomeDamage = attacker.GetSpellDamage(AggroTarget, SpellSlot.E);
+                            IncomeDamage = (float)attacker.GetSpellDamage(AggroTarget, SpellSlot.E);
                             break;
                         case SpellSlot.R:
-                            IncomeDamage = attacker.GetSpellDamage(AggroTarget, SpellSlot.R);
+                            IncomeDamage = (float)attacker.GetSpellDamage(AggroTarget, SpellSlot.R);
                             break;
                         case SpellSlot.Unknown:
-                            IncomeDamage = attacker.GetAutoAttackDamage(AggroTarget);
+                            IncomeDamage = (float)attacker.GetAutoAttackDamage(AggroTarget);
                             break;
                          
                     } 
-                    //Console.WriteLine("S: " + attackerslot);
                 }
             }
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)
@@ -131,7 +133,7 @@ namespace Oracle
                 var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);            
                 if (args.Target.NetworkId == AggroTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
-                    MinionDamage = attacker.CalcDamage(AggroTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
+                    MinionDamage = (float)attacker.CalcDamage(AggroTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);                     
                 }                        
             }
             else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)
@@ -142,17 +144,10 @@ namespace Oracle
                 {
                     if (attacker.Distance(ObjectManager.Player.Position) <= 900)
                     {
-                        IncomeDamage = attacker.CalcDamage(AggroTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
+                        IncomeDamage = (float)attacker.CalcDamage(AggroTarget, Damage.DamageType.Physical, attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
                     }
                 }
             }
-            if (IncomeDamage > 0)
-            {
-                //Console.WriteLine("IncomeDmg: " + IncomeDamage);
-                //Console.WriteLine("============");
-                //Console.WriteLine("");
-            }
-
         }
     }
 }

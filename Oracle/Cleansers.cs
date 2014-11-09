@@ -69,7 +69,7 @@ namespace Oracle
             var target = OC.FriendlyTarget();
             if (target.Distance(Me.Position) <= itemRange)
             {
-                if (BuffCount(target) >= 1)
+                if (BuffCount(target) >= 1 && Config.Item("cuseOn" + target.SkinName).GetValue<bool>())
                     Items.UseItem(itemId, target);
             }
         }

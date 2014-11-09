@@ -25,6 +25,7 @@ namespace Oracle
         {
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
 
             Main = new Menu("Summoners", "summoners");
             Config = new Menu("Summoner Config", "sconfig");
@@ -81,9 +82,10 @@ namespace Oracle
             if (exhaust != SpellSlot.Unknown)
             {
                 Menu Exhaust = new Menu("Exhaust", "mexhaust");
-                //Exhaust.AddItem(new MenuItem("useExhaust", "Enable Exhaust")).SetValue(true);
+                Exhaust.AddItem(new MenuItem("useExhaust", "Enable Exhaust")).SetValue(true);
                 //Exhaust.AddItem(new MenuItem("aExhaustPct", "Exhaust on ally HP %")).SetValue(new Slider(35));
                 //Exhaust.AddItem(new MenuItem("eExhaustPct", "Exhaust on enemy HP %")).SetValue(new Slider(35));
+                Exhaust.AddItem(new MenuItem("exDanger", "Use on Dangerous")).SetValue(true);
                 Main.AddSubMenu(Exhaust);
             }
 
@@ -313,6 +315,28 @@ namespace Oracle
                     if (Minion.Health <= Me.GetSummonerSpellDamage(Minion, Damage.SummonerSpell.Smite))
                         if (Main.Item("smiteEpic").GetValue<bool>())
                             Me.SummonerSpellbook.CastSpell(SpellSlot, Minion);
+                }
+            }
+        }
+
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            var eSlot = Me.GetSpellSlot("summonerexhaust");
+            if (eSlot == SpellSlot.Unknown)
+                return;
+            if (eSlot != SpellSlot.Unknown && (!Main.Item("useExhaust").GetValue<bool>() ||
+                !Main.Item("exDanger").GetValue<bool>()))
+                return;
+            if (Me.SummonerSpellbook.CanUseSpell(eSlot) == SpellState.Ready)
+            {
+                if (sender.IsEnemy && sender.Type == Me.Type)
+                {
+                    if (sender.Distance(Me.Position) > 750f)
+                        return;
+                    if (OracleLists.ExhaustList.Any(spell => spell.Contains(args.SData.Name)))
+                    {
+                        Me.SummonerSpellbook.CastSpell(eSlot, sender);
+                    }
                 }
             }
         }
