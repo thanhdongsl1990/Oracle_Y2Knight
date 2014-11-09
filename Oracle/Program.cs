@@ -62,6 +62,30 @@ namespace Oracle
             return target;
         }
 
+
+        public static float DamageCheck(Obj_AI_Hero player, Obj_AI_Base target)
+        {
+            double damage = 0;
+
+            if (target != null)
+            {
+                bool qready = player.Spellbook.CanUseSpell(SpellSlot.Q) == SpellState.Ready;
+                bool wready = player.Spellbook.CanUseSpell(SpellSlot.W) == SpellState.Ready;
+                bool eready = player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready;
+                bool rready = player.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready;
+
+                var aa = player.GetAutoAttackDamage(target);
+                var qq = qready ? player.GetSpellDamage(target, SpellSlot.Q) : 0;
+                var ww = wready ? player.GetSpellDamage(target, SpellSlot.W) : 0;
+                var ee = eready ? player.GetSpellDamage(target, SpellSlot.E) : 0;
+                var rr = rready ? player.GetSpellDamage(target, SpellSlot.R) : 0;
+
+                damage = aa + qq + ww + ee + rr;
+            }
+
+            return (float) damage;
+        }
+
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             IncomeDamage = 0; MinionDamage = 0;
@@ -124,7 +148,6 @@ namespace Oracle
             }
             if (IncomeDamage > 0)
             {
-                
                 //Console.WriteLine("IncomeDmg: " + IncomeDamage);
                 //Console.WriteLine("============");
                 //Console.WriteLine("");

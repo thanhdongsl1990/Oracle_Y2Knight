@@ -28,6 +28,7 @@ namespace Oracle
                 Config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
 
+            CreateMenuItem("Deathfire Grasp", "DFG", 100, 30);
             CreateMenuItem("Muramana", "Muramana", 90, 30, true);
             CreateMenuItem("Tiamat", "Tiamat", 90, 30);
             CreateMenuItem("Entropy", "Entropy", 90, 30);
@@ -59,6 +60,7 @@ namespace Oracle
                     UseItem("Entropy", 3184, 450f, true);
                     UseItem("Cutlass", 3144, 450f, true);
                     UseItem("Botrk", 3153, 450f, true);
+                    UseItem("DFG", 3128, 750f, true);
                 }
             }
 
@@ -81,12 +83,13 @@ namespace Oracle
                 return;
             if (Target.Distance(Me.Position) <= itemRange)
             {
+                var damage = OC.DamageCheck(Me, Target);
                 var eHealthPercent = (int) ((Target.Health/Target.MaxHealth)*100);
                 var mHealthPercent = (int) ((Me.Health/Target.MaxHealth)*100);
             
                 if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>()) 
                 {
-                    if (itemId == 3092)
+                    if (targeted && itemId == 3092)
                     {
                         var pi = new PredictionInput
                         {
@@ -100,13 +103,18 @@ namespace Oracle
                             Unit = Target,
                             Type = SkillshotType.SkillshotCircle
                         };
+
                         var po = Prediction.GetPrediction(pi);
                         if (po.Hitchance >= HitChance.Medium)
                             Items.UseItem(itemId, po.CastPosition);
                     }
                     else if (targeted)
+                    {
+                        if (itemId == 3128 && damage < Target.Health)
+                            return;                           
                         Items.UseItem(itemId, Target);
-                    else 
+                    }
+                    else
                         Items.UseItem(itemId);
 
                 }

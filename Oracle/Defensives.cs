@@ -35,24 +35,26 @@ namespace Oracle
             CreateMenuItem("Wooglet's Witchcap", "Wooglets", 35, 40);
             CreateMenuItem("Face of the Mountain", "Mountain", 20, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 45, 40);
-            CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
+
+            Menu oMenu = new Menu("Oracle's Lens", "olens");
+            oMenu.AddItem(new MenuItem("useOracles", "Use Oracle's on Stealth")).SetValue(true);
+            //oMenu.AddItem(new MenuItem("usePink", "Use Pink Ward")).SetValue(true);
+            oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
+            Main.AddSubMenu(oMenu);
 
             Menu bMenu = new Menu("Banner of Command", "bannerc");
             bMenu.AddItem(new MenuItem("useBanner", "Use Banner of Command")).SetValue(true);
             Main.AddSubMenu(bMenu);
 
-            Menu oMenu = new Menu("Oracle's Lens", "olens");
-            oMenu.AddItem(new MenuItem("useOracles", "Use Oracle's on Stealth")).SetValue(true);
-            //oMenu.AddItem(new MenuItem("usePink", "Use Pink Ward")).SetValue(true);
-            oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] {"Always", "Combo"}));
-            Main.AddSubMenu(oMenu);
+            CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
+
+
             
             Root.AddSubMenu(Main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            Console.WriteLine(OC.FriendlyTarget().SkinName);
             if (Items.HasItem(3351) && Main.Item("useOracles").GetValue<bool>())
             {
                if (!Items.CanUseItem(3351))

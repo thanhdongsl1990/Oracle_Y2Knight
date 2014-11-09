@@ -139,8 +139,8 @@ namespace Oracle
             CheckClarity();
             if (OC.IncomeDamage >= 1)
             {
-                CheckHeal((float) OC.IncomeDamage);
-                CheckBarrier((float) OC.IncomeDamage);
+                CheckHeal((float)OC.IncomeDamage);
+                CheckBarrier((float)OC.IncomeDamage);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Oracle
             var iSlot = Me.GetSpellSlot("summonerdot");
             if (iSlot == SpellSlot.Unknown)
                 return;
-            if (iSlot != SpellSlot.Unknown && !Main.Item("useBarrier").GetValue<bool>())
+            if (iSlot != SpellSlot.Unknown && !Main.Item("useIgnite").GetValue<bool>())
                 return;
             if (Me.SummonerSpellbook.CanUseSpell(iSlot) == SpellState.Ready)
             {
@@ -165,7 +165,7 @@ namespace Oracle
                     }
                 }
                 else if (Main.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
-                         Main.Item("useCombo").GetValue<KeyBind>().Active)
+                         OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
                     var aaDmg = 0f;
                     var aSpeed = Me.AttackSpeedMod;
@@ -227,7 +227,6 @@ namespace Oracle
             var hSlot = Me.GetSpellSlot("summonerheal");
             if (hSlot == SpellSlot.Unknown)
                 return;
-
             if (hSlot != SpellSlot.Unknown && !Main.Item("useHeal").GetValue<bool>())
                 return;
             if (Me.SummonerSpellbook.CanUseSpell(hSlot) == SpellState.Ready)
