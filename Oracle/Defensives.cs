@@ -52,6 +52,7 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            Console.WriteLine(OC.FriendlyTarget().SkinName);
             if (Items.HasItem(3351) && Main.Item("useOracles").GetValue<bool>())
             {
                if (!Items.CanUseItem(3351))
@@ -88,9 +89,9 @@ namespace Oracle
                 if (OC.IncomeDamage >= 1)
                 {
                     UseItem("Locket", 3190, 600f, (float) OC.IncomeDamage);
-                    UseItem("Seraphs", 3048, 450f, (float) OC.IncomeDamage);
-                    UseItem("Wooglets", 3090, 450f, (float) OC.IncomeDamage);
-                    UseItem("Zhonyas", 3157, 450f, (float) OC.IncomeDamage);
+                    UseItem("Seraphs", 3048, 450f, (float) OC.IncomeDamage, true);
+                    UseItem("Wooglets", 3090, 450f, (float) OC.IncomeDamage, true);
+                    UseItem("Zhonyas", 3157, 450f, (float) OC.IncomeDamage, true);
                     UseItem("Odyns", 3180, 450f, (float) OC.IncomeDamage);
                     UseItem("Randuins", 3143, 450f, (float) OC.IncomeDamage);
                     UseItem("Mountain", 3401, 700f, (float) OC.IncomeDamage, true);
@@ -98,48 +99,55 @@ namespace Oracle
             }
         }
 
-        private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0, bool targeted = false)
+        private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0, bool selfuse = false, bool targeted = false)
         {
             if (!Main.Item("use" + name).GetValue<bool>())
                 return;
-
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            var target = targeted ? OC.FriendlyTarget() : Me;
+            var target = selfuse ? Me : OC.FriendlyTarget();
             if (target.Distance(Me.Position) <= itemRange)
             {
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                 var incPercent = (int) (incdmg/target.MaxHealth*100);
 
-                if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
-                    Main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                    if ((incPercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) 
-                        && OC.AggroTarget.NetworkId == target.NetworkId))
+                if (!Config.Item("duseOn" + target.SkinName).GetValue<bool>())
+                    return;
+                if (OC.AggroTarget.Distance(Me.Position) > itemRange)
+                    return;
+                if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall"))
+                {
+                    if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value)
                     {
-                        if (targeted)
-                            Items.UseItem(itemId, target);
-                        else 
-                            Items.UseItem(itemId);
+                        if ((incPercent >= 1 || incdmg >= target.Health && 
+                            OC.AggroTarget.NetworkId == target.NetworkId))
+                        {
+                            if (targeted)
+                                Items.UseItem(itemId, target);
+                            else
+                                Items.UseItem(itemId);
+                        }
+
+                        else if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
+                                 Main.Item("duseOn" + target.SkinName).GetValue<bool>())
+                        {
+                            if (targeted)
+                                Items.UseItem(itemId, target);
+                            else
+                                Items.UseItem(itemId);
+                        }
                     }
 
-                else if (incPercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
-                    Main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                {
-                    if (targeted)
-                        Items.UseItem(itemId, target);
-                    else
-                        Items.UseItem(itemId);
-                }
-
-                if (OnProcessSpell != null && (OnProcessTarget.Distance(target.Position) <= 400f || target.Distance(OnProcessEnd) <= 250f))
-                {
-                    if (Main.Item("use" + name + "Danger").GetValue<bool>())
+                    else if (OnProcessSpell != null && (OnProcessTarget.Distance(target.Position) <= 400f || target.Distance(OnProcessEnd) <= 250f))
                     {
-                        if (targeted)
-                            Items.UseItem(itemId, target);
-                        else
-                            Items.UseItem(itemId);
+                        if (Main.Item("use" + name + "Danger").GetValue<bool>())
+                        {
+                            if (targeted)
+                                Items.UseItem(itemId, target);
+                            else
+                                Items.UseItem(itemId);
+                        }
                     }
                 }
             }
@@ -170,7 +178,7 @@ namespace Oracle
                     OnProcessTarget = (Obj_AI_Hero)sender;
                 }
 
-                else if (InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
+                if (InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
                 {
                     Stealth = true;
                     StealthTarget = (Obj_AI_Hero)sender;

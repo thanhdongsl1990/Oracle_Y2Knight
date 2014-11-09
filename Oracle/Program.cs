@@ -16,7 +16,7 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static double IncomeDamage, MinionDamage;
-        public const int Revision = 148;
+        public const int Revision = 149;
 
         private static void Main(string[] args)
         {
@@ -31,6 +31,7 @@ namespace Oracle
             Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
 
             Origin = new Menu("Oracle", "oracle", true);
+
             Cleansers.Initialize(Origin);
             Defensives.Initialize(Origin);
             Summoners.Initialize(Origin);
@@ -53,7 +54,7 @@ namespace Oracle
             var allyList = from hero in ObjectManager.Get<Obj_AI_Hero>()
                            where hero.IsAlly && hero.IsValidTarget(900, false)
                            select hero;
-            foreach (var xe in allyList.OrderBy(xe => xe.Health))
+            foreach (var xe in allyList.OrderByDescending(xe => xe.Health/xe.MaxHealth *100))
             {
                 target = xe;
             }
@@ -72,11 +73,12 @@ namespace Oracle
             {          
                 var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
                 var attackerslot = attacker.GetSpellSlot(args.SData.Name);
-                //Console.WriteLine("A: " + attacker.SkinName);
-                //Console.WriteLine("D: " +DmgTarget.Distance(args.End));
 
-
-                if (args.Target.NetworkId == AggroTarget.NetworkId || args.End.Distance(AggroTarget.Position) <= 200)
+                //Console.WriteLine("Attacker: " + attacker.SkinName);
+                //Console.WriteLine("Target: " + AggroTarget.SkinName);
+                //Console.WriteLine("Distance: " + AggroTarget.Distance(args.End));
+                
+                if (AggroTarget != null)
                 {            
                     switch (attackerslot)
                     {
@@ -123,7 +125,7 @@ namespace Oracle
             if (IncomeDamage > 0)
             {
                 
-                //Console.WriteLine("INCDMG: " + IncomeDamage);
+                //Console.WriteLine("IncomeDmg: " + IncomeDamage);
                 //Console.WriteLine("============");
                 //Console.WriteLine("");
             }

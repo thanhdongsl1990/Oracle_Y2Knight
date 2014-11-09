@@ -12,6 +12,7 @@ namespace Oracle
         private static Menu Main;
         private static Menu Config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
+
         private static readonly string[] smallminions = { "Wraith", "Golem", "GreatWraith", "GiantWolf" };
         private static readonly string[] epicminions = Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
             ? new[] { "TT_Spiderboss" }
@@ -30,7 +31,6 @@ namespace Oracle
             foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
                 Config.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             Main.AddSubMenu(Config);
-
 
             var smite = Me.GetSpellSlot("summonersmite");
             if (smite != SpellSlot.Unknown)
