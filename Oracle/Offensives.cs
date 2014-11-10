@@ -11,14 +11,15 @@ namespace Oracle
         private static Menu _main, _config;
         private static int _castTime;
         private static Obj_AI_Hero _target;
+        private static SpellSlot _mmslot;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
         {
+            Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Base_OnPlayAnimation;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.OnGameUpdate += Game_OnGameUpdate;
 
             _main = new Menu("Offensives", "omenu");
             _config = new Menu("Offensive Config", "oconfig");
@@ -64,13 +65,13 @@ namespace Oracle
                 }
             }
 
+            _mmslot = Me.GetSpellSlot("Muramana");
             if (_main.Item("useMuramana").GetValue<bool>())
             {
-                SpellSlot mmslot = Me.GetSpellSlot("Muramana");
-                if (mmslot != SpellSlot.Unknown)
+                if (_mmslot != SpellSlot.Unknown)
                 {
                     if (Me.HasBuff("Muramana") && _castTime + 400 < Environment.TickCount)
-                        Me.Spellbook.CastSpell(mmslot);
+                        Me.Spellbook.CastSpell(_mmslot);
                 }
             }
         }
@@ -149,7 +150,7 @@ namespace Oracle
             if (!usemana)
                 menuName.AddItem(new MenuItem("use" + name + "Me", "Use on my HP %")).SetValue(new Slider(avalue));
             if (usemana)
-                menuName.AddItem(new MenuItem("use" + name + "Mana", "Minimum mana % to use")).SetValue(35);
+                menuName.AddItem(new MenuItem("use" + name + "Mana", "Minimum mana % to use")).SetValue(new Slider(35));
             _main.AddSubMenu(menuName);
         }
 
@@ -161,8 +162,7 @@ namespace Oracle
             if (!_main.Item("useMuramana").GetValue<bool>())
                 return;
 
-            SpellSlot mmslot = Me.GetSpellSlot("Muramana");
-            if (mmslot != SpellSlot.Unknown)
+            if (_mmslot != SpellSlot.Unknown)
             {
                 if (_target == null)
                     return;
@@ -172,11 +172,11 @@ namespace Oracle
                     var manaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
                     if (args.Animation.Contains("Attack"))
                     {
-                        if (Me.Spellbook.CanUseSpell(mmslot) != SpellState.Unknown)
+                        if (Me.Spellbook.CanUseSpell(_mmslot) != SpellState.Unknown)
                         {
                             if (!Me.HasBuff("Muramana") && _main.Item("ouseOn" + _target.SkinName).GetValue<bool>())
                                 if (manaPercent > _main.Item("useMuramanaMana").GetValue<Slider>().Value)
-                                    Me.Spellbook.CastSpell(mmslot);
+                                    Me.Spellbook.CastSpell(_mmslot);
                         }
                     }
                 }
@@ -193,42 +193,34 @@ namespace Oracle
 
             Utility.DelayAction.Add(1000, delegate
             {
-                SpellSlot mmslot = Me.GetSpellSlot("Muramana");
-                if (mmslot != SpellSlot.Unknown)
+                if (_mmslot != SpellSlot.Unknown)
                 {
-                    if (Me.Spellbook.CanUseSpell(mmslot) == SpellState.Unknown)
-                        return;
-
                     if (Me.HasBuff("Muramana"))
-                        Me.Spellbook.CastSpell(mmslot);
+                        Me.Spellbook.CastSpell(_mmslot);
                 }
             });
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            SpellSlot mmslot = Me.GetSpellSlot("Muramana");
-            if (mmslot == SpellSlot.Unknown)
+            if (_mmslot == SpellSlot.Unknown)
                 return;
-
             if (!_main.Item("useMuramana").GetValue<bool>())
                 return;
 
             if (sender.IsMe && OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
             {
-                var manaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
-                if (Me.Spellbook.CanUseSpell(mmslot) == SpellState.Unknown) 
+                var manaPercent = (int)((Me.Mana / Me.MaxMana) * 100);
+                if (Me.Spellbook.CanUseSpell(_mmslot) != SpellState.Ready)
                     return;
-
                 if (OracleLists.OnHitEffectList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    if (!Me.HasBuff("Muramana") && _main.Item("ouseOn" + _target.SkinName).GetValue<bool>())
+                    if (!Me.HasBuff("Muramana"))
                     {
-                        if (manaPercent > _main.Item("useMuramanaMana").GetValue<Slider>().Value)
-                        {
-                            Me.Spellbook.CastSpell(mmslot);
-                            _castTime = Environment.TickCount;
-                        }
+                        if (manaPercent <= _main.Item("useMuramanaMana").GetValue<Slider>().Value)
+                            return;
+                        Me.Spellbook.CastSpell(_mmslot);
+                        _castTime = Environment.TickCount;
                     }
                 }
             }

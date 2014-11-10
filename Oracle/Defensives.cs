@@ -53,9 +53,9 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Items.HasItem(3351) && _main.Item("useOracles").GetValue<bool>())
+            if (Items.HasItem(3364) && _main.Item("useOracles").GetValue<bool>())
             {
-                if (!Items.CanUseItem(3351))
+                if (!Items.CanUseItem(3364))
                     return;
 
                 if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
@@ -65,12 +65,12 @@ namespace Oracle
                 Obj_AI_Hero target = OC.FriendlyTarget();
                 foreach (Obj_AI_Hero ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(600)))
                 {
-                    if (target.Distance(Me.Position) > 600)
+                    if (target.Distance(Me.Position) > 500)
                         return;
 
                     if ((ene.NetworkId == _stealthTarget.NetworkId && _stealth) || target.HasBuff("RengarRBuff", true))
                         if (_config.Item("duseOn" + ene.SkinName).GetValue<bool>())
-                            Items.UseItem(3351);
+                            Items.UseItem(3364, target.Position);
                 }
             }
 
@@ -172,13 +172,11 @@ namespace Oracle
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            _stealth = false;
+        {                   
             if (sender.IsEnemy && sender.Type == Me.Type)
-            {
+            {;
                 if (sender.Distance(Me.Position) > 750f)
                     return;
-
                 if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
                     _onProcessSpell = args.SData.Name;
@@ -190,6 +188,11 @@ namespace Oracle
                 {
                     _stealth = true;
                     _stealthTarget = (Obj_AI_Hero) sender;
+                }
+                else
+                {
+                    _stealth = false;
+                    _stealthTarget = null;
                 }
             }
         }

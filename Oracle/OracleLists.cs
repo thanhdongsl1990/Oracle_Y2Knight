@@ -7,6 +7,7 @@ namespace Oracle
     {
         public static readonly List<String> OnHitEffectList = new List<string>
         {
+            "TalonRake",
             "DariusNoxianTacticsONH",
             "RengarQ",
             "RenektonPreExecute",

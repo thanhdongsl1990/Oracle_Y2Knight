@@ -13,7 +13,7 @@ namespace Oracle
         // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
 
-        public const string Revision = "154";
+        public const string Revision = "155";
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;
@@ -27,10 +27,6 @@ namespace Oracle
         private static void OnGameLoad(EventArgs args)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-
-            Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
-
             Origin = new Menu("Oracle", "oracle", true);
 
             Cleansers.Initialize(Origin);
@@ -42,7 +38,11 @@ namespace Oracle
 
             Origin.AddItem(new MenuItem("ComboKey", "Combo (Active)").SetValue(new KeyBind(32, KeyBindType.Press)));
             Origin.AddToMainMenu();
+
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_MainProcessSpellCast;
+            Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
         }
+
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
@@ -90,7 +90,7 @@ namespace Oracle
             return (float) damage;
         }
 
-        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        private static void Obj_AI_Base_MainProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             IncomeDamage = 0;
             MinionDamage = 0;
