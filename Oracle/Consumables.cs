@@ -7,20 +7,20 @@ namespace Oracle
 {
     internal static class Consumables
     {
-        private static Menu Main;
+        private static Menu _main;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Initialize(Menu Root)
+        public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Main = new Menu("Consumables", "imenu");
+            _main = new Menu("Consumables", "imenu");
 
             CreateMenuItem("Biscuit", "Biscuit", 40, 25, true, true);
             CreateMenuItem("Mana Potion", "Mana", 40, 0);
             CreateMenuItem("Health Potion", "Health", 40, 25, false, true);
             CreateMenuItem("Crystaline Flask", "Flask", 40, 35, true, true);
 
-            Root.AddSubMenu(Main);
+            root.AddSubMenu(_main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -36,7 +36,7 @@ namespace Oracle
             if (Me.HasBuff(name) || Me.HasBuff("Recall") || !Items.HasItem(name))
                 return;
 
-            if (!Main.Item("use" + menuvar).GetValue<bool>())
+            if (!_main.Item("use" + menuvar).GetValue<bool>())
                 return;
 
             SpellSlot consumable = Me.GetSpellSlot(name);
@@ -52,7 +52,7 @@ namespace Oracle
             var iDamagePercent = (int) ((incdmg/Me.MaxHealth)*100);
             var mDamagePercent = (int) ((mindmg/Me.MaxHealth)*100);
 
-            if (usehealth && aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
+            if (usehealth && aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
             {
                 if (iDamagePercent >= 1 || incdmg >= Me.Health || Me.HasBuff("summonerdot") ||
                     mDamagePercent >= 1 || mindmg >= Me.Health)
@@ -60,13 +60,13 @@ namespace Oracle
                     if (OC.AggroTarget.NetworkId == Me.NetworkId)
                         consumableslot.Cast();
                 }
-                else if (iDamagePercent >= Main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+                else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                 {
                     if (OC.AggroTarget.NetworkId == Me.NetworkId)
                         consumableslot.Cast();
                 }
             }
-            else if (usemana && aManaPercent <= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+            else if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
             {
                 // check if we use mana
                 if (Me.Mana != 0)
@@ -87,7 +87,7 @@ namespace Oracle
             }
             if (usemana)
                 menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Use on Mana %")).SetValue(new Slider(40));
-            Main.AddSubMenu(menuName);
+            _main.AddSubMenu(menuName);
         }
     }
 }

@@ -8,40 +8,40 @@ namespace Oracle
 {
     internal static class Cleansers
     {
-        private static Menu Config, Main;
+        private static Menu _config, _main;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Initialize(Menu Root)
+        public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
 
-            Main = new Menu("Cleansers", "cmenu");
-            Config = new Menu("Cleanse Config", "cconfig");
+            _main = new Menu("Cleansers", "cmenu");
+            _config = new Menu("Cleanse Config", "cconfig");
 
             foreach (Obj_AI_Hero a in ObjectManager.Get<Obj_AI_Hero>().Where(a => a.Team == Me.Team))
-                Config.AddItem(new MenuItem("cuseOn" + a.SkinName, "Use for " + a.SkinName)).SetValue(true);
+                _config.AddItem(new MenuItem("cuseOn" + a.SkinName, "Use for " + a.SkinName)).SetValue(true);
 
-            Config.AddItem(new MenuItem("sep1", "=== Buff Types"));
-            Config.AddItem(new MenuItem("stun", "Stuns")).SetValue(true);
-            Config.AddItem(new MenuItem("charm", "Charms")).SetValue(true);
-            Config.AddItem(new MenuItem("taunt", "Taunts")).SetValue(true);
-            Config.AddItem(new MenuItem("fear", "Fears")).SetValue(true);
-            Config.AddItem(new MenuItem("snare", "Snares")).SetValue(true);
-            Config.AddItem(new MenuItem("silence", "Silences")).SetValue(true);
-            Config.AddItem(new MenuItem("supression", "Supression")).SetValue(true);
-            Config.AddItem(new MenuItem("polymorph", "Polymorphs")).SetValue(true);
-            Config.AddItem(new MenuItem("blind", "Blinds")).SetValue(false);
-            Config.AddItem(new MenuItem("slow", "Slows")).SetValue(false);
-            Config.AddItem(new MenuItem("poison", "Poisons")).SetValue(false);
+            _config.AddItem(new MenuItem("sep1", "=== Buff Types"));
+            _config.AddItem(new MenuItem("stun", "Stuns")).SetValue(true);
+            _config.AddItem(new MenuItem("charm", "Charms")).SetValue(true);
+            _config.AddItem(new MenuItem("taunt", "Taunts")).SetValue(true);
+            _config.AddItem(new MenuItem("fear", "Fears")).SetValue(true);
+            _config.AddItem(new MenuItem("snare", "Snares")).SetValue(true);
+            _config.AddItem(new MenuItem("silence", "Silences")).SetValue(true);
+            _config.AddItem(new MenuItem("supression", "Supression")).SetValue(true);
+            _config.AddItem(new MenuItem("polymorph", "Polymorphs")).SetValue(true);
+            _config.AddItem(new MenuItem("blind", "Blinds")).SetValue(false);
+            _config.AddItem(new MenuItem("slow", "Slows")).SetValue(false);
+            _config.AddItem(new MenuItem("poison", "Poisons")).SetValue(false);
 
-            Main.AddSubMenu(Config);
+            _main.AddSubMenu(_config);
 
             CreateMenuItem("Quicksilver Sash", "Quicksilver", 2);
             CreateMenuItem("Deverish Blade", "Deverish", 2);
             CreateMenuItem("Mercurial Scimitar", "Mercurial", 2);
             CreateMenuItem("Mikael's Crucible", "Mikaels", 2);
 
-            Root.AddSubMenu(Main);
+            root.AddSubMenu(_main);
         }
 
 
@@ -58,7 +58,7 @@ namespace Oracle
 
         private static void UseItem(string name, int itemId, float itemRange = float.MaxValue, bool selfuse = true)
         {
-            if (!Main.Item("use" + name).GetValue<bool>())
+            if (!_main.Item("use" + name).GetValue<bool>())
                 return;
 
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
@@ -67,8 +67,8 @@ namespace Oracle
             Obj_AI_Hero target = selfuse ? Me : OC.FriendlyTarget();
             if (target.Distance(Me.Position) <= itemRange)
             {
-                if (BuffCount(target) >= Main.Item(name + "Count").GetValue<Slider>().Value &&
-                    Config.Item("cuseOn" + target.SkinName).GetValue<bool>())
+                if (BuffCount(target) >= _main.Item(name + "Count").GetValue<Slider>().Value &&
+                    _config.Item("cuseOn" + target.SkinName).GetValue<bool>())
                     Items.UseItem(itemId, target);
             }
         }
@@ -78,57 +78,54 @@ namespace Oracle
             var menuName = new Menu(displayname, name);
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
             menuName.AddItem(new MenuItem(name + "Count", "Min spells to use")).SetValue(new Slider(ccvalue, 1, 5));
-            //if (durationcount)
-            //    menuName.AddItem(new MenuItem(name + "Time", "Debuff durration to use")).SetValue(new Slider(timevalue, 1, 5));
-
-            Main.AddSubMenu(menuName);
+            _main.AddSubMenu(menuName);
         }
 
         private static int BuffCount(Obj_AI_Base unit)
         {
             int cc = 0;
 
-            if (Config.Item("slow").GetValue<bool>())
+            if (_config.Item("slow").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Slow))
                     cc += 1;
 
-            if (Config.Item("blind").GetValue<bool>())
+            if (_config.Item("blind").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Blind))
                     cc += 1;
 
-            if (Config.Item("charm").GetValue<bool>())
+            if (_config.Item("charm").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Charm))
                     cc += 1;
 
-            if (Config.Item("fear").GetValue<bool>())
+            if (_config.Item("fear").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Fear))
                     cc += 1;
 
-            if (Config.Item("snare").GetValue<bool>())
+            if (_config.Item("snare").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Snare))
                     cc += 1;
 
-            if (Config.Item("taunt").GetValue<bool>())
+            if (_config.Item("taunt").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Taunt))
                     cc += 1;
 
-            if (Config.Item("supression").GetValue<bool>())
+            if (_config.Item("supression").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Suppression))
                     cc += 1;
 
-            if (Config.Item("stun").GetValue<bool>())
+            if (_config.Item("stun").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Stun))
                     cc += 1;
 
-            if (Config.Item("polymorph").GetValue<bool>())
+            if (_config.Item("polymorph").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Polymorph))
                     cc += 1;
 
-            if (Config.Item("silence").GetValue<bool>())
+            if (_config.Item("silence").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Silence))
                     cc += 1;
 
-            if (Config.Item("poison").GetValue<bool>())
+            if (_config.Item("poison").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Poison))
                     cc += 1;
 

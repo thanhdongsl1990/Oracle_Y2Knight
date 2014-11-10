@@ -8,24 +8,24 @@ namespace Oracle
 {
     internal static class Offensives
     {
-        private static Menu Main, Config;
-        private static int CastTime;
-        private static Obj_AI_Hero Target;
+        private static Menu _main, _config;
+        private static int _castTime;
+        private static Obj_AI_Hero _target;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Initialize(Menu Root)
+        public static void Initialize(Menu root)
         {
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Base_OnPlayAnimation;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Game.OnGameUpdate += Game_OnGameUpdate;
 
-            Main = new Menu("Offensives", "omenu");
-            Config = new Menu("Offensive Config", "oconfig");
+            _main = new Menu("Offensives", "omenu");
+            _config = new Menu("Offensive Config", "oconfig");
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsEnemy))
-                Config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
-            Main.AddSubMenu(Config);
+                _config.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
+            _main.AddSubMenu(_config);
 
             CreateMenuItem("Tiamat", "Tiamat", 90, 30);
             CreateMenuItem("Entropy", "Entropy", 90, 30);
@@ -40,13 +40,13 @@ namespace Oracle
             CreateMenuItem("Frost Queen's Claim", "Frostclaim", 90, 30);
             CreateMenuItem("Sword of Divine", "Divine", 90, 30);
 
-            Root.AddSubMenu(Main);
+            root.AddSubMenu(_main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            Target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
-            if (Target != null)
+            _target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
+            if (_target != null)
             {
                 if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
@@ -64,12 +64,12 @@ namespace Oracle
                 }
             }
 
-            if (Main.Item("useMuramana").GetValue<bool>())
+            if (_main.Item("useMuramana").GetValue<bool>())
             {
                 SpellSlot mmslot = Me.GetSpellSlot("Muramana");
                 if (mmslot != SpellSlot.Unknown)
                 {
-                    if (Me.HasBuff("Muramana") && CastTime + 400 < Environment.TickCount)
+                    if (Me.HasBuff("Muramana") && _castTime + 400 < Environment.TickCount)
                         Me.Spellbook.CastSpell(mmslot);
                 }
             }
@@ -81,21 +81,21 @@ namespace Oracle
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            if (!Main.Item("use" + name).GetValue<bool>())
+            if (!_main.Item("use" + name).GetValue<bool>())
                 return;
 
             if (itemId == 3128)
             {
-                damage = OC.DamageCheck(Me, Target);
+                damage = OC.DamageCheck(Me, _target);
             }
 
-            if (Target.Distance(Me.Position) <= itemRange)
+            if (_target.Distance(Me.Position) <= itemRange)
             {
-                var eHealthPercent = (int) ((Target.Health/Target.MaxHealth)*100);
-                var aHealthPercent = (int) ((Me.Health/Target.MaxHealth)*100);
+                var eHealthPercent = (int) ((_target.Health/_target.MaxHealth)*100);
+                var aHealthPercent = (int) ((Me.Health/_target.MaxHealth)*100);
 
-                if (eHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
-                    Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
+                if (eHealthPercent <= _main.Item("use" + name + "Pct").GetValue<Slider>().Value &&
+                    _main.Item("ouseOn" + _target.SkinName).GetValue<bool>())
                 {
                     if (targeted && itemId == 3092)
                     {
@@ -108,7 +108,7 @@ namespace Oracle
                             Radius = 250f,
                             Range = 850f,
                             Speed = 1500f,
-                            Unit = Target,
+                            Unit = _target,
                             Type = SkillshotType.SkillshotCircle
                         };
 
@@ -118,21 +118,21 @@ namespace Oracle
                     }
                     else if (targeted)
                     {
-                        if (itemId == 3128 && damage < Target.Health)
+                        if (itemId == 3128 && damage < _target.Health)
                             return;
 
-                        Items.UseItem(itemId, Target);
+                        Items.UseItem(itemId, _target);
                     }
                     else
                     {
                         Items.UseItem(itemId);
                     }
                 }
-                else if (aHealthPercent <= Main.Item("use" + name + "Me").GetValue<Slider>().Value &&
-                         Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
+                else if (aHealthPercent <= _main.Item("use" + name + "Me").GetValue<Slider>().Value &&
+                         _main.Item("ouseOn" + _target.SkinName).GetValue<bool>())
                 {
                     if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                        Items.UseItem(itemId, Target);
+                        Items.UseItem(itemId, _target);
                     else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
                     {
                         Items.UseItem(itemId);
@@ -150,7 +150,7 @@ namespace Oracle
                 menuName.AddItem(new MenuItem("use" + name + "Me", "Use on my HP %")).SetValue(new Slider(avalue));
             if (usemana)
                 menuName.AddItem(new MenuItem("use" + name + "Mana", "Minimum mana % to use")).SetValue(35);
-            Main.AddSubMenu(menuName);
+            _main.AddSubMenu(menuName);
         }
 
         private static void Obj_AI_Base_OnPlayAnimation(GameObject sender, GameObjectPlayAnimationEventArgs args)
@@ -158,13 +158,13 @@ namespace Oracle
             if (!sender.IsMe)
                 return;
 
-            if (!Main.Item("useMuramana").GetValue<bool>())
+            if (!_main.Item("useMuramana").GetValue<bool>())
                 return;
 
             SpellSlot mmslot = Me.GetSpellSlot("Muramana");
             if (mmslot != SpellSlot.Unknown)
             {
-                if (Target == null)
+                if (_target == null)
                     return;
 
                 if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
@@ -174,8 +174,8 @@ namespace Oracle
                     {
                         if (Me.Spellbook.CanUseSpell(mmslot) != SpellState.Unknown)
                         {
-                            if (!Me.HasBuff("Muramana") && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
-                                if (manaPercent > Main.Item("useMuramanaMana").GetValue<Slider>().Value)
+                            if (!Me.HasBuff("Muramana") && _main.Item("ouseOn" + _target.SkinName).GetValue<bool>())
+                                if (manaPercent > _main.Item("useMuramanaMana").GetValue<Slider>().Value)
                                     Me.Spellbook.CastSpell(mmslot);
                         }
                     }
@@ -188,7 +188,7 @@ namespace Oracle
             if (!unit.IsMe)
                 return;
 
-            if (!Main.Item("useMuramana").GetValue<bool>())
+            if (!_main.Item("useMuramana").GetValue<bool>())
                 return;
 
             Utility.DelayAction.Add(1000, delegate
@@ -211,7 +211,7 @@ namespace Oracle
             if (mmslot == SpellSlot.Unknown)
                 return;
 
-            if (!Main.Item("useMuramana").GetValue<bool>())
+            if (!_main.Item("useMuramana").GetValue<bool>())
                 return;
 
             if (sender.IsMe && OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
@@ -222,12 +222,12 @@ namespace Oracle
 
                 if (OracleLists.OnHitEffectList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    if (!Me.HasBuff("Muramana") && Main.Item("ouseOn" + Target.SkinName).GetValue<bool>())
+                    if (!Me.HasBuff("Muramana") && _main.Item("ouseOn" + _target.SkinName).GetValue<bool>())
                     {
-                        if (manaPercent > Main.Item("useMuramanaMana").GetValue<Slider>().Value)
+                        if (manaPercent > _main.Item("useMuramanaMana").GetValue<Slider>().Value)
                         {
                             Me.Spellbook.CastSpell(mmslot);
-                            CastTime = Environment.TickCount;
+                            _castTime = Environment.TickCount;
                         }
                     }
                 }

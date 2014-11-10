@@ -10,25 +10,25 @@ namespace Oracle
 {
     internal static class Defensives
     {
-        private static bool Stealth;
-        private static string OnProcessSpell;
-        private static Menu Main, Config;
-        private static Vector3 OnProcessEnd;
-        private static Obj_AI_Hero StealthTarget;
-        private static Obj_AI_Hero OnProcessTarget;
+        private static bool _stealth;
+        private static string _onProcessSpell;
+        private static Menu _main, _config;
+        private static Vector3 _onProcessEnd;
+        private static Obj_AI_Hero _stealthTarget;
+        private static Obj_AI_Hero _onProcessTarget;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Initialize(Menu Root)
+        public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
 
-            Main = new Menu("Defensives", "dmenu");
-            Config = new Menu("Defensive Config", "dconfig");
+            _main = new Menu("Defensives", "dmenu");
+            _config = new Menu("Defensive Config", "dconfig");
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
-                Config.AddItem(new MenuItem("duseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
-            Main.AddSubMenu(Config);
+                _config.AddItem(new MenuItem("duseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
+            _main.AddSubMenu(_config);
 
             CreateMenuItem("Randuin's Omen", "Randuins", 40, 40, true);
             CreateMenuItem("Seraph's Embrace", "Seraphs", 55, 40);
@@ -39,27 +39,27 @@ namespace Oracle
 
             var bMenu = new Menu("Banner of Command", "bannerc");
             bMenu.AddItem(new MenuItem("useBanner", "Use Banner of Command")).SetValue(true);
-            Main.AddSubMenu(bMenu);
+            _main.AddSubMenu(bMenu);
 
             var oMenu = new Menu("Oracle's Lens", "olens");
             oMenu.AddItem(new MenuItem("useOracles", "Use on Stealth")).SetValue(true);
             //oMenu.AddItem(new MenuItem("usePink", "Use Pink Ward?")).SetValue(true);
             oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] {"Always", "Combo"}));
-            Main.AddSubMenu(oMenu);
+            _main.AddSubMenu(oMenu);
 
             CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
-            Root.AddSubMenu(Main);
+            root.AddSubMenu(_main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Items.HasItem(3351) && Main.Item("useOracles").GetValue<bool>())
+            if (Items.HasItem(3351) && _main.Item("useOracles").GetValue<bool>())
             {
                 if (!Items.CanUseItem(3351))
                     return;
 
                 if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
-                    Main.Item("oracleMode").GetValue<StringList>().SelectedIndex == 1)
+                    _main.Item("oracleMode").GetValue<StringList>().SelectedIndex == 1)
                     return;
 
                 Obj_AI_Hero target = OC.FriendlyTarget();
@@ -68,19 +68,19 @@ namespace Oracle
                     if (target.Distance(Me.Position) > 600)
                         return;
 
-                    if ((ene.NetworkId == StealthTarget.NetworkId && Stealth) || target.HasBuff("RengarRBuff", true))
-                        if (Config.Item("duseOn" + ene.SkinName).GetValue<bool>())
+                    if ((ene.NetworkId == _stealthTarget.NetworkId && _stealth) || target.HasBuff("RengarRBuff", true))
+                        if (_config.Item("duseOn" + ene.SkinName).GetValue<bool>())
                             Items.UseItem(3351);
                 }
             }
 
-            if (Items.HasItem(3060) && Main.Item("useBanner").GetValue<bool>())
+            if (Items.HasItem(3060) && _main.Item("useBanner").GetValue<bool>())
             {
-                List<Obj_AI_Base> MinionList = MinionManager.GetMinions(Me.Position, 1000);
-                if (!MinionList.Any())
+                List<Obj_AI_Base> minionList = MinionManager.GetMinions(Me.Position, 1000);
+                if (!minionList.Any())
                     return;
 
-                foreach (Obj_AI_Base m in MinionList.Where(minion => minion.IsValidTarget(1000)
+                foreach (Obj_AI_Base m in minionList.Where(minion => minion.IsValidTarget(1000)
                                                                      && minion.BaseSkinName.Contains("MechCannon")))
                 {
                     Items.UseItem(3060, m);
@@ -104,7 +104,7 @@ namespace Oracle
 
         private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0, bool selfuse = false, bool targeted = false)
         {
-            if (!Main.Item("use" + name).GetValue<bool>())
+            if (!_main.Item("use" + name).GetValue<bool>())
                 return;
 
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
@@ -116,7 +116,7 @@ namespace Oracle
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                 var iDamagePercent = (int) (incdmg/target.MaxHealth*100);
 
-                if (!Config.Item("duseOn" + target.SkinName).GetValue<bool>())
+                if (!_config.Item("duseOn" + target.SkinName).GetValue<bool>())
                     return;
 
                 if (OC.AggroTarget.Distance(Me.Position) > itemRange)
@@ -124,7 +124,7 @@ namespace Oracle
 
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall"))
                 {
-                    if (aHealthPercent <= Main.Item("use" + name + "Pct").GetValue<Slider>().Value)
+                    if (aHealthPercent <= _main.Item("use" + name + "Pct").GetValue<Slider>().Value)
                     {
                         if ((iDamagePercent >= 1 || incdmg >= target.Health &&
                              OC.AggroTarget.NetworkId == target.NetworkId))
@@ -135,8 +135,8 @@ namespace Oracle
                                 Items.UseItem(itemId);
                         }
 
-                        else if (iDamagePercent >= Main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
-                                 Main.Item("duseOn" + target.SkinName).GetValue<bool>())
+                        else if (iDamagePercent >= _main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
+                                 _main.Item("duseOn" + target.SkinName).GetValue<bool>())
                         {
                             if (targeted)
                                 Items.UseItem(itemId, target);
@@ -144,10 +144,10 @@ namespace Oracle
                                 Items.UseItem(itemId);
                         }
                     }
-                    else if (OnProcessSpell != null &&
-                             (OnProcessTarget.Distance(target.Position) <= 400f || target.Distance(OnProcessEnd) <= 250f))
+                    else if (_onProcessSpell != null &&
+                             (_onProcessTarget.Distance(target.Position) <= 400f || target.Distance(_onProcessEnd) <= 250f))
                     {
-                        if (Main.Item("use" + name + "Danger").GetValue<bool>())
+                        if (_main.Item("use" + name + "Danger").GetValue<bool>())
                         {
                             if (targeted)
                                 Items.UseItem(itemId, target);
@@ -169,12 +169,12 @@ namespace Oracle
             if (itemcount)
                 menuName.AddItem(new MenuItem("use" + name + "Count", "Use on Count")).SetValue(new Slider(3, 1, 5));
             menuName.AddItem(new MenuItem("use" + name + "Danger", "Use on Dangerous")).SetValue(true);
-            Main.AddSubMenu(menuName);
+            _main.AddSubMenu(menuName);
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            Stealth = false;
+            _stealth = false;
             if (sender.IsEnemy && sender.Type == Me.Type)
             {
                 if (sender.Distance(Me.Position) > 750f)
@@ -182,15 +182,15 @@ namespace Oracle
 
                 if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    OnProcessSpell = args.SData.Name;
-                    OnProcessEnd = args.End;
-                    OnProcessTarget = (Obj_AI_Hero) sender;
+                    _onProcessSpell = args.SData.Name;
+                    _onProcessEnd = args.End;
+                    _onProcessTarget = (Obj_AI_Hero) sender;
                 }
 
                 if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    Stealth = true;
-                    StealthTarget = (Obj_AI_Hero) sender;
+                    _stealth = true;
+                    _stealthTarget = (Obj_AI_Hero) sender;
                 }
             }
         }

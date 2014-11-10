@@ -8,14 +8,14 @@ namespace Oracle
 {
     internal static class AutoSpells
     {
-        private static Menu Main, Config;
+        private static Menu _main, _config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        public static void Initialize(Menu Root)
+        public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Main = new Menu("Auto Spells", "asmenu");
-            Config = new Menu("Auto Spell Config", "asconfig");
+            _main = new Menu("Auto Spells", "asmenu");
+            _config = new Menu("Auto Spell Config", "asconfig");
 
             // auto shields
             CreateMenuItem(95, "BraumE", "Unbreakable", "braumshield", SpellSlot.E);
@@ -62,7 +62,7 @@ namespace Oracle
             CreateMenuItem(0, "EvelynnW", "Draw Frenzy", "eveslow", SpellSlot.W, false, false, true);
             CreateMenuItem(0, "GarenQ", "Decisive Strike", "garenslow", SpellSlot.Q, false, false, true);
 
-            Root.AddSubMenu(Main);
+            root.AddSubMenu(_main);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -116,19 +116,19 @@ namespace Oracle
         private static void UseSpell(string sdataname, string menuvar, float incdmg, float spellRange = float.MaxValue, bool usemana = true,
             bool isheal = false)
         {
-            SpellSlot playerSlot = Me.GetSpellSlot(sdataname);
+            var playerSlot = Me.GetSpellSlot(sdataname);
             if (playerSlot == SpellSlot.Unknown)
                 return;
 
-            if (playerSlot != SpellSlot.Unknown && !Main.Item("use" + menuvar).GetValue<bool>())
+            if (playerSlot != SpellSlot.Unknown && !_main.Item("use" + menuvar).GetValue<bool>())
                 return;
 
             var playerSpell = new Spell(playerSlot, spellRange);
             if (!playerSpell.IsReady())
                 return;
 
-            bool allyuse = spellRange.ToString() != float.MaxValue.ToString();
-            Obj_AI_Hero target = allyuse ? OC.FriendlyTarget() : Me;
+            var allyuse = spellRange.ToString() != float.MaxValue.ToString();
+            var target = allyuse ? OC.FriendlyTarget() : Me;
 
             if (target.Distance(Me.Position) <= spellRange)
             {
@@ -136,7 +136,7 @@ namespace Oracle
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                 var iDamagePercent = (int) ((incdmg/target.MaxHealth)*100);
 
-                if (!Config.Item("ason" + target.SkinName).GetValue<bool>())
+                if (!_config.Item("ason" + target.SkinName).GetValue<bool>())
                     return;
 
                 if (OC.AggroTarget.Distance(Me.Position) > playerSpell.Range)
@@ -144,12 +144,12 @@ namespace Oracle
 
                 if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
                 {
-                    if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
+                    if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
                     {
-                        if (usemana && aManaPercent <= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+                        if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
                             return;
 
-                        if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
+                        if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
 
                         if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) &&
@@ -170,7 +170,7 @@ namespace Oracle
                                     Type = SkillshotType.SkillshotLine
                                 };
 
-                                PredictionOutput po = Prediction.GetPrediction(pi);
+                                var po = Prediction.GetPrediction(pi);
                                 if (po.Hitchance >= HitChance.Medium && !target.IsMe)
                                     playerSpell.Cast(po.CastPosition);
                                 else
@@ -184,15 +184,15 @@ namespace Oracle
                             }
                         }
                     }
-                    else if (aHealthPercent <= Main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
+                    else if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                     {
-                        if (Me.SkinName == "Soraka" && aHealthPercent <= Main.Item("useSorakaMana").GetValue<Slider>().Value)
+                        if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
 
-                        if (aManaPercent >= Main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
+                        if (aManaPercent >= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                             playerSpell.Cast(target);
                     }
-                    else if (iDamagePercent >= Main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+                    else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                     {
                         playerSpell.Cast(target);
                     }
@@ -203,12 +203,12 @@ namespace Oracle
         private static void CreateMenuItem(int defaultvalue, string sdataname, string displayname, string menuvar, SpellSlot slot,
             bool usemana = true, bool autoult = false, bool slowremoval = false)
         {
-            SpellSlot champslot = Me.GetSpellSlot(sdataname);
+            var champslot = Me.GetSpellSlot(sdataname);
             if (champslot != SpellSlot.Unknown && champslot == slot)
             {
-                foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
-                    Config.AddItem(new MenuItem("ason" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
-                Main.AddSubMenu(Config);
+                foreach (var x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
+                    _config.AddItem(new MenuItem("ason" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
+                _main.AddSubMenu(_config);
 
                 var menuName = new Menu(displayname, menuvar.ToLower());
                 menuName.AddItem(new MenuItem("use" + menuvar, "Enable " + displayname)).SetValue(true);
@@ -222,7 +222,7 @@ namespace Oracle
                     menuName.AddItem(new MenuItem("useSorakaMana", "Minimum HP % to use")).SetValue(new Slider(35));
                 if (usemana)
                     menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Minimum mana % to use")).SetValue(new Slider(45));
-                Main.AddSubMenu(menuName);
+                _main.AddSubMenu(menuName);
             }
         }
     }
