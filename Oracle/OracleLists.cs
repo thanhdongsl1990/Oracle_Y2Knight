@@ -7,7 +7,6 @@ namespace Oracle
     {
         public static readonly List<String> OnHitEffectList = new List<string>
         {
-            "TalonRake",
             "DariusNoxianTacticsONH",
             "RengarQ",
             "RenektonPreExecute",
@@ -26,7 +25,10 @@ namespace Oracle
             "ShyvanaDoubleAttackHitDragon",
             "InfiniteDuress",
             "IreliaGatotsu",
-            "LucianPassiveShot"
+            "LucianPassiveShot",
+            "NetherBlade"
+
+            // single target spells
         };
 
         public static readonly List<String> ExhaustList = new List<string>
