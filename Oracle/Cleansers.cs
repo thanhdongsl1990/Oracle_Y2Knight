@@ -18,7 +18,7 @@ namespace Oracle
             Main = new Menu("Cleansers", "cmenu");
             Config = new Menu("Cleanse Config", "cconfig");
 
-            foreach (var a in ObjectManager.Get<Obj_AI_Hero>().Where(a => a.Team == Me.Team))
+            foreach (Obj_AI_Hero a in ObjectManager.Get<Obj_AI_Hero>().Where(a => a.Team == Me.Team))
                 Config.AddItem(new MenuItem("cuseOn" + a.SkinName, "Use for " + a.SkinName)).SetValue(true);
 
             Config.AddItem(new MenuItem("sep1", "=== Buff Types"));
@@ -33,17 +33,17 @@ namespace Oracle
             Config.AddItem(new MenuItem("blind", "Blinds")).SetValue(false);
             Config.AddItem(new MenuItem("slow", "Slows")).SetValue(false);
             Config.AddItem(new MenuItem("poison", "Poisons")).SetValue(false);
+
             Main.AddSubMenu(Config);
 
             CreateMenuItem("Quicksilver Sash", "Quicksilver", 2);
             CreateMenuItem("Deverish Blade", "Deverish", 2);
             CreateMenuItem("Mercurial Scimitar", "Mercurial", 2);
             CreateMenuItem("Mikael's Crucible", "Mikaels", 2);
-                     
 
             Root.AddSubMenu(Main);
-
         }
+
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
@@ -54,30 +54,28 @@ namespace Oracle
                 UseItem("Mercurial", 3139);
                 UseItem("Deverish", 3137);
             }
-
         }
 
         private static void UseItem(string name, int itemId, float itemRange = float.MaxValue, bool selfuse = true)
         {
             if (!Main.Item("use" + name).GetValue<bool>())
                 return;
+
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-            if (OC.FriendlyTarget() == null)
-                return;
 
-            var target = selfuse ? Me : OC.FriendlyTarget();
+            Obj_AI_Hero target = selfuse ? Me : OC.FriendlyTarget();
             if (target.Distance(Me.Position) <= itemRange)
             {
-                if (BuffCount(target) >= Main.Item(name + "Count").GetValue<Slider>().Value && 
+                if (BuffCount(target) >= Main.Item(name + "Count").GetValue<Slider>().Value &&
                     Config.Item("cuseOn" + target.SkinName).GetValue<bool>())
-                        Items.UseItem(itemId, target);
+                    Items.UseItem(itemId, target);
             }
         }
 
         private static void CreateMenuItem(string displayname, string name, int ccvalue)
         {
-            Menu menuName = new Menu(displayname, name);
+            var menuName = new Menu(displayname, name);
             menuName.AddItem(new MenuItem("use" + name, "Use " + name)).SetValue(true);
             menuName.AddItem(new MenuItem(name + "Count", "Min spells to use")).SetValue(new Slider(ccvalue, 1, 5));
             //if (durationcount)
@@ -134,8 +132,7 @@ namespace Oracle
                 if (unit.HasBuffOfType(BuffType.Poison))
                     cc += 1;
 
-         return cc; 
-
+            return cc;
         }
     }
 }

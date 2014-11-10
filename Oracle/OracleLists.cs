@@ -5,7 +5,30 @@ namespace Oracle
 {
     public static class OracleLists
     {
-        public static readonly List<String> ExhaustList = new List<string>()
+        public static readonly List<String> OnHitEffectList = new List<string>
+        {
+            "DariusNoxianTacticsONH",
+            "RengarQ",
+            "RenektonPreExecute",
+            "JaxEmpowerTwo",
+            "JayceHyperChargeRangedAttack",
+            "MissFortuneRicochetShot",
+            "SivirW",
+            "TalonNoxianDiplomacy",
+            "Parley",
+            "YasuoQW",
+            "NasusQ",
+            "EzrealMysticShot",
+            "FizzPiercingStrike",
+            "MasterYiDoubleStrike",
+            "ShyvanaDoubleAttack",
+            "ShyvanaDoubleAttackHitDragon",
+            "InfiniteDuress",
+            "IreliaGatotsu",
+            "LucianPassiveShot"
+        };
+
+        public static readonly List<String> ExhaustList = new List<string>
         {
             "AlZaharNetherGrasp",
             "MissFortuneBulletTime",
@@ -29,10 +52,9 @@ namespace Oracle
             "LuxMaliceCannon",
             "FioraDance",
             "BrandWildfire",
-
         };
 
-        public static readonly List<String> DangerousList = new List<string>()
+        public static readonly List<String> DangerousList = new List<string>
         {
             "AzirR",
             "CurseoftheSadMummy",
@@ -61,7 +83,7 @@ namespace Oracle
             "EvelynnR"
         };
 
-        public static readonly List<String> InvisibleList = new List<string>()
+        public static readonly List<String> InvisibleList = new List<string>
         {
             "AkaliSmokeBomb",
             "KhazixR",
