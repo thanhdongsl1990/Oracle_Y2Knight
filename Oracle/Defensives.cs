@@ -174,7 +174,7 @@ namespace Oracle
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {                   
             if (sender.IsEnemy && sender.Type == Me.Type)
-            {;
+            {
                 if (sender.Distance(Me.Position) > 750f)
                     return;
                 if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
