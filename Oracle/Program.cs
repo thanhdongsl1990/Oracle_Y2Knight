@@ -68,15 +68,15 @@ namespace Oracle
         {
             double damage = 0;
             SpellSlot ignite = player.GetSpellSlot("summonerdot");
+
+            bool qready = player.Spellbook.CanUseSpell(SpellSlot.Q) == SpellState.Ready;
+            bool wready = player.Spellbook.CanUseSpell(SpellSlot.W) == SpellState.Ready;
+            bool eready = player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready;
+            bool rready = player.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready;
             bool igniteready = player.SummonerSpellbook.CanUseSpell(ignite) == SpellState.Ready;
 
             if (target != null)
             {
-                bool qready = player.Spellbook.CanUseSpell(SpellSlot.Q) == SpellState.Ready;
-                bool wready = player.Spellbook.CanUseSpell(SpellSlot.W) == SpellState.Ready;
-                bool eready = player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready;
-                bool rready = player.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready;
-
                 double aa = player.GetAutoAttackDamage(target);
                 double ii = igniteready ? player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) : 0;
                 double qq = qready ? player.GetSpellDamage(target, SpellSlot.Q) : 0;
