@@ -148,17 +148,11 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-
-
             CheckIgnite();
             CheckSmite();
             CheckClarity();
-
-            //if (OC.IncomeDamage >= 1)
-            //{
-                CheckHeal(OC.IncomeDamage);
-                CheckBarrier(OC.IncomeDamage);
-            //}
+            CheckHeal(OC.IncomeDamage);
+            CheckBarrier(OC.IncomeDamage);
         }
 
         private static void CheckIgnite()
@@ -261,7 +255,6 @@ namespace Oracle
             Obj_AI_Hero target = OC.FriendlyTarget();
             var iDamagePercent = (int) ((incdmg/Me.MaxHealth)*100);
 
-            Console.WriteLine(OC.AggroTarget.SkinName);
             if (target.Distance(Me.Position) <= 500f)
             {
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
