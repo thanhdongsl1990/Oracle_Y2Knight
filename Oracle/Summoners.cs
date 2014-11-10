@@ -237,8 +237,11 @@ namespace Oracle
                 if ((iDamagePercent >= 1 || incdmg >= Me.Health) && OC.AggroTarget.NetworkId == Me.NetworkId)
                     Me.SummonerSpellbook.CastSpell(bSlot, Me);
 
-                else if (iDamagePercent >= _main.Item("useBarrierDmg").GetValue<Slider>().Value)
+                else if (iDamagePercent >= _main.Item("useBarrierDmg").GetValue<Slider>().Value &&
+                         OC.AggroTarget.NetworkId == Me.NetworkId)
+                {
                     Me.SummonerSpellbook.CastSpell(bSlot, Me);
+                }
         }
 
         private static void CheckHeal(float incdmg = 0)
@@ -264,14 +267,14 @@ namespace Oracle
                 {
                     if (!Utility.InFountain() && !Me.HasBuff("Recall"))
                     {
-                        if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage))
+                        if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuff("summonerdot"))
                             && OC.AggroTarget.NetworkId == target.NetworkId)
                             Me.SummonerSpellbook.CastSpell(hSlot, target);
                     }
                 }
 
                 else if (iDamagePercent >= _main.Item("useHealDmg").GetValue<Slider>().Value &&
-                         _config.Item("suseOn" + target.SkinName).GetValue<bool>())
+                         _config.Item("suseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
                 {
                     if (!Utility.InFountain() && !Me.HasBuff("Recall"))
                         Me.SummonerSpellbook.CastSpell(hSlot, target);

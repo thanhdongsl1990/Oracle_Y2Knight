@@ -152,10 +152,9 @@ namespace Oracle
                         if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
                             return;
 
-                        if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuffOfType(BuffType.Damage) &&
-                             OC.AggroTarget.NetworkId == target.NetworkId))
+                        if ((iDamagePercent >= 1 || incdmg >= target.Health) && OC.AggroTarget.NetworkId == target.NetworkId)
                         {
-                            if (menuvar == "luxshield")
+                            if (menuvar == "luxshield" || menuvar == "rivenshield")
                             {
                                 var pi = new PredictionInput
                                 {

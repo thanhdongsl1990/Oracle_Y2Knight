@@ -126,8 +126,7 @@ namespace Oracle
                 {
                     if (aHealthPercent <= _main.Item("use" + name + "Pct").GetValue<Slider>().Value)
                     {
-                        if ((iDamagePercent >= 1 || incdmg >= target.Health &&
-                             OC.AggroTarget.NetworkId == target.NetworkId))
+                        if ((iDamagePercent >= 1 || incdmg >= target.Health && OC.AggroTarget.NetworkId == target.NetworkId))
                         {
                             if (targeted)
                                 Items.UseItem(itemId, target);
@@ -136,7 +135,7 @@ namespace Oracle
                         }
 
                         else if (iDamagePercent >= _main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
-                                 _main.Item("duseOn" + target.SkinName).GetValue<bool>())
+                                 _main.Item("duseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
                         {
                             if (targeted)
                                 Items.UseItem(itemId, target);
