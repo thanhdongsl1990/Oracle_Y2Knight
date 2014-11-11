@@ -25,10 +25,10 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("ItemMiniRegenPotion", "Biscuit", OC.MinionDamage, OC.IncomeDamage);
-            UseItem("ItemCrystalFlask", "Flask", OC.MinionDamage, OC.IncomeDamage);
-            UseItem("FlaskofCrystalWater", "Mana", 0, OC.IncomeDamage, false);
-            UseItem("RegenerationPotion", "Health", OC.MinionDamage, OC.IncomeDamage, true, false);
+            UseItem("ItemMiniRegenPotion", "Biscuit", OC.IncomeDamage, OC.MinionDamage);
+            UseItem("ItemCrystalFlask", "Flask", OC.IncomeDamage, OC.MinionDamage);
+            UseItem("FlaskOfCrystalWater", "Mana", 0, 0, false);
+            UseItem("RegenerationPotion", "Health", OC.IncomeDamage, OC.MinionDamage);
         }
 
         private static void UseItem(string name, string menuvar, float incdmg = 0, float mindmg = 0, bool usehealth = true, bool usemana = true)

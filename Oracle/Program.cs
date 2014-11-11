@@ -13,7 +13,7 @@ namespace Oracle
         // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
 
-        public const string Revision = "155";
+        public const string Revision = "156";
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;

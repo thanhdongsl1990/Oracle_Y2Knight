@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Oracle
 {
-    public static class OracleLists
+    public class OracleLists
     {
         public static readonly List<String> OnHitEffectList = new List<string>
         {
@@ -28,7 +28,6 @@ namespace Oracle
             "LucianPassiveShot",
             "NetherBlade"
 
-            // single target spells
         };
 
         public static readonly List<String> ExhaustList = new List<string>

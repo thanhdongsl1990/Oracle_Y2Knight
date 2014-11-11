@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using OC = Oracle.Program;
 
 namespace Oracle
@@ -11,11 +10,8 @@ namespace Oracle
     internal static class Defensives
     {
         private static bool _stealth;
-        private static string _onProcessSpell;
         private static Menu _main, _config;
-        private static Vector3 _onProcessEnd;
         private static Obj_AI_Hero _stealthTarget;
-        private static Obj_AI_Hero _onProcessTarget;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
@@ -143,17 +139,17 @@ namespace Oracle
                                 Items.UseItem(itemId);
                         }
                     }
-                    //else if (_onProcessSpell != null &&
-                    //         (_onProcessTarget.Distance(target.Position) <= 400f || target.Distance(_onProcessEnd) <= 250f))
-                    //{
-                    //    if (_main.Item("use" + name + "Danger").GetValue<bool>())
-                    //    {
-                    //        if (targeted)
-                    //            Items.UseItem(itemId, target);
-                    //        else
-                    //            Items.UseItem(itemId);
-                    //    }
-                    //}
+
+                    if (_main.Item("use" + name + "Danger").GetValue<bool>() && _main.Item("duseOn" + target.SkinName).GetValue<bool>())
+                    {
+                        if (_danger && OC.AggroTarget.NetworkId == target.NetworkId && target.Distance(_dangerArgs.End)  <= 200f)
+                        {
+                            if (targeted)
+                                Items.UseItem(itemId, target);
+                            else
+                                Items.UseItem(itemId);                          
+                        }
+                    }
                 }
             }
         }
@@ -167,21 +163,20 @@ namespace Oracle
                 menuName.AddItem(new MenuItem("use" + name + "Dmg", "Use on Dmg %")).SetValue(new Slider(dmgvalue));
             if (itemcount)
                 menuName.AddItem(new MenuItem("use" + name + "Count", "Use on Count")).SetValue(new Slider(3, 1, 5));
-            //menuName.AddItem(new MenuItem("use" + name + "Danger", "Use on Dangerous")).SetValue(true);
+            menuName.AddItem(new MenuItem("use" + name + "Danger", "Use on Dangerous")).SetValue(true);
             _main.AddSubMenu(menuName);
         }
 
+        private static bool _danger;
+        private static GameObjectProcessSpellCastEventArgs _dangerArgs;
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {                   
             if (sender.IsEnemy && sender.Type == Me.Type)
             {
-                if (sender.Distance(Me.Position) > 750f)
-                    return;
                 if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
-                    _onProcessSpell = args.SData.Name;
-                    _onProcessEnd = args.End;
-                    _onProcessTarget = (Obj_AI_Hero) sender;
+                    _danger = true;
+                    _dangerArgs = args;
                 }
 
                 if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
