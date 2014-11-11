@@ -144,10 +144,13 @@ namespace Oracle
                     {
                         if (_danger && OC.AggroTarget.NetworkId == target.NetworkId && target.Distance(_dangerArgs.End)  <= 200f)
                         {
-                            if (targeted)
-                                Items.UseItem(itemId, target);
-                            else
-                                Items.UseItem(itemId);                          
+                            if (_dangerTarget.Distance(target.Position) <= 800f)
+                            {
+                                if (targeted)
+                                    Items.UseItem(itemId, target);
+                                else
+                                    Items.UseItem(itemId);
+                            }
                         }
                     }
                 }
@@ -168,7 +171,10 @@ namespace Oracle
         }
 
         private static bool _danger;
+        private static Obj_AI_Base _dangerTarget;
         private static GameObjectProcessSpellCastEventArgs _dangerArgs;
+
+
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {                   
             if (sender.IsEnemy && sender.Type == Me.Type)
@@ -176,6 +182,7 @@ namespace Oracle
                 if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
                 {
                     _danger = true;
+                    _dangerTarget = sender;
                     _dangerArgs = args;
                 }
 
