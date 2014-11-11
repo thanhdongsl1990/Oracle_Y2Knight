@@ -33,6 +33,7 @@ namespace Oracle
             CreateMenuItem(95, "JarvanIVGoldenAegis", "Golden Aegis", "j4shield", SpellSlot.W);
             CreateMenuItem(95, "BlindMonkWOne", "Safegaurd", "leeshield", SpellSlot.W, false);
             CreateMenuItem(95, "RivenFeint", "Valor", "rivenshield", SpellSlot.E, false);
+            CreateMenuItem(95, "FioraRiposte", "Riposte", "fiorashield", SpellSlot.W, false);
             //CreateMenuItem(95, "BlackShield", "Black Shield", "morgshield", SpellSlot.E);
             //CreateMenuItem(95, "SivirE", "SpellShield", "sivirshield", SpellSlot.E);
             CreateMenuItem(95, "RumbleShield", "Scrap Shield", "rumbleshield", SpellSlot.W, false);
@@ -99,6 +100,7 @@ namespace Oracle
             UseSpell("SkarnerExoskeleton", "skarnershield", OC.IncomeDamage);
             UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", OC.IncomeDamage);
             UseSpell("MoltenShield", "annieshield", OC.IncomeDamage);
+            UseSpell("FioraRiposte", "fiorashield", OC.IncomeDamage, float.MaxValue, false);
             UseSpell("Obduracy", "malphshield", OC.IncomeDamage);
             UseSpell("DefensiveBallCurl", "rammusshield", OC.IncomeDamage);
             UseSpell("LuluR", "luluult", OC.IncomeDamage, 900f, false);

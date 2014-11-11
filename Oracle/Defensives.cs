@@ -143,17 +143,17 @@ namespace Oracle
                                 Items.UseItem(itemId);
                         }
                     }
-                    else if (_onProcessSpell != null &&
-                             (_onProcessTarget.Distance(target.Position) <= 400f || target.Distance(_onProcessEnd) <= 250f))
-                    {
-                        if (_main.Item("use" + name + "Danger").GetValue<bool>())
-                        {
-                            if (targeted)
-                                Items.UseItem(itemId, target);
-                            else
-                                Items.UseItem(itemId);
-                        }
-                    }
+                    //else if (_onProcessSpell != null &&
+                    //         (_onProcessTarget.Distance(target.Position) <= 400f || target.Distance(_onProcessEnd) <= 250f))
+                    //{
+                    //    if (_main.Item("use" + name + "Danger").GetValue<bool>())
+                    //    {
+                    //        if (targeted)
+                    //            Items.UseItem(itemId, target);
+                    //        else
+                    //            Items.UseItem(itemId);
+                    //    }
+                    //}
                 }
             }
         }
@@ -167,7 +167,7 @@ namespace Oracle
                 menuName.AddItem(new MenuItem("use" + name + "Dmg", "Use on Dmg %")).SetValue(new Slider(dmgvalue));
             if (itemcount)
                 menuName.AddItem(new MenuItem("use" + name + "Count", "Use on Count")).SetValue(new Slider(3, 1, 5));
-            menuName.AddItem(new MenuItem("use" + name + "Danger", "Use on Dangerous")).SetValue(true);
+            //menuName.AddItem(new MenuItem("use" + name + "Danger", "Use on Dangerous")).SetValue(true);
             _main.AddSubMenu(menuName);
         }
 

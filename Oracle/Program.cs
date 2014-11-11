@@ -46,6 +46,7 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            //ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W);
             FriendlyTarget();
         }
 
@@ -92,8 +93,11 @@ namespace Oracle
 
         private static void Obj_AI_Base_MainProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            IncomeDamage = 0;
+
+            IncomeDamage = 0; 
             MinionDamage = 0;
+
+            bool isfiora = ObjectManager.Player.BaseSkinName == "Fiora";
             AggroTarget = ObjectManager.Get<Obj_AI_Hero>()
                 .First(x => (x.NetworkId == args.Target.NetworkId || args.End.Distance(x.Position) <= 350)
                             && x.IsValidTarget(float.MaxValue, false) && x.IsAlly);
@@ -127,6 +131,11 @@ namespace Oracle
                             IncomeDamage = (float) attacker.GetAutoAttackDamage(AggroTarget);
                             break;
                     }
+                }
+
+                else if (OracleLists.OnHitEffectList.Any(x => x.Contains(args.SData.Name) && isfiora))
+                {
+                    IncomeDamage = (float)attacker.GetSpellDamage(AggroTarget, args.SData.Name);
                 }
             }
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)

@@ -70,6 +70,7 @@ namespace Oracle
             {
                 if (_mmslot != SpellSlot.Unknown)
                 {
+
                     if (Me.HasBuff("Muramana") && _castTime + 400 < Environment.TickCount)
                         Me.Spellbook.CastSpell(_mmslot);
                 }
@@ -188,17 +189,17 @@ namespace Oracle
             if (!unit.IsMe)
                 return;
 
-            if (!_main.Item("useMuramana").GetValue<bool>())
-                return;
-
-            Utility.DelayAction.Add(1000, delegate
+            if (_main.Item("useMuramana").GetValue<bool>())
             {
                 if (_mmslot != SpellSlot.Unknown)
                 {
-                    if (Me.HasBuff("Muramana"))
-                        Me.Spellbook.CastSpell(_mmslot);
+                    Utility.DelayAction.Add(1000, delegate
+                    {
+                        if (Me.HasBuff("Muramana"))
+                            Me.Spellbook.CastSpell(_mmslot);
+                    });
                 }
-            });
+            }
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)

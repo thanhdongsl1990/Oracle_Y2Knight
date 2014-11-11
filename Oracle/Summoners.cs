@@ -39,7 +39,7 @@ namespace Oracle
                 _config.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             _main.AddSubMenu(_config);
 
-            SpellSlot smite = Me.GetSpellSlot("summonersmite");
+            var smite = Me.GetSpellSlot("summonersmite");
             if (smite != SpellSlot.Unknown)
             {
                 var Smite = new Menu("Smite", "msmite");
@@ -51,7 +51,7 @@ namespace Oracle
                 Smite.AddItem(new MenuItem("smiteEpic", "Smite epic camps")).SetValue(true);
                 _main.AddSubMenu(Smite);
             }
-            SpellSlot ignite = Me.GetSpellSlot("summonerdot");
+            var ignite = Me.GetSpellSlot("summonerdot");
             if (ignite != SpellSlot.Unknown)
             {
                 var Ignite = new Menu("Ignite", "mignite");
@@ -59,7 +59,7 @@ namespace Oracle
                 Ignite.AddItem(new MenuItem("dotMode", "Mode: ")).SetValue(new StringList(new[] {"KSMode", "Combo"}, 1));
                 _main.AddSubMenu(Ignite);
             }
-            SpellSlot heal = Me.GetSpellSlot("summonerheal");
+            var heal = Me.GetSpellSlot("summonerheal");
             if (heal != SpellSlot.Unknown)
             {
                 var Heal = new Menu("Heal", "mheal");
@@ -68,7 +68,7 @@ namespace Oracle
                 Heal.AddItem(new MenuItem("useHealDmg", "Heal on damage %")).SetValue(new Slider(40, 1));
                 _main.AddSubMenu(Heal);
             }
-            SpellSlot clarity = Me.GetSpellSlot("summonermana");
+            var clarity = Me.GetSpellSlot("summonermana");
             if (clarity != SpellSlot.Unknown)
             {
                 var Clarity = new Menu("Clarity", "mclarity");
@@ -76,7 +76,7 @@ namespace Oracle
                 Clarity.AddItem(new MenuItem("useClarityPct", "Clarity on Mana % ")).SetValue(new Slider(40, 1));
                 _main.AddSubMenu(Clarity);
             }
-            SpellSlot barrier = Me.GetSpellSlot("summonerbarrier");
+            var barrier = Me.GetSpellSlot("summonerbarrier");
             if (barrier != SpellSlot.Unknown)
             {
                 var Barrier = new Menu("Barrier", "mbarrier");
@@ -85,7 +85,7 @@ namespace Oracle
                 Barrier.AddItem(new MenuItem("useBarrierDmg", "Barrier on damage %")).SetValue(new Slider(40, 1));
                 _main.AddSubMenu(Barrier);
             }
-            SpellSlot exhaust = Me.GetSpellSlot("summonerexhaust");
+            var exhaust = Me.GetSpellSlot("summonerexhaust");
             if (exhaust != SpellSlot.Unknown)
             {
                 var Exhaust = new Menu("Exhaust", "mexhaust");
@@ -98,6 +98,17 @@ namespace Oracle
 
             root.AddSubMenu(_main);
         }
+
+        private static void Game_OnGameUpdate(EventArgs args)
+        {
+            CheckIgnite();
+            CheckSmite();
+            CheckClarity();
+            CheckHeal(OC.IncomeDamage);
+            CheckBarrier(OC.IncomeDamage);
+        }
+
+        #region Drawings
 
         private static void Drawing_OnDraw(EventArgs args)
         {
@@ -146,14 +157,9 @@ namespace Oracle
             }
         }
 
-        private static void Game_OnGameUpdate(EventArgs args)
-        {
-            CheckIgnite();
-            CheckSmite();
-            CheckClarity();
-            CheckHeal(OC.IncomeDamage);
-            CheckBarrier(OC.IncomeDamage);
-        }
+        #endregion
+
+        #region Ignite
 
         private static void CheckIgnite()
         {
@@ -213,6 +219,10 @@ namespace Oracle
             }
         }
 
+        #endregion
+
+        #region Barrier
+
         private static void CheckBarrier(float incdmg = 0)
         {
             SpellSlot bSlot = Me.GetSpellSlot("summonerbarrier");
@@ -239,6 +249,10 @@ namespace Oracle
                     Me.SummonerSpellbook.CastSpell(bSlot, Me);
                 }
         }
+
+        #endregion
+
+        #region Heal
 
         private static void CheckHeal(float incdmg = 0)
         {
@@ -278,6 +292,10 @@ namespace Oracle
             }
         }
 
+        #endregion
+
+        #region Clarity
+
         private static void CheckClarity()
         {
             SpellSlot spellSlot = Me.GetSpellSlot("summonermana");
@@ -302,6 +320,10 @@ namespace Oracle
                 }
             }
         }
+
+        #endregion
+
+        #region Smite
 
         private static void CheckSmite()
         {
@@ -348,6 +370,10 @@ namespace Oracle
             }
         }
 
+        #endregion
+
+        #region Exhaust
+
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender,
             GameObjectProcessSpellCastEventArgs args)
         {
@@ -372,5 +398,8 @@ namespace Oracle
                 }
             }
         }
+
+        #endregion
+
     }
 }
