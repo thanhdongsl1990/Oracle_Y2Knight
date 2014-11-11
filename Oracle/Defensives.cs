@@ -173,8 +173,6 @@ namespace Oracle
         private static bool _danger;
         private static Obj_AI_Base _dangerTarget;
         private static GameObjectProcessSpellCastEventArgs _dangerArgs;
-
-
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {                   
             if (sender.IsEnemy && sender.Type == Me.Type)
@@ -185,8 +183,7 @@ namespace Oracle
                     _dangerTarget = sender;
                     _dangerArgs = args;
                 }
-
-                if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
+                else if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
                 {
                     _stealth = true;
                     _stealthTarget = (Obj_AI_Hero) sender;
@@ -195,6 +192,8 @@ namespace Oracle
                 {
                     _stealth = false;
                     _stealthTarget = null;
+                    _danger = false;
+                    _dangerTarget = null;
                 }
             }
         }
