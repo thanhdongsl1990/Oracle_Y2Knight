@@ -98,7 +98,7 @@ namespace Oracle
                     UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
                     UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
                     UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
-                    UseItem("Mountain", 3401, 700f, OC.IncomeDamage, true);
+                    UseItem("Mountain", 3401, 700f, OC.IncomeDamage, false, true);
                 }
             }
         }

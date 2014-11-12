@@ -186,6 +186,7 @@ namespace Oracle
                         }
                     }
                 }
+
                 else if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                 {
                     if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
@@ -194,6 +195,7 @@ namespace Oracle
                     if (aManaPercent >= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                         playerSpell.Cast(target);
                 }
+
                 else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                 {
                     playerSpell.Cast(target);
