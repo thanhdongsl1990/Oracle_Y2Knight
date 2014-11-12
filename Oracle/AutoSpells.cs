@@ -132,71 +132,71 @@ namespace Oracle
             var allyuse = spellRange.ToString() != float.MaxValue.ToString();
             var target = allyuse ? OC.FriendlyTarget() : Me;
 
-            if (target.Distance(Me.Position) <= spellRange)
+            if (target.Distance(Me.Position) >spellRange) 
+                return;
+
+            var aManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
+            var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
+            var iDamagePercent = (int) ((incdmg/target.MaxHealth)*100);
+
+            if (!_config.Item("ason" + target.SkinName).GetValue<bool>())
+                return;
+
+            if (OC.AggroTarget.Distance(Me.Position) > playerSpell.Range)
+                return;
+
+            if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
             {
-                var aManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
-                var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
-                var iDamagePercent = (int) ((incdmg/target.MaxHealth)*100);
-
-                if (!_config.Item("ason" + target.SkinName).GetValue<bool>())
-                    return;
-
-                if (OC.AggroTarget.Distance(Me.Position) > playerSpell.Range)
-                    return;
-
-                if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
+                if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
                 {
-                    if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
+                    if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+                        return;
+
+                    if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
+                        return;
+
+                    if ((iDamagePercent >= 1 || incdmg >= target.Health) && OC.AggroTarget.NetworkId == target.NetworkId)
                     {
-                        if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
-                            return;
-
-                        if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
-                            return;
-
-                        if ((iDamagePercent >= 1 || incdmg >= target.Health) && OC.AggroTarget.NetworkId == target.NetworkId)
+                        if (menuvar == "luxshield" || menuvar == "rivenshield")
                         {
-                            if (menuvar == "luxshield" || menuvar == "rivenshield")
+                            var pi = new PredictionInput
                             {
-                                var pi = new PredictionInput
-                                {
-                                    Aoe = true,
-                                    Collision = false,
-                                    Delay = 0.25f,
-                                    From = Me.Position,
-                                    Radius = 250f,
-                                    Range = 1075f,
-                                    Speed = 1500f,
-                                    Unit = target,
-                                    Type = SkillshotType.SkillshotLine
-                                };
+                                Aoe = true,
+                                Collision = false,
+                                Delay = 0.25f,
+                                From = Me.Position,
+                                Radius = 250f,
+                                Range = 1075f,
+                                Speed = 1500f,
+                                Unit = target,
+                                Type = SkillshotType.SkillshotLine
+                            };
 
-                                var po = Prediction.GetPrediction(pi);
-                                if (po.Hitchance >= HitChance.Medium && !target.IsMe)
-                                    playerSpell.Cast(po.CastPosition);
-                                else
-                                {
-                                    playerSpell.Cast(Game.CursorPos);
-                                }
-                            }
+                            var po = Prediction.GetPrediction(pi);
+                            if (po.Hitchance >= HitChance.Medium && !target.IsMe)
+                                playerSpell.Cast(po.CastPosition);
                             else
                             {
-                                playerSpell.Cast(target);
+                                playerSpell.Cast(Game.CursorPos);
                             }
                         }
-                    }
-                    else if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
-                    {
-                        if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
-                            return;
-
-                        if (aManaPercent >= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
+                        else
+                        {
                             playerSpell.Cast(target);
+                        }
                     }
-                    else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
-                    {
+                }
+                else if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
+                {
+                    if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
+                        return;
+
+                    if (aManaPercent >= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                         playerSpell.Cast(target);
-                    }
+                }
+                else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+                {
+                    playerSpell.Cast(target);
                 }
             }
         }

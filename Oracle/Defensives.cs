@@ -23,7 +23,7 @@ namespace Oracle
             _config = new Menu("Defensive Config", "dconfig");
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
-                _config.AddItem(new MenuItem("duseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
+                _config.AddItem(new MenuItem("DefenseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             _main.AddSubMenu(_config);
 
             CreateMenuItem("Randuin's Omen", "Randuins", 40, 40, true);
@@ -49,6 +49,8 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+
+            // Oracle's Lens
             if (Items.HasItem(3364) && _main.Item("useOracles").GetValue<bool>())
             {
                 if (!Items.CanUseItem(3364))
@@ -58,31 +60,34 @@ namespace Oracle
                     _main.Item("oracleMode").GetValue<StringList>().SelectedIndex == 1)
                     return;
 
+                if (!_stealth)
+                    return;
+
                 Obj_AI_Hero target = OC.FriendlyTarget();
                 foreach (Obj_AI_Hero ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(600)))
                 {
-                    if (target.Distance(Me.Position) > 500)
-                        return;
-
                     if ((ene.NetworkId == _stealthTarget.NetworkId && _stealth) || target.HasBuff("RengarRBuff", true))
-                        if (_config.Item("duseOn" + ene.SkinName).GetValue<bool>())
+                        if (_config.Item("DefenseOn" + ene.SkinName).GetValue<bool>() && target.Distance(Me.Position) <= 600f)
                             Items.UseItem(3364, target.Position);
                 }
             }
 
+            // Banner of command (basic)
             if (Items.HasItem(3060) && _main.Item("useBanner").GetValue<bool>())
             {
                 List<Obj_AI_Base> minionList = MinionManager.GetMinions(Me.Position, 1000);
                 if (!minionList.Any())
                     return;
 
-                foreach (Obj_AI_Base m in minionList.Where(minion => minion.IsValidTarget(1000)
-                                                                     && minion.BaseSkinName.Contains("MechCannon")))
+                foreach (Obj_AI_Base minyone in minionList.Where(
+                    minion => minion.IsValidTarget(1000) && 
+                    minion.BaseSkinName.Contains("MechCannon")))
                 {
-                    Items.UseItem(3060, m);
+                    Items.UseItem(3060, minyone);
                 }
             }
 
+            // Deffensives
             if (OC.FriendlyTarget() != null)
             {
                 if (OC.IncomeDamage >= 1)
@@ -105,54 +110,31 @@ namespace Oracle
 
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-
+        
             Obj_AI_Hero target = selfuse ? Me : OC.FriendlyTarget();
-            if (target.Distance(Me.Position) <= itemRange)
+            if (target.Distance(Me.Position) > itemRange)
+                return;
+
+            var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
+            var iDamagePercent = (int) (incdmg/target.MaxHealth*100);
+
+            if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && _main.Item("DefenseOn" + target.SkinName).GetValue<bool>())
             {
-                var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
-                var iDamagePercent = (int) (incdmg/target.MaxHealth*100);
-
-                if (!_config.Item("duseOn" + target.SkinName).GetValue<bool>())
-                    return;
-
-                if (OC.AggroTarget.Distance(Me.Position) > itemRange)
-                    return;
-
-                if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall"))
+                if (aHealthPercent <= _main.Item("use" + name + "Pct").GetValue<Slider>().Value)
                 {
-                    if (aHealthPercent <= _main.Item("use" + name + "Pct").GetValue<Slider>().Value)
-                    {
-                        if ((iDamagePercent >= 1 || incdmg >= target.Health && OC.AggroTarget.NetworkId == target.NetworkId))
-                        {
-                            if (targeted)
-                                Items.UseItem(itemId, target);
-                            else
-                                Items.UseItem(itemId);
-                        }
+                    if ((iDamagePercent >= 1 || incdmg >= target.Health) && 
+                        OC.AggroTarget.NetworkId == target.NetworkId)
+                        Items.UseItem(itemId, targeted ? target : null);
 
-                        else if (iDamagePercent >= _main.Item("use" + name + "Dmg").GetValue<Slider>().Value &&
-                                 _main.Item("duseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
-                        {
-                            if (targeted)
-                                Items.UseItem(itemId, target);
-                            else
-                                Items.UseItem(itemId);
-                        }
-                    }
+                    if (iDamagePercent >= _main.Item("use" + name + "Dmg").GetValue<Slider>().Value && 
+                        OC.AggroTarget.NetworkId == target.NetworkId)
+                        Items.UseItem(itemId, targeted ? target : null);
+                }
 
-                    if (_main.Item("use" + name + "Danger").GetValue<bool>() && _main.Item("duseOn" + target.SkinName).GetValue<bool>())
-                    {
-                        if (_danger && OC.AggroTarget.NetworkId == target.NetworkId && target.Distance(_dangerArgs.End)  <= 200f)
-                        {
-                            if (_dangerTarget.Distance(target.Position) <= 800f)
-                            {
-                                if (targeted)
-                                    Items.UseItem(itemId, target);
-                                else
-                                    Items.UseItem(itemId);
-                            }
-                        }
-                    }
+                if (_main.Item("use" + name + "Danger").GetValue<bool>())
+                {
+                    if (_danger && OC.AggroTarget.NetworkId == target.NetworkId)
+                            Items.UseItem(itemId, targeted ? target : null);
                 }
             }
         }
@@ -171,31 +153,26 @@ namespace Oracle
         }
 
         private static bool _danger;
-        private static Obj_AI_Base _dangerTarget;
-        private static GameObjectProcessSpellCastEventArgs _dangerArgs;
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {                   
-            if (sender.IsEnemy && sender.Type == Me.Type)
+        {
+            if (sender.IsAlly || sender.Type != Me.Type) 
+                return;
+
+            var target = OC.FriendlyTarget();
+
+            if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
             {
-                if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
-                {
+                if (target.Distance(args.End) <= 200f && target.Distance(sender.Position) <= 600f)
                     _danger = true;
-                    _dangerTarget = sender;
-                    _dangerArgs = args;
-                }
-                else if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
-                {
-                    _stealth = true;
-                    _stealthTarget = (Obj_AI_Hero) sender;
-                }
-                else
-                {
-                    _stealth = false;
-                    _stealthTarget = null;
-                    _danger = false;
-                    _dangerTarget = null;
-                }
             }
+
+            else if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
+            {
+                if (target.Distance(sender.Position) <= 600f)
+                    _stealth = true;
+            }
+
+            else { _stealth = false;  _danger = false; }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Oracle
         // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
 
-        public const string Revision = "156";
+        public const string Revision = "157";
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;
@@ -55,7 +55,7 @@ namespace Oracle
             Origin.AddItem(new MenuItem("ComboKey", "Combo (Active)").SetValue(new KeyBind(32, KeyBindType.Press)));
             Origin.AddToMainMenu();
 
-            LoadEnemies();
+            //LoadEnemies();
 
             GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_MainProcessSpellCast;
@@ -63,8 +63,8 @@ namespace Oracle
         }
 
 
-        private static Obj_AI_Hero Viktor, Fiddle, Anivia, Ziggs, Cass;
-        private static GameObj Satchel, Miasma, Minefield, ViktorStorm, Glacialstorm, Crowstorm;
+        //private static Obj_AI_Hero Viktor, Fiddle, Anivia, Ziggs, Cass;
+        //private static GameObj Satchel, Miasma, Minefield, ViktorStorm, Glacialstorm, Crowstorm;
 
         private static void GameObject_OnCreate(GameObject obj, EventArgs args)
         { 
@@ -72,46 +72,51 @@ namespace Oracle
             if (target == null)
                 return;
 
-            if (obj.Team == ObjectManager.Player.Team)
-                return;
+            //if (obj.Team == ObjectManager.Player.Team)
+            //    return;
 
-            // Particle Objects
-            if (obj.Name.Contains("Crowstorm") && Fiddle != null)
-            {
-                var dmg = (float)Fiddle.GetSpellDamage(target, SpellSlot.R);
-                Crowstorm = new GameObj(obj.Name, obj, false, dmg);
-            }
-            else if (obj.Name.Contains("Viktor_ChaosStorm") && Viktor != null)
-            {
-                var dmg = (float)Viktor.GetSpellDamage(target, SpellSlot.R);
-                ViktorStorm = new GameObj(obj.Name, obj, false, dmg);              
-            }
-            else if (obj.Name.Contains("cryo_storm") && Anivia != null)
-            {
-                var dmg = (float)Anivia.GetSpellDamage(target, SpellSlot.R);
-                Glacialstorm = new GameObj(obj.Name, obj, false, dmg);
-            }
-            else if (obj.Name.Contains("ZiggsE") && Ziggs != null)
-            {
-                var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.E);
-                Minefield = new GameObj(obj.Name, obj, false, dmg);    
-            }
-            else if (obj.Name.Contains("ZiggsWRing") && Ziggs != null)
-            {
-                var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.W);
-                Satchel = new GameObj(obj.Name, obj, false, dmg);               
-            }
-            else if (obj.Name.Contains("CassMiasma_tar") && Cass != null)
-            {
-                var dmg = (float)Cass.GetSpellDamage(target, SpellSlot.W);
-                Miasma = new GameObj(obj.Name, obj, false, dmg);
-            }
+            //// Particle Objects
+            //if (obj.Name.Contains("Crowstorm") && Fiddle != null)
+            //{
+            //    var dmg = (float)Fiddle.GetSpellDamage(target, SpellSlot.R);
+            //    Crowstorm = new GameObj(obj.Name, obj, false, dmg);
+            //}
+
+            //else if (obj.Name.Contains("Viktor_ChaosStorm") && Viktor != null)
+            //{
+            //    var dmg = (float)Viktor.GetSpellDamage(target, SpellSlot.R);
+            //    ViktorStorm = new GameObj(obj.Name, obj, false, dmg);              
+            //}
+
+            //else if (obj.Name.Contains("cryo_storm") && Anivia != null)
+            //{
+            //    var dmg = (float)Anivia.GetSpellDamage(target, SpellSlot.R);
+            //    Glacialstorm = new GameObj(obj.Name, obj, false, dmg);
+            //}
+
+            //else if (obj.Name.Contains("ZiggsE") && Ziggs != null)
+            //{
+            //    var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.E);
+            //    Minefield = new GameObj(obj.Name, obj, false, dmg);    
+            //}
+            //else if (obj.Name.Contains("ZiggsWRing") && Ziggs != null)
+            //{
+            //    var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.W);
+            //    Satchel = new GameObj(obj.Name, obj, false, dmg);               
+            //}
+
+            //else if (obj.Name.Contains("CassMiasma_tar") && Cass != null)
+            //{
+            //    var dmg = (float)Cass.GetSpellDamage(target, SpellSlot.W);
+            //    Miasma = new GameObj(obj.Name, obj, false, dmg);
+            //}
         }
 
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
             FriendlyTarget();
+
             // Particle object update
             //var target = FriendlyTarget();
             //if (target == null)
@@ -146,19 +151,19 @@ namespace Oracle
 
         private static void LoadEnemies()
         {
-            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.Team == ObjectManager.Player.Team))
-            {
-                if (hero.SkinName == "Viktor")
-                    Viktor = hero;
-                else if (hero.SkinName == "FiddleSticks")
-                    Fiddle = hero;
-                else if (hero.SkinName == "Anivia")
-                    Anivia = hero;
-                else if (hero.SkinName == "Ziggs")
-                    Ziggs = hero;
-                else if (hero.SkinName == "Cassiopeia")
-                    Cass = hero;
-            }              
+            //foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.Team == ObjectManager.Player.Team))
+            //{
+            //    if (hero.SkinName == "Viktor")
+            //        Viktor = hero;
+            //    else if (hero.SkinName == "FiddleSticks")
+            //        Fiddle = hero;
+            //    else if (hero.SkinName == "Anivia")
+            //        Anivia = hero;
+            //    else if (hero.SkinName == "Ziggs")
+            //        Ziggs = hero;
+            //    else if (hero.SkinName == "Cassiopeia")
+            //        Cass = hero;
+            //}              
         }
 
         public static float DamageCheck(Obj_AI_Hero player, Obj_AI_Base target)
