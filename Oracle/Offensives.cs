@@ -70,7 +70,6 @@ namespace Oracle
             {
                 if (_mmslot != SpellSlot.Unknown)
                 {
-
                     if (Me.HasBuff("Muramana") && _castTime + 400 < Environment.TickCount)
                         Me.Spellbook.CastSpell(_mmslot);
                 }
@@ -79,7 +78,7 @@ namespace Oracle
 
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
-            float damage = 0f;
+            var damage = 0f;
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 

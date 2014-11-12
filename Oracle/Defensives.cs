@@ -88,7 +88,7 @@ namespace Oracle
                 if (OC.IncomeDamage >= 1)
                 {
                     UseItem("Locket", 3190, 600f, OC.IncomeDamage);
-                    UseItem("Seraphs", 3048, 450f, OC.IncomeDamage, true);
+                    UseItem("Seraphs", 3040, 450f, OC.IncomeDamage, true);
                     UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
                     UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
                     UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
