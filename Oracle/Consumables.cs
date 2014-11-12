@@ -33,7 +33,7 @@ namespace Oracle
 
         private static void UseItem(string name, string menuvar, float incdmg = 0, float mindmg = 0, bool usehealth = true, bool usemana = true)
         {
-            if (Me.HasBuff(name) || Me.HasBuff("Recall") || !Items.HasItem(name))
+            if (Me.HasBuff(name, true) || Me.HasBuff("Recall") || !Items.HasItem(name))
                 return;
 
             if (!_main.Item("use" + menuvar).GetValue<bool>())
@@ -52,6 +52,13 @@ namespace Oracle
             var iDamagePercent = (int) ((incdmg/Me.MaxHealth)*100);
             var mDamagePercent = (int) ((mindmg/Me.MaxHealth)*100);
 
+            if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+            {
+                if (Me.Mana == 0)
+                    return;
+                consumableslot.Cast();
+            }
+
             if (usehealth && aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
             {
                 if (iDamagePercent >= 1 || incdmg >= Me.Health || Me.HasBuff("summonerdot") ||
@@ -66,14 +73,7 @@ namespace Oracle
                         consumableslot.Cast();
                 }
             }
-            else if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
-            {
-                // check if we use mana
-                if (Me.Mana != 0)
-                {
-                    consumableslot.Cast();
-                }
-            }
+
         }
 
         private static void CreateMenuItem(string name, string menuvar, int dvalue, int dmgvalue, bool usemana = true, bool usehealth = false)

@@ -29,7 +29,7 @@ namespace Oracle
         // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
 
-        public const string Revision = "157";
+        public const string Revision = "158";
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;
@@ -55,16 +55,17 @@ namespace Oracle
             Origin.AddItem(new MenuItem("ComboKey", "Combo (Active)").SetValue(new KeyBind(32, KeyBindType.Press)));
             Origin.AddToMainMenu();
 
-            //LoadEnemies();
+            LoadObjSenders();
 
             GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_MainProcessSpellCast;
+
             Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
         }
 
+        private static Obj_AI_Hero Viktor, Fiddle, Anivia, Ziggs, Cass;
+        private static GameObj Satchel, Miasma, Minefield, ViktorStorm, Glacialstorm, Crowstorm;
 
-        //private static Obj_AI_Hero Viktor, Fiddle, Anivia, Ziggs, Cass;
-        //private static GameObj Satchel, Miasma, Minefield, ViktorStorm, Glacialstorm, Crowstorm;
 
         private static void GameObject_OnCreate(GameObject obj, EventArgs args)
         { 
@@ -72,44 +73,41 @@ namespace Oracle
             if (target == null)
                 return;
 
-            //if (obj.Team == ObjectManager.Player.Team)
-            //    return;
+            // Particle Objects
+            if (obj.Name.Contains("Crowstorm_red") && Fiddle != null)
+            {
+                var dmg = (float)Fiddle.GetSpellDamage(target, SpellSlot.R);
+                Crowstorm = new GameObj(obj.Name, obj, true, dmg);
+            }
 
-            //// Particle Objects
-            //if (obj.Name.Contains("Crowstorm") && Fiddle != null)
-            //{
-            //    var dmg = (float)Fiddle.GetSpellDamage(target, SpellSlot.R);
-            //    Crowstorm = new GameObj(obj.Name, obj, false, dmg);
-            //}
+            else if (obj.Name.Contains("Viktor_ChaosStorm_red") && Viktor != null)
+            {
+                var dmg = (float)Viktor.GetSpellDamage(target, SpellSlot.R);
+                ViktorStorm = new GameObj(obj.Name, obj, true, dmg);
+            }
 
-            //else if (obj.Name.Contains("Viktor_ChaosStorm") && Viktor != null)
-            //{
-            //    var dmg = (float)Viktor.GetSpellDamage(target, SpellSlot.R);
-            //    ViktorStorm = new GameObj(obj.Name, obj, false, dmg);              
-            //}
+            else if (obj.Name.Contains("cryo_storm_red") && Anivia != null)
+            {
+                var dmg = (float)Anivia.GetSpellDamage(target, SpellSlot.R);
+                Glacialstorm = new GameObj(obj.Name, obj, true, dmg);
+            }
 
-            //else if (obj.Name.Contains("cryo_storm") && Anivia != null)
-            //{
-            //    var dmg = (float)Anivia.GetSpellDamage(target, SpellSlot.R);
-            //    Glacialstorm = new GameObj(obj.Name, obj, false, dmg);
-            //}
+            else if (obj.Name.Contains("ZiggsE_red") && Ziggs != null)
+            {
+                var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.E);
+                Minefield = new GameObj(obj.Name, obj, true, dmg);
+            }
+            else if (obj.Name.Contains("ZiggsWRingRed") && Ziggs != null)
+            {
+                var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.W);
+                Satchel = new GameObj(obj.Name, obj, true, dmg);
+            }
 
-            //else if (obj.Name.Contains("ZiggsE") && Ziggs != null)
-            //{
-            //    var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.E);
-            //    Minefield = new GameObj(obj.Name, obj, false, dmg);    
-            //}
-            //else if (obj.Name.Contains("ZiggsWRing") && Ziggs != null)
-            //{
-            //    var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.W);
-            //    Satchel = new GameObj(obj.Name, obj, false, dmg);               
-            //}
-
-            //else if (obj.Name.Contains("CassMiasma_tar") && Cass != null)
-            //{
-            //    var dmg = (float)Cass.GetSpellDamage(target, SpellSlot.W);
-            //    Miasma = new GameObj(obj.Name, obj, false, dmg);
-            //}
+            else if (obj.Name.Contains("CassMiasma_tar_red") && Cass != null)
+            {
+                var dmg = (float)Cass.GetSpellDamage(target, SpellSlot.W);
+                Miasma = new GameObj(obj.Name, obj, true, dmg);
+            }
         }
 
 
@@ -118,52 +116,62 @@ namespace Oracle
             FriendlyTarget();
 
             // Particle object update
-            //var target = FriendlyTarget();
-            //if (target == null)
-            //    return;               
-            //if (ViktorStorm.Obj.IsValid && target.Distance(ViktorStorm.Obj.Position) <= 450 && Viktor != null)
-            //    IncomeDamage = ViktorStorm.IncDamage;
-            //if (Crowstorm.Obj.IsValid && target.Distance(Crowstorm.Obj.Position) <= 600 && Fiddle != null)
-            //    IncomeDamage = ViktorStorm.IncDamage;
-            //if (Minefield.Obj.IsValid && target.Distance(Minefield.Obj.Position) <= 300 && Ziggs != null)
-            //    IncomeDamage = Minefield.IncDamage;
-            //if (Satchel.Obj.IsValid && target.Distance(Satchel.Obj.Position) <= 300 && Ziggs != null)
-            //    IncomeDamage = Satchel.IncDamage;
-            //if (Miasma.Obj.IsValid && target.Distance(Miasma.Obj.Position) <= 300 && Cass != null)
-            //    IncomeDamage = Satchel.IncDamage;
+            var target = FriendlyTarget();
+            if (target == null)
+                return;
+
+            if (Glacialstorm.Included)
+                if (Glacialstorm.Obj.IsValid && target.Distance(Glacialstorm.Obj.Position) <= 400 && Anivia != null)
+                    IncomeDamage = Glacialstorm.IncDamage;
+            if (ViktorStorm.Included)
+                if (ViktorStorm.Obj.IsValid && target.Distance(ViktorStorm.Obj.Position) <= 450 && Viktor != null)
+                    IncomeDamage = ViktorStorm.IncDamage;
+            if (Crowstorm.Included)
+                if (Crowstorm.Obj.IsValid && target.Distance(Crowstorm.Obj.Position) <= 600 && Fiddle != null)
+                    IncomeDamage = ViktorStorm.IncDamage;
+                
+            if (Minefield.Included)
+                if (Minefield.Obj.IsValid && target.Distance(Minefield.Obj.Position) <= 300 && Ziggs != null)
+                    IncomeDamage = Minefield.IncDamage;
+            if (Satchel.Included)
+                if (Satchel.Obj.IsValid && target.Distance(Satchel.Obj.Position) <= 300 && Ziggs != null)
+                    IncomeDamage = Satchel.IncDamage;
+                
+            if (Miasma.Included)
+                if (Miasma.Obj.IsValid && target.Distance(Miasma.Obj.Position) <= 300 && Cass != null)
+                    IncomeDamage = Satchel.IncDamage;
+        }
+
+        private static void LoadObjSenders()
+        {
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.Team != ObjectManager.Player.Team))
+            {
+                if (hero.SkinName == "Viktor")
+                    Viktor = hero;
+                else if (hero.SkinName == "FiddleSticks")
+                    Fiddle = hero;
+                else if (hero.SkinName == "Anivia")
+                    Anivia = hero;
+                else if (hero.SkinName == "Ziggs")
+                    Ziggs = hero;
+                else if (hero.SkinName == "Cassiopeia")
+                    Cass = hero;
+            }              
         }
 
         public static Obj_AI_Hero FriendlyTarget()
         {
             Obj_AI_Hero target = null;
             var allyList = from hero in ObjectManager.Get<Obj_AI_Hero>()
-                          where hero.IsAlly && hero.IsValidTarget(900, false)
-                         select hero;
+                           where hero.IsAlly && hero.IsValidTarget(900, false)
+                           select hero;
 
-            foreach (Obj_AI_Hero xe in allyList.OrderByDescending(xe => xe.Health/xe.MaxHealth*100))
+            foreach (Obj_AI_Hero xe in allyList.OrderByDescending(xe => xe.Health / xe.MaxHealth * 100))
             {
                 target = xe;
             }
 
             return target;
-        }
-
-
-        private static void LoadEnemies()
-        {
-            //foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.Team == ObjectManager.Player.Team))
-            //{
-            //    if (hero.SkinName == "Viktor")
-            //        Viktor = hero;
-            //    else if (hero.SkinName == "FiddleSticks")
-            //        Fiddle = hero;
-            //    else if (hero.SkinName == "Anivia")
-            //        Anivia = hero;
-            //    else if (hero.SkinName == "Ziggs")
-            //        Ziggs = hero;
-            //    else if (hero.SkinName == "Cassiopeia")
-            //        Cass = hero;
-            //}              
         }
 
         public static float DamageCheck(Obj_AI_Hero player, Obj_AI_Base target)
@@ -205,36 +213,29 @@ namespace Oracle
                 Obj_AI_Hero attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
                 SpellSlot attackerslot = attacker.GetSpellSlot(args.SData.Name);
 
-                //Console.WriteLine("Attacker: " + attacker.SkinName);
-                //Console.WriteLine("Target: " + AggroTarget.SkinName);
-                //Console.WriteLine("Distance: " + AggroTarget.Distance(args.End));
+                if (AggroTarget == null) 
+                    return;
 
-                if (AggroTarget != null)
+                switch (attackerslot)
                 {
-                    switch (attackerslot)
-                    {
-                        case SpellSlot.Q:
-                            IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.Q);
-                            break;
-                        case SpellSlot.W:
-                            IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.W);
-                            break;
-                        case SpellSlot.E:
-                            IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.E);
-                            break;
-                        case SpellSlot.R:
-                            IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.R);
-                            break;
-                        case SpellSlot.Unknown:
-                            IncomeDamage = (float) attacker.GetAutoAttackDamage(AggroTarget);
-                            break;
-                    }
-                    if (OracleLists.OnHitEffectList.Any(x => x.Contains(args.SData.Name) && ObjectManager.Player.BaseSkinName == "Fiora"))
-                    {
-                        IncomeDamage = (float)attacker.GetSpellDamage(AggroTarget, args.SData.Name);
-                    }
+                    case SpellSlot.Q:
+                        IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.Q);
+                        break;
+                    case SpellSlot.W:
+                        IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.W);
+                        break;
+                    case SpellSlot.E:
+                        IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.E);
+                        break;
+                    case SpellSlot.R:
+                        IncomeDamage = (float) attacker.GetSpellDamage(AggroTarget, SpellSlot.R);
+                        break;
+                    case SpellSlot.Unknown:
+                        IncomeDamage = (float) attacker.GetAutoAttackDamage(AggroTarget);
+                        break;
                 }
             }
+
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)
             {
                 Obj_AI_Minion attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);
@@ -246,6 +247,7 @@ namespace Oracle
                                 attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
                 }
             }
+
             else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)
             {
                 Obj_AI_Turret attacker = ObjectManager.Get<Obj_AI_Turret>().First(x => x.NetworkId == sender.NetworkId);
