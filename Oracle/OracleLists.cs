@@ -27,7 +27,6 @@ namespace Oracle
             "IreliaGatotsu",
             "LucianPassiveShot",
             "NetherBlade"
-
         };
 
         public static readonly List<String> ExhaustList = new List<string>

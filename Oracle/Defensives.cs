@@ -11,7 +11,6 @@ namespace Oracle
     {
         private static bool _stealth;
         private static Menu _main, _config;
-        private static Obj_AI_Hero _stealthTarget;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
@@ -66,7 +65,7 @@ namespace Oracle
                 Obj_AI_Hero target = OC.FriendlyTarget();
                 foreach (Obj_AI_Hero ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(600)))
                 {
-                    if ((ene.NetworkId == _stealthTarget.NetworkId && _stealth) || target.HasBuff("RengarRBuff", true))
+                    if ( _stealth || target.HasBuff("RengarRBuff", true))
                         if (_config.Item("DefenseOn" + ene.SkinName).GetValue<bool>() && target.Distance(Me.Position) <= 600f)
                             Items.UseItem(3364, target.Position);
                 }
