@@ -63,12 +63,11 @@ namespace Oracle
                     return;
 
                 Obj_AI_Hero target = OC.FriendlyTarget();
-                foreach (Obj_AI_Hero ene in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(600)))
-                {
-                    if ( _stealth || target.HasBuff("RengarRBuff", true))
-                        if (_config.Item("DefenseOn" + ene.SkinName).GetValue<bool>() && target.Distance(Me.Position) <= 600f)
-                            Items.UseItem(3364, target.Position);
-                }
+
+                if ( _stealth || target.HasBuff("RengarRBuff", true))
+                    if (target.Distance(Me.Position) <= 600f)
+                        Items.UseItem(3364, target.Position);
+
             }
 
             // Banner of command (basic)
