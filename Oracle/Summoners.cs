@@ -15,7 +15,7 @@ namespace Oracle
         private static Menu _config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
 
-        private static readonly string[] Smallminions = {"Wraith", "Golem", "GreatWraith", "GiantWolf"};
+        private static readonly string[] Smallminions = {"Wraith", "Golem", "GiantWolf"};
 
         private static readonly string[] Epicminions =
             Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
@@ -25,7 +25,7 @@ namespace Oracle
         private static readonly string[] Largeminions =
             Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
                 ? new[] {"TT_NWraith", "TT_NGolem", "TT_NWolf"}
-                : new[] {"AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "GiantWolf"};
+                : new[] {"AncientGolem", "GreatWraith", "LizardElder"};
 
         public static void Initialize(Menu root)
         {
@@ -377,15 +377,15 @@ namespace Oracle
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender,
             GameObjectProcessSpellCastEventArgs args)
         {
-            SpellSlot eSlot = Me.GetSpellSlot("summonerexhaust");
-            if (eSlot == SpellSlot.Unknown)
+            var exhaust = Me.GetSpellSlot("summonerexhaust");
+            if (exhaust == SpellSlot.Unknown)
                 return;
 
-            if (eSlot != SpellSlot.Unknown && (!_main.Item("useExhaust").GetValue<bool>() ||
+            if (exhaust != SpellSlot.Unknown && (!_main.Item("useExhaust").GetValue<bool>() ||
                                                !_main.Item("exDanger").GetValue<bool>()))
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(eSlot) == SpellState.Ready)
+            if (Me.SummonerSpellbook.CanUseSpell(exhaust) == SpellState.Ready)
             {
                 if (sender.IsEnemy && sender.Type == Me.Type)
                 {
@@ -393,7 +393,7 @@ namespace Oracle
                         return;
                     if (OracleLists.ExhaustList.Any(spell => spell.Contains(args.SData.Name)))
                     {
-                        Me.SummonerSpellbook.CastSpell(eSlot, sender);
+                        Me.SummonerSpellbook.CastSpell(exhaust, sender);
                     }
                 }
             }
