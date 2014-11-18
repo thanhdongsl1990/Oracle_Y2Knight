@@ -14,18 +14,9 @@ namespace Oracle
         private static Menu _main;
         private static Menu _config;
         private static readonly Obj_AI_Hero Me = ObjectManager.Player;
-
-        private static readonly string[] Smallminions = {"Wraith", "Golem", "GiantWolf"};
-
-        private static readonly string[] Epicminions =
-            Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
-                ? new[] {"TT_Spiderboss"}
-                : new[] {"Worm", "Dragon"};
-
-        private static readonly string[] Largeminions =
-            Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline)
-                ? new[] {"TT_NWraith", "TT_NGolem", "TT_NWolf"}
-                : new[] {"AncientGolem", "GreatWraith", "LizardElder"};
+        private static readonly string[] Smallminions = {"SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Wraith", "Golem", "GiantWolf"};
+        private static readonly string[] Epicminions = { "TT_Spiderboss", "Worm", "Dragon", "SRU_Baron", "SRU_Dragon" };
+        private static readonly string[] Largeminions = {"SRU_Gromp", "SRU_Blue", "SRU_Red", "TT_NWraith", "TT_NGolem", "TT_NWolf", "AncientGolem", "GreatWraith", "LizardElder"};
 
         public static void Initialize(Menu root)
         {
@@ -345,7 +336,7 @@ namespace Oracle
 
             foreach (Obj_AI_Base minion in minionList.Where(m => m.IsValidTarget(760f)))
             {
-                if (Largeminions.Any(name => minion.Name.StartsWith(name)))
+                if (Largeminions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
                 {
                     if (minion.Health <= Me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite))
                     {
@@ -354,14 +345,14 @@ namespace Oracle
                     }
                 }
 
-                else if (Smallminions.Any(name => minion.Name.StartsWith(name)))
+                else if (Smallminions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
                 {
                     if (minion.Health <= Me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite))
                         if (_main.Item("smiteSmall").GetValue<bool>())
                             Me.SummonerSpellbook.CastSpell(spellSlot, minion);
                 }
 
-                else if (Epicminions.Any(name => minion.Name.StartsWith(name)))
+                else if (Epicminions.Any(name => minion.Name.StartsWith(name) ))
                 {
                     if (minion.Health <= Me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite))
                         if (_main.Item("smiteEpic").GetValue<bool>())
