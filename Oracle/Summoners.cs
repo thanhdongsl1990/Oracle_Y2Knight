@@ -130,7 +130,9 @@ namespace Oracle
                 else
                 {
                     valid = m.IsHPBarRendered && !m.IsDead &&
-                            (Largeminions.Any(n => m.Name.StartsWith(n) || Epicminions.Any(nx => m.Name.StartsWith(nx))));
+                            (!m.Name.Contains("Mini") &&
+                             (Smallminions.Any(z => m.Name.StartsWith(z)) || Largeminions.Any(n => m.Name.StartsWith(n)) ||
+                              Epicminions.Any(nx => m.Name.StartsWith(nx))));
                 }
 
                 if (valid)

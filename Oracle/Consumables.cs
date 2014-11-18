@@ -25,26 +25,19 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("ItemMiniRegenPotion", "Biscuit", OC.IncomeDamage, OC.MinionDamage);
-            UseItem("ItemCrystalFlask", "Flask", OC.IncomeDamage, OC.MinionDamage);
-            UseItem("FlaskOfCrystalWater", "Mana", 0, 0, false);
-            UseItem("RegenerationPotion", "Health", OC.IncomeDamage, OC.MinionDamage);
+            UseItem("ItemMiniRegenPotion", 2010, "Biscuit", OC.IncomeDamage, OC.MinionDamage);
+            UseItem("ItemCrystalFlask", 2041, "Flask", OC.IncomeDamage, OC.MinionDamage);
+            UseItem("FlaskOfCrystalWater", 2004, "Mana", 0, 0, false);
+            UseItem("RegenerationPotion", 2003, "Health", OC.IncomeDamage, OC.MinionDamage, true, false);
         }
 
-        private static void UseItem(string name, string menuvar, float incdmg = 0, float mindmg = 0, bool usehealth = true, bool usemana = true)
+        private static void UseItem(string name, int itemId, string menuvar, float incdmg = 0, float mindmg = 0, bool usehealth = true, bool usemana = true)
         {
+            if (!Items.HasItem(itemId))
+                return;
             if (Me.HasBuff(name, true) || Me.HasBuff("Recall") || !Items.HasItem(name))
                 return;
-
             if (!_main.Item("use" + menuvar).GetValue<bool>())
-                return;
-
-            SpellSlot consumable = Me.GetSpellSlot(name);
-            if (consumable == SpellSlot.Unknown)
-                return;
-
-            var consumableslot = new Spell(consumable);
-            if (!consumableslot.IsReady())
                 return;
 
             var aHealthPercent = (int) ((Me.Health/Me.MaxHealth)*100);
@@ -53,11 +46,7 @@ namespace Oracle
             var mDamagePercent = (int) ((mindmg/Me.MaxHealth)*100);
 
             if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
-            {
-                if (Me.Mana == 0)
-                    return;
-                consumableslot.Cast();
-            }
+                Items.UseItem(itemId);
 
             if (usehealth && aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
             {
@@ -65,12 +54,12 @@ namespace Oracle
                     mDamagePercent >= 1 || mindmg >= Me.Health)
                 {
                     if (OC.AggroTarget.NetworkId == Me.NetworkId)
-                        consumableslot.Cast();
+                        Items.UseItem(itemId);
                 }
                 else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                 {
                     if (OC.AggroTarget.NetworkId == Me.NetworkId)
-                        consumableslot.Cast();
+                        Items.UseItem(itemId);
                 }
             }
 
