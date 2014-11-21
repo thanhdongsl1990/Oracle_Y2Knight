@@ -162,7 +162,8 @@ namespace Oracle
             var count = 0;
             var objList =
                 ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(x => x.IsValid && x.IsVisible && !x.IsInvulnerable && !x.IsDead && x.Distance(target.Position) <= range);
+                    .Where(x => x.IsValid && x.IsVisible && !x.IsInvulnerable && 
+                        !x.IsDead && x.Distance(target.Position) <= range);
 
             if (objList.Any(o => enemy && o.Team != target.Team))
                 count = objList.Count();
