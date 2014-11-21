@@ -63,8 +63,6 @@ namespace Oracle
             if (target == null)
                 return;
 
-            Game.PrintChat(obj.Name);
-
             // Particle Objects
             if (obj.Name.Contains("Crowstorm_red") && Fiddle != null)
             {
