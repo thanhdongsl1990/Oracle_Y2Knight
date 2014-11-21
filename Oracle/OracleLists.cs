@@ -21,7 +21,7 @@ namespace Oracle
 
         public static readonly string[] LargeMinions =
         {
-            "SRU_Crab",
+            "Sru_Crab",
             "SRU_Gromp", 
             "SRU_Blue", 
             "SRU_Red",

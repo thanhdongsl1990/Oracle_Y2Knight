@@ -339,7 +339,6 @@ namespace Oracle
 
         private static void CheckSmite()
         {
-
             var smite = me.GetSpellSlot(smiteslot);
             if (smite == SpellSlot.Unknown)
                 return;
@@ -348,6 +347,7 @@ namespace Oracle
                 return;
 
             CheckChampSmite("Vi", 125f, SpellSlot.E);
+            CheckChampSmite("Malphite", 200f, SpellSlot.E);
             CheckChampSmite("LeeSin", 1100f, SpellSlot.Q, 1);
             CheckChampSmite("Nunu", 125f, SpellSlot.Q);
             CheckChampSmite("Olaf", 325f, SpellSlot.E);
