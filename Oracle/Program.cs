@@ -160,15 +160,12 @@ namespace Oracle
         public static int CountHerosInRange(this Obj_AI_Hero target, bool enemy = true, float range = float.MaxValue)
         {
             var count = 0;
-            var objList =
+            var objListTeam =
                 ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(x => x.IsValid && x.IsVisible && !x.IsInvulnerable && 
-                        !x.IsDead && x.Distance(target.Position) <= range);
+                    .Where(x =>  x.NetworkId != target.NetworkId && x.IsValidTarget(range, enemy));
 
-            if (objList.Any(o => enemy && o.Team != target.Team))
-                count = objList.Count();
-            if (objList.Any(o => !enemy && o.Team == target.Team && o.NetworkId != target.NetworkId))
-                count = objList.Count();
+            if (objListTeam.Any())
+                count = objListTeam.Count();
 
             return count;
         }

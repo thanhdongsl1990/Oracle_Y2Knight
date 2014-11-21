@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LeagueSharp;
 using LeagueSharp.Common;
+using System.Collections.Generic;
 using SharpDX;
 using Color = System.Drawing.Color;
 using OC = Oracle.Program;
@@ -97,6 +96,7 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+
             isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
 
             if (OracleLists.SmiteBlue.Any(Items.HasItem))
@@ -109,7 +109,7 @@ namespace Oracle
                 smiteslot = "itemsmiteaoe";
             else
                 smiteslot = "summonersmite";
-            
+
 
             CheckIgnite();
             CheckSmite();
@@ -431,13 +431,17 @@ namespace Oracle
                 {
                     if (mainmenu.Item("smiteEpic").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-
-                        if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                        if (me.SkinName == "JarvanIV")
+                            me.Spellbook.CastSpell(slot, minion.Position);
+                        else if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" &&
+                                 minion.HasBuff("BlindMonkSonicWave"))
+                        {
                             me.Spellbook.CastSpell(slot);
-                        else if (me.SkinName == "Elise" && datainst.Name == "EliseSpiderQCast")
-                            me.Spellbook.CastSpell(slot, minion);
+                        }
                         else
+                        {
                             me.Spellbook.CastSpell(slot, minion);
+                        }
                     }
                 }
 
@@ -445,11 +449,11 @@ namespace Oracle
                 {
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-                        if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                        if (me.SkinName == "JarvanIV")
+                            me.Spellbook.CastSpell(slot, minion.Position);
+                        else if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
                             me.Spellbook.CastSpell(slot);
-                        else if (me.SkinName == "Elise" && datainst.Name == "EliseSpiderQCast")
-                            me.Spellbook.CastSpell(slot, minion);
-                        else 
+                        else
                             me.Spellbook.CastSpell(slot, minion);
                     }
                 }

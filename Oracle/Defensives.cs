@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using LeagueSharp;
 using LeagueSharp.Common;
 using OC = Oracle.Program;
@@ -91,9 +92,6 @@ namespace Oracle
            // Talisman of Ascension
             if (Items.HasItem(3069) && mainmenu.Item("useTalisman").GetValue<bool>())
             {
-                if (!Items.CanUseItem(3069))
-                    return;
-
                 if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
                     mainmenu.Item("talismanMode").GetValue<StringList>().SelectedIndex == 1)
                     return;
@@ -105,17 +103,22 @@ namespace Oracle
                 var enemies = target.CountHerosInRange(true, 1000);
                 var allies = target.CountHerosInRange(false, 1000);
 
-                var weakEnemy = 
+                var weakEnemy =
                     ObjectManager.Get<Obj_AI_Hero>()
-                        .OrderByDescending(ex => ex.Health/ex.MaxHealth*100).First(e => e.IsValidTarget(900));
+                        .OrderByDescending(ex => ex.Health/ex.MaxHealth*100)
+                        .First(x => x.IsValidTarget(1000));
+
+                Console.WriteLine(weakEnemy.SkinName);
 
                 var aHealthPercent = target.Health / target.MaxHealth * 100;
                 var eHealthPercent = weakEnemy.Health / weakEnemy.MaxHealth * 100;
 
-                if (weakEnemy.Distance(target.Position) <= 900)
-                    if (eHealthPercent <= mainmenu.Item("useEnemyPct").GetValue<Slider>().Value)
-                        Items.UseItem(3069);               
-       
+                if (weakEnemy.Distance(target.Position) <= 900 &&
+                    (allies > enemies && eHealthPercent <= mainmenu.Item("useEnemyPct").GetValue<Slider>().Value))
+                {
+                    Items.UseItem(3069);
+                }
+
                 if (enemies > allies && aHealthPercent <= mainmenu.Item("useAllyPct").GetValue<Slider>().Value)
                     Items.UseItem(3069);
             }
