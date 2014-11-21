@@ -156,7 +156,7 @@ namespace Oracle
                     if (valid)
                     {
                         Vector2 hpBarPos = m.HPBarPosition;
-                        hpBarPos.X += 44;
+                        hpBarPos.X += 35;
                         hpBarPos.Y += 18;
                         var smiteDmg = (int) me.GetSummonerSpellDamage(m, Damage.SummonerSpell.Smite);
                         float damagePercent = smiteDmg/m.MaxHealth;
