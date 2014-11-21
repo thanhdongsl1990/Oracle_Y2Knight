@@ -21,6 +21,7 @@ namespace Oracle
 
         public static readonly string[] LargeMinions =
         {
+            "SRU_Crab",
             "SRU_Gromp", 
             "SRU_Blue", 
             "SRU_Red",
@@ -34,7 +35,7 @@ namespace Oracle
             3713, 3726, 3725, 3726, 3723,
             3711, 3722, 3721, 3720, 3719,
             3715, 3718, 3717, 3716, 3714,
-            706, 3710, 3709, 3708, 3707
+            3706, 3710, 3709, 3708, 3707,
         };
 
         public static readonly int[] SmitePurple = {3713, 3726, 3725, 3726, 3723};

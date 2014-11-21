@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -100,12 +101,15 @@ namespace Oracle
 
             if (OracleLists.SmiteBlue.Any(Items.HasItem))
                 smiteslot = "s5_summonersmiteplayerganker";
-            if (OracleLists.SmiteRed.Any(Items.HasItem))
+            else if (OracleLists.SmiteRed.Any(Items.HasItem))
                 smiteslot = "s5_summonersmiteduel";
-            if (OracleLists.SmiteGrey.Any(Items.HasItem))
+            else if (OracleLists.SmiteGrey.Any(Items.HasItem))
                 smiteslot = "s5_summonersmitequick";
-            if (OracleLists.SmitePurple.Any(Items.HasItem))
+            else if (OracleLists.SmitePurple.Any(Items.HasItem))
                 smiteslot = "itemsmiteaoe";
+            else
+                smiteslot = "summonersmite";
+            
 
             CheckIgnite();
             CheckSmite();
@@ -339,11 +343,12 @@ namespace Oracle
             var smite = me.GetSpellSlot(smiteslot);
             if (smite == SpellSlot.Unknown)
                 return;
-
+            
             if (smite != SpellSlot.Unknown && !mainmenu.Item("useSmite").GetValue<KeyBind>().Active)
                 return;
 
             CheckChampSmite("Vi", 125f, SpellSlot.E);
+            CheckChampSmite("LeeSin", 1100f, SpellSlot.Q, 1);
             CheckChampSmite("Nunu", 125f, SpellSlot.Q);
             CheckChampSmite("Olaf", 325f, SpellSlot.E);
             CheckChampSmite("EliseSpider", 425f, SpellSlot.Q);
@@ -352,7 +357,6 @@ namespace Oracle
             CheckChampSmite("Kayle", 650, SpellSlot.Q);
             CheckChampSmite("Khazix", 325f, SpellSlot.Q);
             CheckChampSmite("MonkeyKing", 300f, SpellSlot.Q);
-            CheckChampSmite("Rengar", 125f, SpellSlot.Q);
 
             if (me.SummonerSpellbook.CanUseSpell(smite) != SpellState.Ready)
                 return;
@@ -360,12 +364,12 @@ namespace Oracle
             List<Obj_AI_Base>
                 minionList = MinionManager.GetMinions(me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
 
-            var damage = 0f;
             if (minionList.Any())
             {
                 foreach (Obj_AI_Base minion in minionList.Where(m => m.IsValidTarget(760f)))
                 {
-                    damage = (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
+                    var damage = 
+                        (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
 
                     if (OracleLists.LargeMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
                     {
@@ -393,7 +397,7 @@ namespace Oracle
             }          
         }
 
-        private static void CheckChampSmite(string name, float range, SpellSlot slot)
+        private static void CheckChampSmite(string name, float range, SpellSlot slot, int stage = 0)
         {
             var champdamage = 0f;
             if (me.SkinName != name)
@@ -402,23 +406,28 @@ namespace Oracle
             if (!mainmenu.Item("SmiteSpell").GetValue<bool>())
                 return;
 
-            var smitedamage = 0f;
             if (me.SkinName == name &&
                 me.Spellbook.CanUseSpell(slot) != SpellState.Ready)
                 return;
 
+            var datainst = me.Spellbook.GetSpell(slot);
+
             foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(m => m.IsValidTarget(range)))
             {
-                smitedamage = (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
+                var smitedamage = 
+                    (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
 
                 if (me.SkinName == name)
-                    champdamage = (float)me.GetSpellDamage(minion, slot);
+                    champdamage = (float)me.GetSpellDamage(minion, slot, stage);
 
                 if (OracleLists.EpicMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
                     if (mainmenu.Item("smiteEpic").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-                        me.Spellbook.CastSpell(slot, minion);
+                        if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                            me.Spellbook.CastSpell(slot);
+                        else
+                            me.Spellbook.CastSpell(slot, minion);
                     }
                 }
 
@@ -426,7 +435,10 @@ namespace Oracle
                 {
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-                        me.Spellbook.CastSpell(slot, minion);
+                        if (me.SkinName == "LeeSin" && datainst.Name != "BlindMonkQOne" && minion.HasBuff("BlindMonkSonicWave"))
+                            me.Spellbook.CastSpell(slot);
+                        else 
+                            me.Spellbook.CastSpell(slot, minion);
                     }
                 }
             }
