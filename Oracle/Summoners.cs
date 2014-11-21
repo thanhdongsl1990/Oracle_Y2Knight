@@ -347,6 +347,7 @@ namespace Oracle
                 return;
 
             CheckChampSmite("Vi", 125f, SpellSlot.E);
+            CheckChampSmite("Riven", 125f, SpellSlot.W);
             CheckChampSmite("Malphite", 200f, SpellSlot.E);
             CheckChampSmite("LeeSin", 1100f, SpellSlot.Q, 1);
             CheckChampSmite("Nunu", 125f, SpellSlot.Q);

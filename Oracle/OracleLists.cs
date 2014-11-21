@@ -9,7 +9,8 @@ namespace Oracle
         {
             "SRU_Murkwolf",
             "SRU_Razorbeak", 
-            "SRU_Krug"
+            "SRU_Krug",
+            "SRU_Gromp"
         };
 
         public static readonly string[] EpicMinions =
@@ -22,7 +23,6 @@ namespace Oracle
         public static readonly string[] LargeMinions =
         {
             "Sru_Crab",
-            "SRU_Gromp", 
             "SRU_Blue", 
             "SRU_Red",
             "TT_NWraith", 
