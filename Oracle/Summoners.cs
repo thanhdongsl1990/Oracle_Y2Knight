@@ -347,12 +347,15 @@ namespace Oracle
                 return;
 
             CheckChampSmite("Vi", 125f, SpellSlot.E);
+            CheckChampSmite("JarvanIV", 770f, SpellSlot.Q);
+            CheckChampSmite("Poppy", 125f, SpellSlot.Q);
+            CheckChampSmite("Nasus", 125f, SpellSlot.Q);
             CheckChampSmite("Riven", 125f, SpellSlot.W);
             CheckChampSmite("Malphite", 200f, SpellSlot.E);
             CheckChampSmite("LeeSin", 1100f, SpellSlot.Q, 1);
             CheckChampSmite("Nunu", 125f, SpellSlot.Q);
             CheckChampSmite("Olaf", 325f, SpellSlot.E);
-            CheckChampSmite("EliseSpider", 425f, SpellSlot.Q);
+            CheckChampSmite("Elise", 425f, SpellSlot.Q);
             CheckChampSmite("Warwick", 400f, SpellSlot.Q);
             CheckChampSmite("MasterYi", 600f, SpellSlot.Q);
             CheckChampSmite("Kayle", 650, SpellSlot.Q);
@@ -400,10 +403,10 @@ namespace Oracle
 
         private static void CheckChampSmite(string name, float range, SpellSlot slot, int stage = 0)
         {
-            var champdamage = 0f;
             if (me.SkinName != name)
                 return;
 
+            var champdamage = 0f;
             if (!mainmenu.Item("SmiteSpell").GetValue<bool>())
                 return;
 
@@ -421,12 +424,18 @@ namespace Oracle
                 if (me.SkinName == name)
                     champdamage = (float)me.GetSpellDamage(minion, slot, stage);
 
+                if (me.Distance(minion.Position) > range)
+                    return;
+
                 if (OracleLists.EpicMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
                     if (mainmenu.Item("smiteEpic").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
+
                         if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
                             me.Spellbook.CastSpell(slot);
+                        else if (me.SkinName == "Elise" && datainst.Name == "EliseSpiderQCast")
+                            me.Spellbook.CastSpell(slot, minion);
                         else
                             me.Spellbook.CastSpell(slot, minion);
                     }
