@@ -25,7 +25,7 @@ namespace Oracle
 
             mainmenu = new Menu("Summoners", "summoners");
             menuconfig = new Menu("Summoner Config", "sconfig");
-            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
+            isjungling = OracleLists.SmiteAll.Any(OC.HasItem);
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
                 menuconfig.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
@@ -97,15 +97,15 @@ namespace Oracle
         private static void Game_OnGameUpdate(EventArgs args)
         {
 
-            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
+            isjungling = OracleLists.SmiteAll.Any(OC.HasItem);
 
-            if (OracleLists.SmiteBlue.Any(Items.HasItem))
+            if (OracleLists.SmiteBlue.Any(OC.HasItem))
                 smiteslot = "s5_summonersmiteplayerganker";
-            else if (OracleLists.SmiteRed.Any(Items.HasItem))
+            else if (OracleLists.SmiteRed.Any(OC.HasItem))
                 smiteslot = "s5_summonersmiteduel";
-            else if (OracleLists.SmiteGrey.Any(Items.HasItem))
+            else if (OracleLists.SmiteGrey.Any(OC.HasItem))
                 smiteslot = "s5_summonersmitequick";
-            else if (OracleLists.SmitePurple.Any(Items.HasItem))
+            else if (OracleLists.SmitePurple.Any(OC.HasItem))
                 smiteslot = "itemsmiteaoe";
             else
                 smiteslot = "summonersmite";

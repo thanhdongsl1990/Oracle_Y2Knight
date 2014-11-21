@@ -46,6 +46,7 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+
             currenttarget = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
             if (currenttarget != null)
             {
@@ -79,7 +80,7 @@ namespace Oracle
         private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
         {
             var damage = 0f;
-            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
+            if (!OC.HasItem(itemId) || !OC.CanUseItem(itemId))
                 return;
 
             if (!mainmenu.Item("use" + name).GetValue<bool>())
@@ -132,12 +133,10 @@ namespace Oracle
                 else if (aHealthPercent <= mainmenu.Item("use" + name + "Me").GetValue<Slider>().Value &&
                          mainmenu.Item("ouseOn" + currenttarget.SkinName).GetValue<bool>())
                 {
-                    if (targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                    if (targeted)
                         Items.UseItem(itemId, currenttarget);
-                    else if (!targeted && Items.HasItem(itemId) && Items.CanUseItem(itemId))
-                    {
-                        Items.UseItem(itemId);
-                    }
+                    else 
+                        Items.UseItem(itemId);             
                 }
             }
         }

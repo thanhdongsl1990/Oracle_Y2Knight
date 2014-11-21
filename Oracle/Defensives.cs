@@ -55,10 +55,12 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            Console.WriteLine(OC.CanUseItem(3077));
+
             // Oracle's Lens
-            if (Items.HasItem(3364) && mainmenu.Item("useOracles").GetValue<bool>())
+            if (OC.HasItem(3364) && OC.CanUseItem(3364) && mainmenu.Item("useOracles").GetValue<bool>())
             {
-                if (!Items.CanUseItem(3364))
+                if (!OC.CanUseItem(3364))
                     return;
 
                 if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
@@ -74,7 +76,7 @@ namespace Oracle
             }
 
             // Banner of command (basic)
-            if (Items.HasItem(3060) && mainmenu.Item("useBanner").GetValue<bool>())
+            if (OC.HasItem(3060) && OC.CanUseItem(3060) && mainmenu.Item("useBanner").GetValue<bool>())
             {
                 List<Obj_AI_Base> minionList = MinionManager.GetMinions(me.Position, 1000);
                 if (!minionList.Any())
@@ -89,7 +91,7 @@ namespace Oracle
             }
 
            // Talisman of Ascension
-            if (Items.HasItem(3069) && mainmenu.Item("useTalisman").GetValue<bool>())
+            if (OC.HasItem(3069) && OC.CanUseItem(3069) && mainmenu.Item("useTalisman").GetValue<bool>())
             {
                 if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
                     mainmenu.Item("talismanMode").GetValue<StringList>().SelectedIndex == 1)
@@ -143,7 +145,7 @@ namespace Oracle
             if (!mainmenu.Item("use" + name).GetValue<bool>())
                 return;
 
-            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
+            if (!OC.HasItem(itemId) || !OC.CanUseItem(itemId))
                 return;
         
             var target = selfuse ? me : OC.FriendlyTarget();
