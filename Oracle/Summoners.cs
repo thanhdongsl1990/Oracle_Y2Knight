@@ -11,12 +11,11 @@ namespace Oracle
 {
     internal static class Summoners
     {
-        private static Menu _main;
-        private static Menu _config;
-        private static readonly Obj_AI_Hero Me = ObjectManager.Player;
-        private static readonly string[] Smallminions = {"SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Wraith", "Golem", "GiantWolf"};
-        private static readonly string[] Epicminions = { "TT_Spiderboss", "Worm", "Dragon", "SRU_Baron", "SRU_Dragon" };
-        private static readonly string[] Largeminions = {"SRU_Gromp", "SRU_Blue", "SRU_Red", "TT_NWraith", "TT_NGolem", "TT_NWolf", "AncientGolem", "GreatWraith", "LizardElder"};
+        private static Menu mainmenu;
+        private static Menu menuconfig;
+        private static bool isjungling;
+        private static string smiteslot;
+        private static readonly Obj_AI_Hero me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
         {
@@ -24,59 +23,62 @@ namespace Oracle
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
 
-            _main = new Menu("Summoners", "summoners");
-            _config = new Menu("Summoner Config", "sconfig");
-            foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
-                _config.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
-            _main.AddSubMenu(_config);
+            mainmenu = new Menu("Summoners", "summoners");
+            menuconfig = new Menu("Summoner Config", "sconfig");
+            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
 
-            var smite = Me.GetSpellSlot("summonersmite");
-            if (smite != SpellSlot.Unknown)
+            foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
+                menuconfig.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
+            mainmenu.AddSubMenu(menuconfig);
+
+            var smite = me.GetSpellSlot("summonersmite");
+            if (smite != SpellSlot.Unknown || isjungling)
             {
                 var Smite = new Menu("Smite", "msmite");
-                Smite.AddItem(new MenuItem("useSmite", "Enable Smite"))
+                Smite.AddItem(new MenuItem("useSmite", "Use Smite"))
                     .SetValue(new KeyBind(77, KeyBindType.Toggle, true));
+                Smite.AddItem(new MenuItem("SmiteSpell", "Use Smite + Ability")).SetValue(true);
                 Smite.AddItem(new MenuItem("drawSmite", "Draw smite range")).SetValue(true);
                 Smite.AddItem(new MenuItem("smiteSmall", "Smite small camps")).SetValue(true);
                 Smite.AddItem(new MenuItem("smiteLarge", "Smite large camps")).SetValue(true);
                 Smite.AddItem(new MenuItem("smiteEpic", "Smite epic camps")).SetValue(true);
-                _main.AddSubMenu(Smite);
+                mainmenu.AddSubMenu(Smite);
             }
-            var ignite = Me.GetSpellSlot("summonerdot");
+            var ignite = me.GetSpellSlot("summonerdot");
             if (ignite != SpellSlot.Unknown)
             {
                 var Ignite = new Menu("Ignite", "mignite");
                 Ignite.AddItem(new MenuItem("useIgnite", "Enable Ignite")).SetValue(true);
-                Ignite.AddItem(new MenuItem("dotMode", "Mode: ")).SetValue(new StringList(new[] {"KSMode", "Combo"}, 1));
-                _main.AddSubMenu(Ignite);
+                Ignite.AddItem(new MenuItem("dotMode", "Mode: ")).SetValue(new StringList(new[] { "KSMode", "Combo" }, 1));
+                mainmenu.AddSubMenu(Ignite);
             }
-            var heal = Me.GetSpellSlot("summonerheal");
+            var heal = me.GetSpellSlot("summonerheal");
             if (heal != SpellSlot.Unknown)
             {
                 var Heal = new Menu("Heal", "mheal");
                 Heal.AddItem(new MenuItem("useHeal", "Enable Heal")).SetValue(true);
                 Heal.AddItem(new MenuItem("useHealPct", "Heal on min HP % ")).SetValue(new Slider(35, 1));
                 Heal.AddItem(new MenuItem("useHealDmg", "Heal on damage %")).SetValue(new Slider(40, 1));
-                _main.AddSubMenu(Heal);
+                mainmenu.AddSubMenu(Heal);
             }
-            var clarity = Me.GetSpellSlot("summonermana");
+            var clarity = me.GetSpellSlot("summonermana");
             if (clarity != SpellSlot.Unknown)
             {
                 var Clarity = new Menu("Clarity", "mclarity");
                 Clarity.AddItem(new MenuItem("useClarity", "Enable Clarity")).SetValue(true);
                 Clarity.AddItem(new MenuItem("useClarityPct", "Clarity on Mana % ")).SetValue(new Slider(40, 1));
-                _main.AddSubMenu(Clarity);
+                mainmenu.AddSubMenu(Clarity);
             }
-            var barrier = Me.GetSpellSlot("summonerbarrier");
+            var barrier = me.GetSpellSlot("summonerbarrier");
             if (barrier != SpellSlot.Unknown)
             {
                 var Barrier = new Menu("Barrier", "mbarrier");
                 Barrier.AddItem(new MenuItem("useBarrier", "Enable Barrier")).SetValue(true);
                 Barrier.AddItem(new MenuItem("useBarrierPct", "Barrior on min HP % ")).SetValue(new Slider(35, 1));
                 Barrier.AddItem(new MenuItem("useBarrierDmg", "Barrier on damage %")).SetValue(new Slider(40, 1));
-                _main.AddSubMenu(Barrier);
+                mainmenu.AddSubMenu(Barrier);
             }
-            var exhaust = Me.GetSpellSlot("summonerexhaust");
+            var exhaust = me.GetSpellSlot("summonerexhaust");
             if (exhaust != SpellSlot.Unknown)
             {
                 var Exhaust = new Menu("Exhaust", "mexhaust");
@@ -84,14 +86,27 @@ namespace Oracle
                 //Exhaust.AddItem(new MenuItem("aExhaustPct", "Exhaust on ally HP %")).SetValue(new Slider(35));
                 //Exhaust.AddItem(new MenuItem("eExhaustPct", "Exhaust on enemy HP %")).SetValue(new Slider(35));
                 Exhaust.AddItem(new MenuItem("exDanger", "Use on Dangerous")).SetValue(true);
-                _main.AddSubMenu(Exhaust);
+                mainmenu.AddSubMenu(Exhaust);
             }
 
-            root.AddSubMenu(_main);
+            root.AddSubMenu(mainmenu);
+
+
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
+
+            if (OracleLists.SmiteBlue.Any(Items.HasItem))
+                smiteslot = "s5_summonersmiteplayerganker";
+            if (OracleLists.SmiteRed.Any(Items.HasItem))
+                smiteslot = "s5_summonersmiteduel";
+            if (OracleLists.SmiteGrey.Any(Items.HasItem))
+                smiteslot = "s5_summonersmitequick";
+            if (OracleLists.SmitePurple.Any(Items.HasItem))
+                smiteslot = "itemsmiteaoe";
+
             CheckIgnite();
             CheckSmite();
             CheckClarity();
@@ -100,52 +115,52 @@ namespace Oracle
         }
 
         #region Drawings
-
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (Me.GetSpellSlot("summonersmite") == SpellSlot.Unknown)
-                return;
-
-            if (!_main.Item("drawSmite").GetValue<bool>() || Me.IsDead)
-                return;
-
-            Utility.DrawCircle(Me.Position, 760, Color.White, 1, 1);
-
-            List<Obj_AI_Base> minionList =
-                MinionManager.GetMinions(Me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
-
-            if (!minionList.Any())
-                return;
-
-            foreach (Obj_AI_Base m in minionList)
+            if (me.GetSpellSlot("summonersmite") != SpellSlot.Unknown || isjungling)
             {
-                bool valid;
-                if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
-                {
-                    valid = m.IsHPBarRendered && !m.IsDead &&
-                            (Largeminions.Any(n => m.Name.Substring(0, m.Name.Length - 5).Equals(n) ||
-                                                   Epicminions.Any(
-                                                       nx => m.Name.Substring(0, m.Name.Length - 5).Equals(nx))));
-                }
-                else
-                {
-                    valid = m.IsHPBarRendered && !m.IsDead &&
-                            (!m.Name.Contains("Mini") &&
-                             (Smallminions.Any(z => m.Name.StartsWith(z)) || Largeminions.Any(n => m.Name.StartsWith(n)) ||
-                              Epicminions.Any(nx => m.Name.StartsWith(nx))));
-                }
+                if (!mainmenu.Item("drawSmite").GetValue<bool>() || me.IsDead)
+                    return;
+                if (mainmenu.Item("useSmite").GetValue<KeyBind>().Active)
+                    Utility.DrawCircle(me.Position, 760, Color.White, 1, 1);
 
-                if (valid)
-                {
-                    Vector2 hpBarPos = m.HPBarPosition;
-                    hpBarPos.X += 44;
-                    hpBarPos.Y += 18;
-                    var smiteDmg = (int) Me.GetSummonerSpellDamage(m, Damage.SummonerSpell.Smite);
-                    float damagePercent = smiteDmg/m.MaxHealth;
-                    float hpXPos = hpBarPos.X + (63*damagePercent);
+                List<Obj_AI_Base> minionList =
+                    MinionManager.GetMinions(me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
 
-                    Drawing.DrawLine(hpXPos, hpBarPos.Y, hpXPos, hpBarPos.Y + 5, 2,
-                        smiteDmg > m.Health ? Color.Lime : Color.White);
+                if (!minionList.Any())
+                    return;
+
+                foreach (Obj_AI_Base m in minionList)
+                {
+                    bool valid;
+                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+                    {
+                        valid = m.IsHPBarRendered && !m.IsDead &&
+                                (OracleLists.LargeMinions.Any(n => m.Name.Substring(0, m.Name.Length - 5).Equals(n) ||
+                                                                   OracleLists.EpicMinions.Any(
+                                                                       nx => m.Name.Substring(0, m.Name.Length - 5).Equals(nx))));
+                    }
+                    else
+                    {
+                        valid = m.IsHPBarRendered && !m.IsDead &&
+                                (!m.Name.Contains("Mini") &&
+                                 (OracleLists.SmallMinions.Any(z => m.Name.StartsWith(z)) ||
+                                  OracleLists.LargeMinions.Any(n => m.Name.StartsWith(n)) ||
+                                  OracleLists.EpicMinions.Any(nx => m.Name.StartsWith(nx))));
+                    }
+
+                    if (valid)
+                    {
+                        Vector2 hpBarPos = m.HPBarPosition;
+                        hpBarPos.X += 44;
+                        hpBarPos.Y += 18;
+                        var smiteDmg = (int) me.GetSummonerSpellDamage(m, Damage.SummonerSpell.Smite);
+                        float damagePercent = smiteDmg/m.MaxHealth;
+                        float hpXPos = hpBarPos.X + (63*damagePercent);
+
+                        Drawing.DrawLine(hpXPos, hpBarPos.Y, hpXPos, hpBarPos.Y + 5, 2,
+                            smiteDmg > m.Health ? Color.Lime : Color.White);
+                    }
                 }
             }
         }
@@ -156,57 +171,57 @@ namespace Oracle
 
         private static void CheckIgnite()
         {
-            SpellSlot iSlot = Me.GetSpellSlot("summonerdot");
-            if (iSlot == SpellSlot.Unknown)
+            var ignite = me.GetSpellSlot("summonerdot");
+            if (ignite == SpellSlot.Unknown)
                 return;
 
-            if (iSlot != SpellSlot.Unknown && !_main.Item("useIgnite").GetValue<bool>())
+            if (ignite != SpellSlot.Unknown && !mainmenu.Item("useIgnite").GetValue<bool>())
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(iSlot) != SpellState.Ready)
+            if (me.SummonerSpellbook.CanUseSpell(ignite) != SpellState.Ready)
                 return;
 
-            if (_main.Item("dotMode").GetValue<StringList>().SelectedIndex == 0)
+            if (mainmenu.Item("dotMode").GetValue<StringList>().SelectedIndex == 0)
             {
                 foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(600)))
                 {
-                    if (target.Health < Me.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite))
+                    if (target.Health < me.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite))
                     {
                         if (!target.HasBuff("summonerdot", true))
-                            Me.SummonerSpellbook.CastSpell(iSlot, target);
+                            me.SummonerSpellbook.CastSpell(ignite, target);
                     }
                 }
             }
-            else if (_main.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
+            else if (mainmenu.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
                      OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
             {
                 float aaDmg = 0f;
-                float aSpeed = Me.AttackSpeedMod;
+                float aSpeed = me.AttackSpeedMod;
                 if (aSpeed < 0.8f)
-                    aaDmg = Me.FlatPhysicalDamageMod*3;
+                    aaDmg = me.FlatPhysicalDamageMod*3;
                 else if (aSpeed > 1f && aSpeed < 1.3f)
-                    aaDmg = Me.FlatPhysicalDamageMod*5;
+                    aaDmg = me.FlatPhysicalDamageMod*5;
                 else if (aSpeed > 1.3f && aSpeed < 1.5f)
-                    aaDmg = Me.FlatPhysicalDamageMod*7;
+                    aaDmg = me.FlatPhysicalDamageMod*7;
                 else if (aSpeed > 1.5f && aSpeed < 1.7f)
-                    aaDmg = Me.FlatPhysicalDamageMod*9;
+                    aaDmg = me.FlatPhysicalDamageMod*9;
                 else if (aSpeed > 2.0f)
-                    aaDmg = Me.FlatPhysicalDamageMod*11;
+                    aaDmg = me.FlatPhysicalDamageMod*11;
 
                 Obj_AI_Hero target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
                 if (target == null)
                     return;
 
-                if (target.Distance(Me.Position) <= 600f)
+                if (target.Distance(me.Position) <= 600f)
                 {
-                    float dmg = (Me.Level*20) + 50;
+                    float dmg = (me.Level*20) + 50;
                     float regenpersec = (target.FlatHPRegenMod + (target.HPRegenRate*target.Level));
                     float dmgafter = (dmg - ((regenpersec*5)/2));
 
                     if (target.Health < (dmgafter + aaDmg))
                     {
                         if (!target.HasBuff("summonerdot", true))
-                            Me.SummonerSpellbook.CastSpell(iSlot, target);
+                            me.SummonerSpellbook.CastSpell(ignite, target);
                     }
                 }
             }
@@ -218,28 +233,28 @@ namespace Oracle
 
         private static void CheckBarrier(float incdmg = 0)
         {
-            SpellSlot bSlot = Me.GetSpellSlot("summonerbarrier");
-            if (bSlot == SpellSlot.Unknown)
+            var barrier = me.GetSpellSlot("summonerbarrier");
+            if (barrier == SpellSlot.Unknown)
                 return;
 
-            if (bSlot != SpellSlot.Unknown && !_main.Item("useBarrier").GetValue<bool>())
+            if (barrier != SpellSlot.Unknown && !mainmenu.Item("useBarrier").GetValue<bool>())
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(bSlot) != SpellState.Ready)
+            if (me.SummonerSpellbook.CanUseSpell(barrier) != SpellState.Ready)
                 return;
 
-            var iDamagePercent = (int) ((incdmg/Me.MaxHealth)*100);
-            var mHealthPercent = (int) ((Me.Health/Me.MaxHealth)*100);
+            var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
+            var mHealthPercent = (int) ((me.Health/me.MaxHealth)*100);
 
-            if (mHealthPercent <= _main.Item("useBarrierPct").GetValue<Slider>().Value &&
-                _config.Item("suseOn" + Me.SkinName).GetValue<bool>())
-                if ((iDamagePercent >= 1 || incdmg >= Me.Health) && OC.AggroTarget.NetworkId == Me.NetworkId)
-                    Me.SummonerSpellbook.CastSpell(bSlot, Me);
+            if (mHealthPercent <= mainmenu.Item("useBarrierPct").GetValue<Slider>().Value &&
+                menuconfig.Item("suseOn" + me.SkinName).GetValue<bool>())
+                if ((iDamagePercent >= 1 || incdmg >= me.Health) && OC.AggroTarget.NetworkId == me.NetworkId)
+                    me.SummonerSpellbook.CastSpell(barrier, me);
 
-                else if (iDamagePercent >= _main.Item("useBarrierDmg").GetValue<Slider>().Value &&
-                         OC.AggroTarget.NetworkId == Me.NetworkId)
+                else if (iDamagePercent >= mainmenu.Item("useBarrierDmg").GetValue<Slider>().Value &&
+                         OC.AggroTarget.NetworkId == me.NetworkId)
                 {
-                    Me.SummonerSpellbook.CastSpell(bSlot, Me);
+                    me.SummonerSpellbook.CastSpell(barrier, me);
                 }
         }
 
@@ -249,38 +264,38 @@ namespace Oracle
 
         private static void CheckHeal(float incdmg = 0)
         {
-            SpellSlot hSlot = Me.GetSpellSlot("summonerheal");
-            if (hSlot == SpellSlot.Unknown)
+            var heal = me.GetSpellSlot("summonerheal");
+            if (heal == SpellSlot.Unknown)
                 return;
 
-            if (hSlot != SpellSlot.Unknown && !_main.Item("useHeal").GetValue<bool>())
+            if (heal != SpellSlot.Unknown && !mainmenu.Item("useHeal").GetValue<bool>())
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(hSlot) != SpellState.Ready)
+            if (me.SummonerSpellbook.CanUseSpell(heal) != SpellState.Ready)
                 return;
 
             Obj_AI_Hero target = OC.FriendlyTarget();
-            var iDamagePercent = (int) ((incdmg/Me.MaxHealth)*100);
+            var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
 
-            if (target.Distance(Me.Position) <= 500f)
+            if (target.Distance(me.Position) <= 500f)
             {
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
-                if (aHealthPercent <= _main.Item("useHealPct").GetValue<Slider>().Value &&
-                    _config.Item("suseOn" + target.SkinName).GetValue<bool>())
+                if (aHealthPercent <= mainmenu.Item("useHealPct").GetValue<Slider>().Value &&
+                    menuconfig.Item("suseOn" + target.SkinName).GetValue<bool>())
                 {
-                    if (!Utility.InFountain() && !Me.HasBuff("Recall"))
+                    if (!Utility.InFountain() && !me.HasBuff("Recall"))
                     {
                         if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuff("summonerdot"))
                             && OC.AggroTarget.NetworkId == target.NetworkId)
-                            Me.SummonerSpellbook.CastSpell(hSlot, target);
+                            me.SummonerSpellbook.CastSpell(heal, target);
                     }
                 }
 
-                else if (iDamagePercent >= _main.Item("useHealDmg").GetValue<Slider>().Value &&
-                         _config.Item("suseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
+                else if (iDamagePercent >= mainmenu.Item("useHealDmg").GetValue<Slider>().Value &&
+                         menuconfig.Item("suseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
                 {
-                    if (!Utility.InFountain() && !Me.HasBuff("Recall"))
-                        Me.SummonerSpellbook.CastSpell(hSlot, target);
+                    if (!Utility.InFountain() && !me.HasBuff("Recall"))
+                        me.SummonerSpellbook.CastSpell(heal, target);
                 }
             }
         }
@@ -291,24 +306,24 @@ namespace Oracle
 
         private static void CheckClarity()
         {
-            SpellSlot spellSlot = Me.GetSpellSlot("summonermana");
-            if (spellSlot == SpellSlot.Unknown)
+            var clarity = me.GetSpellSlot("summonermana");
+            if (clarity == SpellSlot.Unknown)
                 return;
 
-            if (spellSlot != SpellSlot.Unknown && !_main.Item("useClarity").GetValue<bool>())
+            if (clarity != SpellSlot.Unknown && !mainmenu.Item("useClarity").GetValue<bool>())
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(spellSlot) == SpellState.Ready)
+            if (me.SummonerSpellbook.CanUseSpell(clarity) == SpellState.Ready)
             {
                 Obj_AI_Hero target = OC.FriendlyTarget();
-                if (target.Distance(Me.Position) <= 600f)
+                if (target.Distance(me.Position) <= 600f)
                 {
                     var aManaPercent = (int) ((target.Mana/target.MaxMana)*100);
-                    if (aManaPercent <= _main.Item("useClarityPct").GetValue<Slider>().Value
-                        && _config.Item("suseOn" + target.SkinName).GetValue<bool>())
+                    if (aManaPercent <= mainmenu.Item("useClarityPct").GetValue<Slider>().Value
+                        && menuconfig.Item("suseOn" + target.SkinName).GetValue<bool>())
                     {
-                        if (!Utility.InFountain() && !Me.HasBuff("Recall"))
-                            Me.SummonerSpellbook.CastSpell(spellSlot, target);
+                        if (!Utility.InFountain() && !me.HasBuff("Recall"))
+                            me.SummonerSpellbook.CastSpell(clarity, target);
                     }
                 }
             }
@@ -320,45 +335,99 @@ namespace Oracle
 
         private static void CheckSmite()
         {
-            SpellSlot spellSlot = Me.GetSpellSlot("summonersmite");
-            if (spellSlot == SpellSlot.Unknown)
+
+            var smite = me.GetSpellSlot(smiteslot);
+            if (smite == SpellSlot.Unknown)
                 return;
 
-            if (spellSlot != SpellSlot.Unknown && !_main.Item("useSmite").GetValue<KeyBind>().Active)
+            if (smite != SpellSlot.Unknown && !mainmenu.Item("useSmite").GetValue<KeyBind>().Active)
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(spellSlot) != SpellState.Ready)
+            CheckChampSmite("Vi", 125f, SpellSlot.E);
+            CheckChampSmite("Nunu", 125f, SpellSlot.Q);
+            CheckChampSmite("Olaf", 325f, SpellSlot.E);
+            CheckChampSmite("EliseSpider", 425f, SpellSlot.Q);
+            CheckChampSmite("Warwick", 400f, SpellSlot.Q);
+            CheckChampSmite("MasterYi", 600f, SpellSlot.Q);
+            CheckChampSmite("Kayle", 650, SpellSlot.Q);
+            CheckChampSmite("Khazix", 325f, SpellSlot.Q);
+            CheckChampSmite("MonkeyKing", 300f, SpellSlot.Q);
+            CheckChampSmite("Rengar", 125f, SpellSlot.Q);
+
+            if (me.SummonerSpellbook.CanUseSpell(smite) != SpellState.Ready)
                 return;
 
             List<Obj_AI_Base>
-                minionList = MinionManager.GetMinions(Me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
+                minionList = MinionManager.GetMinions(me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
 
-            if (!minionList.Any())
+            var damage = 0f;
+            if (minionList.Any())
+            {
+                foreach (Obj_AI_Base minion in minionList.Where(m => m.IsValidTarget(760f)))
+                {
+                    damage = (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
+
+                    if (OracleLists.LargeMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
+                    {
+                        if (minion.Health <= damage)
+                        {
+                            if (mainmenu.Item("smiteLarge").GetValue<bool>())
+                                me.SummonerSpellbook.CastSpell(smite, minion);
+                        }
+                    }
+
+                    else if (OracleLists.SmallMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
+                    {
+                        if (minion.Health <= damage)
+                            if (mainmenu.Item("smiteSmall").GetValue<bool>())
+                                me.SummonerSpellbook.CastSpell(smite, minion);
+                    }
+
+                    else if (OracleLists.EpicMinions.Any(name => minion.Name.StartsWith(name)))
+                    {
+                        if (minion.Health <= damage)
+                            if (mainmenu.Item("smiteEpic").GetValue<bool>())
+                                me.SummonerSpellbook.CastSpell(smite, minion);
+                    }
+                }
+            }          
+        }
+
+        private static void CheckChampSmite(string name, float range, SpellSlot slot)
+        {
+            var champdamage = 0f;
+            if (me.SkinName != name)
                 return;
 
-            foreach (Obj_AI_Base minion in minionList.Where(m => m.IsValidTarget(760f)))
+            if (!mainmenu.Item("SmiteSpell").GetValue<bool>())
+                return;
+
+            var smitedamage = 0f;
+            if (me.SkinName == name &&
+                me.Spellbook.CanUseSpell(slot) != SpellState.Ready)
+                return;
+
+            foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(m => m.IsValidTarget(range)))
             {
-                if (Largeminions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
+                smitedamage = (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
+
+                if (me.SkinName == name)
+                    champdamage = (float)me.GetSpellDamage(minion, slot);
+
+                if (OracleLists.EpicMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
-                    if (minion.Health <= Me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite))
+                    if (mainmenu.Item("smiteEpic").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-                        if (_main.Item("smiteLarge").GetValue<bool>())
-                            Me.SummonerSpellbook.CastSpell(spellSlot, minion);
+                        me.Spellbook.CastSpell(slot, minion);
                     }
                 }
 
-                else if (Smallminions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
+                else if (OracleLists.LargeMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
-                    if (minion.Health <= Me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite))
-                        if (_main.Item("smiteSmall").GetValue<bool>())
-                            Me.SummonerSpellbook.CastSpell(spellSlot, minion);
-                }
-
-                else if (Epicminions.Any(name => minion.Name.StartsWith(name) ))
-                {
-                    if (minion.Health <= Me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite))
-                        if (_main.Item("smiteEpic").GetValue<bool>())
-                            Me.SummonerSpellbook.CastSpell(spellSlot, minion);
+                    if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
+                    {
+                        me.Spellbook.CastSpell(slot, minion);
+                    }
                 }
             }
         }
@@ -370,23 +439,23 @@ namespace Oracle
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender,
             GameObjectProcessSpellCastEventArgs args)
         {
-            var exhaust = Me.GetSpellSlot("summonerexhaust");
+            var exhaust = me.GetSpellSlot("summonerexhaust");
             if (exhaust == SpellSlot.Unknown)
                 return;
 
-            if (exhaust != SpellSlot.Unknown && (!_main.Item("useExhaust").GetValue<bool>() ||
-                                               !_main.Item("exDanger").GetValue<bool>()))
+            if (exhaust != SpellSlot.Unknown && (!mainmenu.Item("useExhaust").GetValue<bool>() ||
+                                               !mainmenu.Item("exDanger").GetValue<bool>()))
                 return;
 
-            if (Me.SummonerSpellbook.CanUseSpell(exhaust) == SpellState.Ready)
+            if (me.SummonerSpellbook.CanUseSpell(exhaust) == SpellState.Ready)
             {
-                if (sender.IsEnemy && sender.Type == Me.Type)
+                if (sender.IsEnemy && sender.Type == me.Type)
                 {
-                    if (sender.Distance(Me.Position) > 750f)
+                    if (sender.Distance(me.Position) > 750f)
                         return;
                     if (OracleLists.ExhaustList.Any(spell => spell.Contains(args.SData.Name)))
                     {
-                        Me.SummonerSpellbook.CastSpell(exhaust, sender);
+                        me.SummonerSpellbook.CastSpell(exhaust, sender);
                     }
                 }
             }

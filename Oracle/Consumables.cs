@@ -7,20 +7,20 @@ namespace Oracle
 {
     internal static class Consumables
     {
-        private static Menu _main;
-        private static readonly Obj_AI_Hero Me = ObjectManager.Player;
+        private static Menu mainmenu;
+        private static readonly Obj_AI_Hero me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
-            _main = new Menu("Consumables", "imenu");
+            mainmenu = new Menu("Consumables", "imenu");
 
             CreateMenuItem("Biscuit", "Biscuit", 40, 25, true, true);
             CreateMenuItem("Mana Potion", "Mana", 40, 0);
             CreateMenuItem("Health Potion", "Health", 40, 25, false, true);
             CreateMenuItem("Crystaline Flask", "Flask", 40, 35, true, true);
 
-            root.AddSubMenu(_main);
+            root.AddSubMenu(mainmenu);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -35,30 +35,30 @@ namespace Oracle
         {
             if (!Items.HasItem(itemId))
                 return;
-            if (Me.HasBuff(name, true) || Me.HasBuff("Recall") || !Items.HasItem(name))
+            if (me.HasBuff(name, true) || me.HasBuff("Recall") || !Items.HasItem(name))
                 return;
-            if (!_main.Item("use" + menuvar).GetValue<bool>())
+            if (!mainmenu.Item("use" + menuvar).GetValue<bool>())
                 return;
 
-            var aHealthPercent = (int) ((Me.Health/Me.MaxHealth)*100);
-            var aManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
-            var iDamagePercent = (int) ((incdmg/Me.MaxHealth)*100);
-            var mDamagePercent = (int) ((mindmg/Me.MaxHealth)*100);
+            var aHealthPercent = (int) ((me.Health/me.MaxHealth)*100);
+            var aManaPercent = (int) ((me.Mana/me.MaxMana)*100);
+            var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
+            var mDamagePercent = (int) ((mindmg/me.MaxHealth)*100);
 
-            if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+            if (usemana && aManaPercent <= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
                 Items.UseItem(itemId);
 
-            if (usehealth && aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
+            if (usehealth && aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
             {
-                if (iDamagePercent >= 1 || incdmg >= Me.Health || Me.HasBuff("summonerdot") ||
-                    mDamagePercent >= 1 || mindmg >= Me.Health)
+                if (iDamagePercent >= 1 || incdmg >= me.Health || me.HasBuff("summonerdot") ||
+                    mDamagePercent >= 1 || mindmg >= me.Health)
                 {
-                    if (OC.AggroTarget.NetworkId == Me.NetworkId)
+                    if (OC.AggroTarget.NetworkId == me.NetworkId)
                         Items.UseItem(itemId);
                 }
-                else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+                else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                 {
-                    if (OC.AggroTarget.NetworkId == Me.NetworkId)
+                    if (OC.AggroTarget.NetworkId == me.NetworkId)
                         Items.UseItem(itemId);
                 }
             }
@@ -76,7 +76,7 @@ namespace Oracle
             }
             if (usemana)
                 menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Use on Mana %")).SetValue(new Slider(40));
-            _main.AddSubMenu(menuName);
+            mainmenu.AddSubMenu(menuName);
         }
     }
 }
