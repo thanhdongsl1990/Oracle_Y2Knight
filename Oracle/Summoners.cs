@@ -445,8 +445,10 @@ namespace Oracle
                 {
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-                        if (me.SkinName == "LeeSin" && datainst.Name != "BlindMonkQOne" && minion.HasBuff("BlindMonkSonicWave"))
+                        if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
                             me.Spellbook.CastSpell(slot);
+                        else if (me.SkinName == "Elise" && datainst.Name == "EliseSpiderQCast")
+                            me.Spellbook.CastSpell(slot, minion);
                         else 
                             me.Spellbook.CastSpell(slot, minion);
                     }
