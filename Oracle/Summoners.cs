@@ -11,10 +11,9 @@ namespace Oracle
 {
     internal static class Summoners
     {
-        private static Menu mainmenu;
-        private static Menu menuconfig;
         private static bool isjungling;
         private static string smiteslot;
+        private static Menu mainmenu, menuconfig;
         private static readonly Obj_AI_Hero me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
@@ -25,7 +24,7 @@ namespace Oracle
 
             mainmenu = new Menu("Summoners", "summoners");
             menuconfig = new Menu("Summoner Config", "sconfig");
-            isjungling = OracleLists.SmiteAll.Any(OC.HasItem);
+            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
                 menuconfig.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
@@ -83,9 +82,11 @@ namespace Oracle
             {
                 var Exhaust = new Menu("Exhaust", "mexhaust");
                 Exhaust.AddItem(new MenuItem("useExhaust", "Enable Exhaust")).SetValue(true);
-                //Exhaust.AddItem(new MenuItem("aExhaustPct", "Exhaust on ally HP %")).SetValue(new Slider(35));
-                //Exhaust.AddItem(new MenuItem("eExhaustPct", "Exhaust on enemy HP %")).SetValue(new Slider(35));
                 Exhaust.AddItem(new MenuItem("exDanger", "Use on Dangerous")).SetValue(true);
+                Exhaust.AddItem(new MenuItem("aExhaustPct", "Exhaust on ally HP %")).SetValue(new Slider(35));
+                Exhaust.AddItem(new MenuItem("eExhaustPct", "Exhaust on enemy HP %")).SetValue(new Slider(35));
+                Exhaust.AddItem(new MenuItem("talismanMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
+
                 mainmenu.AddSubMenu(Exhaust);
             }
 
@@ -96,21 +97,20 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
 
-            isjungling = OracleLists.SmiteAll.Any(OC.HasItem);
-
-            if (OracleLists.SmiteBlue.Any(OC.HasItem))
+            if (OracleLists.SmiteBlue.Any(Items.HasItem))
                 smiteslot = "s5_summonersmiteplayerganker";
-            else if (OracleLists.SmiteRed.Any(OC.HasItem))
+            else if (OracleLists.SmiteRed.Any(Items.HasItem))
                 smiteslot = "s5_summonersmiteduel";
-            else if (OracleLists.SmiteGrey.Any(OC.HasItem))
+            else if (OracleLists.SmiteGrey.Any(Items.HasItem))
                 smiteslot = "s5_summonersmitequick";
-            else if (OracleLists.SmitePurple.Any(OC.HasItem))
+            else if (OracleLists.SmitePurple.Any(Items.HasItem))
                 smiteslot = "itemsmiteaoe";
             else
                 smiteslot = "summonersmite";
 
-
+            CheckExhaust();
             CheckIgnite();
             CheckSmite();
             CheckClarity();
@@ -463,6 +463,42 @@ namespace Oracle
         #endregion
 
         #region Exhaust
+        // Exhaust Basic
+        private static void CheckExhaust()
+        {
+            var exhaust = me.GetSpellSlot("summonerexhaust");
+            if (exhaust == SpellSlot.Unknown)
+                return;
+            if (exhaust != SpellSlot.Unknown && (!mainmenu.Item("useExhaust").GetValue<bool>() ||
+                                                 !mainmenu.Item("exDanger").GetValue<bool>()))
+                return;
+
+            var target = OC.FriendlyTarget();
+            if (me.SummonerSpellbook.CanUseSpell(exhaust) == SpellState.Ready)
+            {
+                foreach (
+                    var enemy in
+                        ObjectManager.Get<Obj_AI_Hero>()
+                            .Where(x => x.IsValidTarget(900))
+                            .OrderByDescending(xe => xe.BaseAttackDamage + xe.FlatPhysicalDamageMod))
+                {
+
+                    if (enemy.Distance(me.Position) > 650)
+                        return;
+
+                    var aHealthPercent = target.Health/target.MaxHealth*100;
+                    var eHealthPercent = enemy.Health/enemy.MaxHealth*100;
+
+                    if (eHealthPercent <= mainmenu.Item("eExhaustPct").GetValue<Slider>().Value)
+                        if (!enemy.IsFacing(target))
+                            me.SummonerSpellbook.CastSpell(exhaust, enemy);
+
+                        else if (aHealthPercent <= mainmenu.Item("aExhaustPct").GetValue<Slider>().Value)
+                            if (enemy.IsFacing(target))
+                                me.SummonerSpellbook.CastSpell(exhaust, enemy);
+                }
+            }
+        }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender,
             GameObjectProcessSpellCastEventArgs args)

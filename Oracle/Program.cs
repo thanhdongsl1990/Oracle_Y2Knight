@@ -6,6 +6,22 @@ using LeagueSharp.Common;
 
 namespace Oracle
 {
+    public struct GameObj
+    {
+        public string Name;
+        public GameObject Obj;
+        public bool Included;
+        public float Damage;
+
+        public GameObj(string name, GameObject obj, bool included, float incdmg)
+        {
+            Name = name;
+            Obj = obj;
+            Included = included;
+            Damage = incdmg;
+        }
+    }
+
     internal static class Program
     {
         //  _____             _     
@@ -14,13 +30,13 @@ namespace Oracle
         // |_____|_| |__,|___|_|___|
         // Copyright © Kurisu Solutions 2014
 
-        public const string Revision = "161";
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;
         private static Obj_AI_Hero Viktor, Fiddle, Anivia, Ziggs, Cass, Lux;
         private static GameObj Satchel, Miasma, Minefield, ViktorStorm, Glacialstorm, Crowstorm, Lightstrike;
 
+        public const string Revision = "162";
         private static void Main(string[] args)
         {
             Console.WriteLine("Oracle is loading...");
@@ -177,33 +193,6 @@ namespace Oracle
             return target;
         }
 
-        public static bool HasItem(int id)
-        {
-            return HasItem(id, ObjectManager.Player);
-        }
-
-        public static bool HasItem(int id, Obj_AI_Hero hero)
-        {
-            return hero.InventoryItems.Any(slot => slot.Id == (ItemId)id);
-        }
-
-        public static bool CanUseItem(int id)
-        {
-            InventorySlot iventoryslot = null;
-            foreach (var slot in ObjectManager.Player.InventoryItems.Where(slot => slot.Id == (ItemId)id))
-            {
-                iventoryslot = slot;
-            }
-
-            if (iventoryslot == null)
-            {
-                return false;
-            }
-
-            var inst = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == iventoryslot.Slot + 6);
-            return inst != null && inst.State == SpellState.Ready;
-        }
-
         public static int CountHerosInRange(this Obj_AI_Hero target, bool enemy = true, float range = float.MaxValue)
         {
             var count = 0;
@@ -305,22 +294,6 @@ namespace Oracle
                     }
                 }
             }
-        }
-    }
-
-    public struct GameObj
-    {
-        public string Name;
-        public GameObject Obj;
-        public bool Included;
-        public float Damage;
-
-        public GameObj(string name, GameObject obj, bool included, float incdmg)
-        {
-            Name = name;
-            Obj = obj;
-            Included = included;
-            Damage = incdmg;
         }
     }
 }

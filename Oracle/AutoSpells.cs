@@ -115,24 +115,24 @@ namespace Oracle
             }
         }
 
-        private static void UseSpell(string sdataname, string menuvar, float incdmg, float spellRange = float.MaxValue, bool usemana = true,
+        private static void UseSpell(string sdataname, string menuvar, float incdmg, float range = float.MaxValue, bool usemana = true,
             bool isheal = false)
         {
-            var playerSlot = Me.GetSpellSlot(sdataname);
-            if (playerSlot == SpellSlot.Unknown)
+            var aSlot = Me.GetSpellSlot(sdataname);
+            if (aSlot == SpellSlot.Unknown)
                 return;
 
-            if (playerSlot != SpellSlot.Unknown && !_main.Item("use" + menuvar).GetValue<bool>())
+            if (aSlot != SpellSlot.Unknown && !_main.Item("use" + menuvar).GetValue<bool>())
                 return;
 
-            var playerSpell = new Spell(playerSlot, spellRange);
-            if (!playerSpell.IsReady())
+            var aSpell = new Spell(aSlot, range);
+            if (!aSpell.IsReady())
                 return;
 
-            var allyuse = spellRange.ToString() != float.MaxValue.ToString();
+            var allyuse = range.ToString() != float.MaxValue.ToString();
             var target = allyuse ? OC.FriendlyTarget() : Me;
 
-            if (target.Distance(Me.Position) >spellRange) 
+            if (target.Distance(Me.Position) >range) 
                 return;
 
             var aManaPercent = (int) ((Me.Mana/Me.MaxMana)*100);
@@ -142,17 +142,17 @@ namespace Oracle
             if (!_config.Item("ason" + target.SkinName).GetValue<bool>())
                 return;
 
-            if (OC.AggroTarget.Distance(Me.Position) > playerSpell.Range)
+            if (OC.AggroTarget.Distance(Me.Position) > aSpell.Range)
                 return;
 
-            if (!Me.HasBuff("Recall") && !Me.HasBuff("OdynRecall") && !Utility.InFountain())
+            if (!Me.HasBuff("Recall") && !Me.HasBuff("OdinRecall") && !Utility.InFountain())
             {
                 if (aHealthPercent <= _main.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
                 {
                     if (usemana && aManaPercent <= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
                         return;
 
-                    if (Me.SkinName == "Soraka" && aHealthPercent <= _main.Item("useSorakaMana").GetValue<Slider>().Value)
+                    if (Me.SkinName == "Soraka" && (Me.Health/Me.MaxHealth*100 <= _main.Item("useSorakaMana").GetValue<Slider>().Value || target.IsMe))
                         return;
 
                     if ((iDamagePercent >= 1 || incdmg >= target.Health) && OC.AggroTarget.NetworkId == target.NetworkId)
@@ -174,15 +174,15 @@ namespace Oracle
 
                             var po = Prediction.GetPrediction(pi);
                             if (po.Hitchance >= HitChance.Medium && !target.IsMe)
-                                playerSpell.Cast(po.CastPosition);
+                                aSpell.Cast(po.CastPosition);
                             else
                             {
-                                playerSpell.Cast(Game.CursorPos);
+                                aSpell.Cast(Game.CursorPos);
                             }
                         }
                         else
                         {
-                            playerSpell.Cast(target);
+                            aSpell.Cast(target);
                         }
                     }
                 }
@@ -193,12 +193,12 @@ namespace Oracle
                         return;
 
                     if (aManaPercent >= _main.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
-                        playerSpell.Cast(target);
+                        aSpell.Cast(target);
                 }
 
                 else if (iDamagePercent >= _main.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                 {
-                    playerSpell.Cast(target);
+                    aSpell.Cast(target);
                 }
             }
         }

@@ -77,21 +77,19 @@ namespace Oracle
             }
         }
 
-        private static void UseItem(string name, int itemId, float itemRange, bool targeted = false)
+        private static void UseItem(string name, int itemId, float range, bool targeted = false)
         {
             var damage = 0f;
-            if (!OC.HasItem(itemId) || !OC.CanUseItem(itemId))
+            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
             if (!mainmenu.Item("use" + name).GetValue<bool>())
                 return;
 
-            if (itemId == 3128)
-            {
+            if (itemId == 3128 || itemId == 3188)
                 damage = OC.DamageCheck(me, currenttarget);
-            }
 
-            if (currenttarget.Distance(me.Position) <= itemRange)
+            if (currenttarget.Distance(me.Position) <= range)
             {
                 var eHealthPercent = (int) ((currenttarget.Health/currenttarget.MaxHealth)*100);
                 var aHealthPercent = (int) ((me.Health/currenttarget.MaxHealth)*100);
@@ -114,22 +112,25 @@ namespace Oracle
                             Type = SkillshotType.SkillshotCircle
                         };
 
-                        PredictionOutput po = Prediction.GetPrediction(pi);
+                        var po = Prediction.GetPrediction(pi);
                         if (po.Hitchance >= HitChance.Medium)
                             Items.UseItem(itemId, po.CastPosition);
                     }
+
                     else if (targeted)
                     {
-                        if (itemId == 3128 && damage < currenttarget.Health)
+                        if ((itemId == 3128 || itemId == 3188) && damage < currenttarget.Health)
                             return;
 
                         Items.UseItem(itemId, currenttarget);
                     }
+
                     else
                     {
                         Items.UseItem(itemId);
                     }
                 }
+
                 else if (aHealthPercent <= mainmenu.Item("use" + name + "Me").GetValue<Slider>().Value &&
                          mainmenu.Item("ouseOn" + currenttarget.SkinName).GetValue<bool>())
                 {

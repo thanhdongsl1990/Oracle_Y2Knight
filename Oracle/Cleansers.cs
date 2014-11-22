@@ -61,7 +61,7 @@ namespace Oracle
             if (!mainmenu.Item("use" + name).GetValue<bool>())
                 return;
 
-            if (!OC.HasItem(itemId) || !OC.CanUseItem(itemId))
+            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
             Obj_AI_Hero target = selfuse ? me : OC.FriendlyTarget();
