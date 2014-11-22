@@ -85,7 +85,7 @@ namespace Oracle
                 Exhaust.AddItem(new MenuItem("exDanger", "Use on Dangerous")).SetValue(true);
                 Exhaust.AddItem(new MenuItem("aExhaustPct", "Exhaust on ally HP %")).SetValue(new Slider(35));
                 Exhaust.AddItem(new MenuItem("eExhaustPct", "Exhaust on enemy HP %")).SetValue(new Slider(35));
-                Exhaust.AddItem(new MenuItem("talismanMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
+                Exhaust.AddItem(new MenuItem("exhaustMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
 
                 mainmenu.AddSubMenu(Exhaust);
             }
@@ -245,6 +245,10 @@ namespace Oracle
                 return;
 
             if (me.SummonerSpellbook.CanUseSpell(barrier) != SpellState.Ready)
+                return;
+
+            if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
+                mainmenu.Item("exhaustMode").GetValue<StringList>().SelectedIndex == 1)
                 return;
 
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
