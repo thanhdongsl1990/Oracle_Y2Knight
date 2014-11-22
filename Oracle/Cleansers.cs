@@ -52,7 +52,7 @@ namespace Oracle
             {
                 UseItem("Quicksilver", 3140);
                 UseItem("Mercurial", 3139);
-                UseItem("Dervrish", 3137);
+                UseItem("Dervish", 3137);
             }
         }
 
