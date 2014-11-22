@@ -27,8 +27,7 @@ namespace Oracle
 
             CreateMenuItem("Randuin's Omen", "Randuins", 40, 40, true);
             CreateMenuItem("Seraph's Embrace", "Seraphs", 55, 40);
-            if (Game.MapId == GameMapId.SummonersRift + 10)
-                CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40); // only SR
+            CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40);
             CreateMenuItem("Face of the Mountain", "Mountain", 20, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 45, 40);
 
@@ -135,11 +134,15 @@ namespace Oracle
             {
                 if (OC.IncomeDamage >= 1)
                 {
+                    if (Game.MapId == GameMapId.CrystalScar)
+                    {
+                        UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
+                        UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
+                    }
+
                     UseItem("Locket", 3190, 600f, OC.IncomeDamage);
                     UseItem("Seraphs", 3040, 450f, OC.IncomeDamage, true);
-                    UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
                     UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
-                    UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
                     UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
                     UseItem("Mountain", 3401, 700f, OC.IncomeDamage, false, true);
                 }

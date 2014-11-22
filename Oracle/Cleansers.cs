@@ -37,7 +37,7 @@ namespace Oracle
             mainmenu.AddSubMenu(menuconfig);
 
             CreateMenuItem("Quicksilver Sash", "Quicksilver", 2);
-            CreateMenuItem("Deverish Blade", "Deverish", 2);
+            CreateMenuItem("Dervish Blade", "Dervish", 2);
             CreateMenuItem("Mercurial Scimitar", "Mercurial", 2);
             CreateMenuItem("Mikael's Crucible", "Mikaels", 2);
 
@@ -52,7 +52,7 @@ namespace Oracle
             {
                 UseItem("Quicksilver", 3140);
                 UseItem("Mercurial", 3139);
-                UseItem("Deverish", 3137);
+                UseItem("Dervrish", 3137);
             }
         }
 
