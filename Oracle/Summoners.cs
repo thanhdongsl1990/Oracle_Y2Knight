@@ -247,23 +247,21 @@ namespace Oracle
             if (me.SummonerSpellbook.CanUseSpell(barrier) != SpellState.Ready)
                 return;
 
-            if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
-                mainmenu.Item("exhaustMode").GetValue<StringList>().SelectedIndex == 1)
-                return;
-
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
             var mHealthPercent = (int) ((me.Health/me.MaxHealth)*100);
 
             if (mHealthPercent <= mainmenu.Item("useBarrierPct").GetValue<Slider>().Value &&
                 menuconfig.Item("suseOn" + me.SkinName).GetValue<bool>())
+            {
                 if ((iDamagePercent >= 1 || incdmg >= me.Health) && OC.AggroTarget.NetworkId == me.NetworkId)
                     me.SummonerSpellbook.CastSpell(barrier, me);
+            }
 
-                else if (iDamagePercent >= mainmenu.Item("useBarrierDmg").GetValue<Slider>().Value &&
-                         OC.AggroTarget.NetworkId == me.NetworkId)
-                {
-                    me.SummonerSpellbook.CastSpell(barrier, me);
-                }
+            else if (iDamagePercent >= mainmenu.Item("useBarrierDmg").GetValue<Slider>().Value &&
+                     OC.AggroTarget.NetworkId == me.NetworkId)
+            {
+                me.SummonerSpellbook.CastSpell(barrier, me);
+            }
         }
 
         #endregion
@@ -473,8 +471,11 @@ namespace Oracle
             var exhaust = me.GetSpellSlot("summonerexhaust");
             if (exhaust == SpellSlot.Unknown)
                 return;
-            if (exhaust != SpellSlot.Unknown && (!mainmenu.Item("useExhaust").GetValue<bool>() ||
-                                                 !mainmenu.Item("exDanger").GetValue<bool>()))
+            if (exhaust != SpellSlot.Unknown && !mainmenu.Item("useExhaust").GetValue<bool>())
+                return;
+
+            if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
+                mainmenu.Item("exhaustMode").GetValue<StringList>().SelectedIndex == 1)
                 return;
 
             var target = OC.FriendlyTarget();
