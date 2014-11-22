@@ -70,6 +70,12 @@ namespace Oracle
                 if (BuffCount(target) >= mainmenu.Item(name + "Count").GetValue<Slider>().Value &&
                     menuconfig.Item("cuseOn" + target.SkinName).GetValue<bool>())
                     Items.UseItem(itemId, target);
+
+                if ((target.HasBuff("zedulttargetmark", true) || target.HasBuff("SoulShackles", true)) &&
+                    menuconfig.Item("cuseOn" + target.SkinName).GetValue<bool>())
+                {
+                    Utility.DelayAction.Add(1000, () => Items.UseItem(itemId, target));
+                }
             }
         }
 

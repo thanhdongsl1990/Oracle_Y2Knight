@@ -112,8 +112,6 @@ namespace Oracle
                         .OrderByDescending(ex => ex.Health/ex.MaxHealth*100)
                         .First(x => x.IsValidTarget(1000));
 
-                Console.WriteLine(weakEnemy.SkinName);
-
                 var aHealthPercent = target.Health / target.MaxHealth * 100;
                 var eHealthPercent = weakEnemy.Health / weakEnemy.MaxHealth * 100;
 
@@ -132,20 +130,21 @@ namespace Oracle
             // Deffensives
             if (OC.FriendlyTarget() != null)
             {
-                if (OC.IncomeDamage >= 1)
-                {
-                    if (Game.MapId == GameMapId.CrystalScar)
-                    {
-                        UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
-                        UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
-                    }
+                if (OC.IncomeDamage < 1) 
+                    return;
 
-                    UseItem("Locket", 3190, 600f, OC.IncomeDamage);
-                    UseItem("Seraphs", 3040, 450f, OC.IncomeDamage, true);
-                    UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
-                    UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
-                    UseItem("Mountain", 3401, 700f, OC.IncomeDamage, false, true);
-                }
+                UseItem("Locket", 3190, 600f, OC.IncomeDamage);
+                UseItem("Seraphs", 3040, 450f, OC.IncomeDamage, true);
+                UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
+                UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
+                UseItem("Mountain", 3401, 700f, OC.IncomeDamage, false, true);
+
+                if (Game.MapId != GameMapId.CrystalScar)
+                    return;
+
+                UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
+                UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
+   
             }
         }
 

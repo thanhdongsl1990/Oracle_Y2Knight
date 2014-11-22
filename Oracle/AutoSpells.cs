@@ -111,8 +111,8 @@ namespace Oracle
             }
         }
 
-        private static void UseSpell(string sdataname, string menuvar, float incdmg, float range = float.MaxValue, bool usemana = true,
-            bool isheal = false)
+        private static void UseSpell(string sdataname, string menuvar, float incdmg, float range = float.MaxValue, 
+            bool usemana = true, bool isheal = false)
         {
             var slot = me.GetSpellSlot(sdataname);
             if (slot == SpellSlot.Unknown)
@@ -121,14 +121,14 @@ namespace Oracle
             if (slot != SpellSlot.Unknown && !mainmenu.Item("use" + menuvar).GetValue<bool>())
                 return;
 
-            var aSpell = new Spell(slot, range);
-            if (!aSpell.IsReady())
+            var spell = new Spell(slot, range);
+            if (!spell.IsReady())
                 return;
 
             var allyuse = range.ToString() != float.MaxValue.ToString();
             var target = allyuse ? OC.FriendlyTarget() : me;
 
-            if (target.Distance(me.Position) >range) 
+            if (target.Distance(me.Position) > range) 
                 return;
 
             var aManaPercent = (int) ((me.Mana/me.MaxMana)*100);
@@ -138,7 +138,7 @@ namespace Oracle
             if (!menuconfig.Item("ason" + target.SkinName).GetValue<bool>())
                 return;
 
-            if (OC.AggroTarget.Distance(me.Position) > aSpell.Range)
+            if (OC.AggroTarget.Distance(me.Position) > spell.Range)
                 return;
 
             if (!me.HasBuff("Recall") && !me.HasBuff("OdinRecall") && !Utility.InFountain())
@@ -155,46 +155,34 @@ namespace Oracle
                     {
                         if (menuvar == "luxshield" || menuvar == "rivenshield")
                         {
-                            var pi = new PredictionInput
-                            {
-                                Aoe = true,
-                                Collision = false,
-                                Delay = 0.25f,
-                                From = me.Position,
-                                Radius = 250f,
-                                Range = 1075f,
-                                Speed = 1500f,
-                                Unit = target,
-                                Type = SkillshotType.SkillshotLine
-                            };
-
-                            var po = Prediction.GetPrediction(pi);
+                            var po = spell.GetPrediction(target);
                             if (po.Hitchance >= HitChance.Medium && !target.IsMe)
-                                aSpell.Cast(po.CastPosition);
+                                spell.Cast(po.CastPosition);
                             else
                             {
-                                aSpell.Cast(Game.CursorPos);
+                                spell.Cast(Game.CursorPos);
                             }
                         }
+
                         else
                         {
-                            aSpell.Cast(target);
+                            spell.Cast(target);
                         }
                     }
                 }
 
                 else if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
                 {
-                    if (me.SkinName == "Soraka" && aHealthPercent <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value)
+                    if (me.SkinName == "Soraka" && (int)(me.Health/me.MaxHealth*100) <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value)
                         return;
 
                     if (aManaPercent >= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
-                        aSpell.Cast(target);
+                        spell.Cast(target);
                 }
 
                 else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                 {
-                    aSpell.Cast(target);
+                    spell.Cast(target);
                 }
             }
         }
