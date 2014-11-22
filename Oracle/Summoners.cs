@@ -94,22 +94,11 @@ namespace Oracle
 
 
         }
-
         private static void Game_OnGameUpdate(EventArgs args)
         {
             isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
 
-            if (OracleLists.SmiteBlue.Any(Items.HasItem))
-                smiteslot = "s5_summonersmiteplayerganker";
-            else if (OracleLists.SmiteRed.Any(Items.HasItem))
-                smiteslot = "s5_summonersmiteduel";
-            else if (OracleLists.SmiteGrey.Any(Items.HasItem))
-                smiteslot = "s5_summonersmitequick";
-            else if (OracleLists.SmitePurple.Any(Items.HasItem))
-                smiteslot = "itemsmiteaoe";
-            else
-                smiteslot = "summonersmite";
-
+            FindSmite();
             CheckExhaust();
             CheckIgnite();
             CheckSmite();
@@ -338,6 +327,19 @@ namespace Oracle
         #endregion
 
         #region Smite
+        private static void FindSmite()
+        {
+            if (OracleLists.SmiteBlue.Any(Items.HasItem))
+                smiteslot = "s5_summonersmiteplayerganker";
+            else if (OracleLists.SmiteRed.Any(Items.HasItem))
+                smiteslot = "s5_summonersmiteduel";
+            else if (OracleLists.SmiteGrey.Any(Items.HasItem))
+                smiteslot = "s5_summonersmitequick";
+            else if (OracleLists.SmitePurple.Any(Items.HasItem))
+                smiteslot = "itemsmiteaoe";
+            else
+                smiteslot = "summonersmite";
+        }
 
         private static void CheckSmite()
         {

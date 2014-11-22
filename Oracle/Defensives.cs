@@ -27,8 +27,8 @@ namespace Oracle
 
             CreateMenuItem("Randuin's Omen", "Randuins", 40, 40, true);
             CreateMenuItem("Seraph's Embrace", "Seraphs", 55, 40);
-            CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40);
-            CreateMenuItem("Wooglet's Witchcap", "Wooglets", 35, 40);
+            if (Game.MapId == GameMapId.SummonersRift + 10)
+                CreateMenuItem("Zhonya's Hourglass", "Zhonyas", 35, 40); // only SR
             CreateMenuItem("Face of the Mountain", "Mountain", 20, 40);
             CreateMenuItem("Locket of Iron Solari", "Locket", 45, 40);
 
@@ -48,13 +48,19 @@ namespace Oracle
             oMenu.AddItem(new MenuItem("oracleMode", "Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
             mainmenu.AddSubMenu(oMenu);
 
+            if (Game.MapId == GameMapId.CrystalScar)
+            {
+                CreateMenuItem("Wooglet's Witchcap", "Wooglets", 35, 40); // not SR
+                CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true); // not SR
+            }
 
-            CreateMenuItem("Odyn's Veil", "Odyns", 40, 40, true);
             root.AddSubMenu(mainmenu);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            Console.WriteLine(Game.MapId);
+
             // Oracle's Lens
             if (Items.HasItem(3364) && Items.CanUseItem(3364) && mainmenu.Item("useOracles").GetValue<bool>())
             {

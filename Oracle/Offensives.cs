@@ -28,19 +28,23 @@ namespace Oracle
                 menuconfig.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             mainmenu.AddSubMenu(menuconfig);
 
-            CreateMenuItem("Tiamat", "Tiamat", 90, 30);
-            CreateMenuItem("Entropy", "Entropy", 90, 30);
+            if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.HowlingAbyss)
+            {
+                CreateMenuItem("Entropy", "Entropy", 90, 30);
+                CreateMenuItem("Guardians Horn", "Guardians", 90, 30);
+                CreateMenuItem("Blackfire Torch", "Torch", 100, 30);
+            }
+
             CreateMenuItem("Muramana", "Muramana", 90, 30, true);
+            CreateMenuItem("Tiamat/Hydra", "Hydra", 90, 30);
             CreateMenuItem("Deathfire Grasp", "DFG", 100, 30);
-            CreateMenuItem("Ravenous Hydra", "Hydra", 90, 30);
             CreateMenuItem("Youmuu's Ghostblade", "Youmuus", 90, 30);
             CreateMenuItem("Bilgewater's Cutlass", "Cutlass", 90, 30);
-            CreateMenuItem("Guardians Horn", "Guardians", 90, 30);
             CreateMenuItem("Hextech Gunblade", "Hextech", 90, 30);
             CreateMenuItem("Blade of the Ruined King", "Botrk", 70, 70);
             CreateMenuItem("Frost Queen's Claim", "Frostclaim", 90, 30);
             CreateMenuItem("Sword of Divine", "Divine", 90, 30);
-
+            
             root.AddSubMenu(mainmenu);
         }
 
@@ -52,13 +56,18 @@ namespace Oracle
             {
                 if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
+                    if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.HowlingAbyss)
+                    {
+                        UseItem("Entropy", 3184, 450f, true);
+                        UseItem("Guardians", 2051, 450f);
+                        UseItem("Torch", 3188, 750f, true);
+                    }
+
                     UseItem("Frostclaim", 3092, 850f, true);
                     UseItem("Youmuus", 3142, 650f);
-                    UseItem("Tiamat", 3077, 250f);
+                    UseItem("Hydra", 3077, 250f);
                     UseItem("Hydra", 3074, 250f);
-                    UseItem("Guardians", 2051, 450f);
                     UseItem("Hextech", 3146, 700f, true);
-                    UseItem("Entropy", 3184, 450f, true);
                     UseItem("Cutlass", 3144, 450f, true);
                     UseItem("Botrk", 3153, 450f, true);
                     UseItem("Divine", 3131, 650f);
