@@ -150,10 +150,10 @@ namespace Oracle
 
         private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0, bool selfuse = false, bool targeted = false)
         {
-            if (!mainmenu.Item("use" + name).GetValue<bool>())
+            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
+            if (!mainmenu.Item("use" + name).GetValue<bool>())
                 return;
         
             var target = selfuse ? me : OC.FriendlyTarget();

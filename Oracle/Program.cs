@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -62,15 +61,8 @@ namespace Oracle
 
             GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_MainProcessSpellCast;
-
-            var wc = new WebClient { Proxy = null };
-            wc.DownloadString("http://league.square7.ch/put.php?name=Oracle");
-
-            var amount = wc.DownloadString("http://league.square7.ch/get.php?name=Oracle");
-            var intamount = Convert.ToInt32(amount);
-
             Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
-            Game.PrintChat("<font color=\"#1FFF8F\">Oracle</font> has been used in <font color=\"#1FFF8F\">" + intamount + "</font> games."); // Post Counter Data
+                 
         }
 
         private static void GameObject_OnCreate(GameObject obj, EventArgs args)

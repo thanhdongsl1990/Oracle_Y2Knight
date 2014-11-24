@@ -418,7 +418,7 @@ namespace Oracle
                 me.Spellbook.CanUseSpell(slot) != SpellState.Ready)
                 return;
 
-            var datainst = me.Spellbook.GetSpell(slot);
+            var data = me.Spellbook.GetSpell(slot);
 
             foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(m => m.IsValidTarget(range)))
             {
@@ -437,11 +437,12 @@ namespace Oracle
                     {
                         if (me.SkinName == "JarvanIV")
                             me.Spellbook.CastSpell(slot, minion.Position);
-                        else if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" &&
+                        else if (me.SkinName == "LeeSin" && data.Name == "blindmonkqtwo" &&
                                  minion.HasBuff("BlindMonkSonicWave"))
                         {
                             me.Spellbook.CastSpell(slot);
                         }
+
                         else
                         {
                             me.Spellbook.CastSpell(slot, minion);
@@ -455,10 +456,16 @@ namespace Oracle
                     {
                         if (me.SkinName == "JarvanIV")
                             me.Spellbook.CastSpell(slot, minion.Position);
-                        else if (me.SkinName == "LeeSin" && datainst.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                        else if (me.SkinName == "LeeSin" && data.Name == "blindmonkqtwo" &&
+                                 minion.HasBuff("BlindMonkSonicWave"))
+                        {
                             me.Spellbook.CastSpell(slot);
+                        }
+
                         else
+                        {
                             me.Spellbook.CastSpell(slot, minion);
+                        }
                     }
                 }
             }
@@ -507,8 +514,7 @@ namespace Oracle
             }
         }
 
-        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender,
-            GameObjectProcessSpellCastEventArgs args)
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             var exhaust = me.GetSpellSlot("summonerexhaust");
             if (exhaust == SpellSlot.Unknown)
@@ -524,6 +530,7 @@ namespace Oracle
                 {
                     if (sender.Distance(me.Position) > 750f)
                         return;
+
                     if (OracleLists.ExhaustList.Any(spell => spell.Contains(args.SData.Name)))
                     {
                         me.SummonerSpellbook.CastSpell(exhaust, sender);
