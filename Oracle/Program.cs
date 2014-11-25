@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Net;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
