@@ -208,10 +208,10 @@ namespace Oracle
             return count;
         }
 
-        public static bool Allowed(this Obj_AI_Hero target)
+        public static bool NotRecalling(this Obj_AI_Hero target)
         {
             if (!target.HasBuff("Recall") && !target.HasBuff("RecallImproved") && !target.HasBuff("OdinRecall") &&
-                !target.HasBuff("OdinRecallImproved") && !Utility.InFountain())
+                !target.HasBuff("OdinRecallImproved"))
                 return true;
 
             return false;

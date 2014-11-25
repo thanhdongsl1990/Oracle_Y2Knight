@@ -1599,7 +1599,7 @@ namespace Oracle
                 Speed = 0,
                 Delay = 0.5,
                 Type = CastType.SelfCast,
-                DangerLevel = RiskLevel.NoDamage,
+                DangerLevel = RiskLevel.Normal,
                 CC = false,
                 CheckLine = false
             });

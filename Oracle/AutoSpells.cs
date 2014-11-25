@@ -139,7 +139,7 @@ namespace Oracle
             if (!menuconfig.Item("ason" + target.SkinName).GetValue<bool>())
                 return;
 
-            if (OC.AggroTarget.Distance(me.Position) > spell.Range || !me.Allowed())
+            if (OC.AggroTarget.Distance(me.Position) > spell.Range || !me.NotRecalling())
                 return;
 
             if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)

@@ -240,7 +240,7 @@ namespace Oracle
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
             var mHealthPercent = (int) ((me.Health/me.MaxHealth)*100);
 
-            if (!me.Allowed())
+            if (!me.NotRecalling())
                 return;
 
             if (mHealthPercent <= mainmenu.Item("useBarrierPct").GetValue<Slider>().Value &&
@@ -278,7 +278,7 @@ namespace Oracle
 
             if (target.Distance(me.Position) <= 700f)
             {
-                if (!me.Allowed())
+                if (!me.NotRecalling())
                     return;
 
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);

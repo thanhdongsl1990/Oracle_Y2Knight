@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -162,7 +161,7 @@ namespace Oracle
             var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
             var iDamagePercent = (int) (incdmg/target.MaxHealth*100);
 
-            if (me.Allowed() && mainmenu.Item("DefenseOn" + target.SkinName).GetValue<bool>())
+            if (me.NotRecalling() && mainmenu.Item("DefenseOn" + target.SkinName).GetValue<bool>())
             {
                 if (aHealthPercent <= mainmenu.Item("use" + name + "Pct").GetValue<Slider>().Value)
                 {

@@ -36,7 +36,7 @@ namespace Oracle
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            if (!me.HasBuff(name, true) && me.Allowed())
+            if (!me.HasBuff(name, true) && me.NotRecalling())
             {
                 if (!mainmenu.Item("use" + menuvar).GetValue<bool>())
                     return;
