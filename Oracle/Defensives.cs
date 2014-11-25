@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using OC = Oracle.Program;
 
 namespace Oracle
 {
     internal static class Defensives
     {
+        private static Vector3 dangerpos;
         private static bool danger, stealth;
         private static Menu mainmenu, menuconfig;
         private static readonly Obj_AI_Hero me = ObjectManager.Player;
@@ -58,8 +61,6 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            Console.WriteLine(Game.MapId);
-
             // Oracle's Lens
             if (Items.HasItem(3364) && Items.CanUseItem(3364) && mainmenu.Item("useOracles").GetValue<bool>())
             {
@@ -128,24 +129,22 @@ namespace Oracle
             }
 
             // Deffensives
-            if (OC.FriendlyTarget() != null)
-            {
-                if (OC.IncomeDamage < 1) 
-                    return;
+            if (OC.FriendlyTarget() == null) 
+                return;
+            if (OC.IncomeDamage < 1) 
+                return;
 
-                UseItem("Locket", 3190, 600f, OC.IncomeDamage);
-                UseItem("Seraphs", 3040, 450f, OC.IncomeDamage, true);
-                UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
-                UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
-                UseItem("Mountain", 3401, 700f, OC.IncomeDamage, false, true);
+            UseItem("Locket", 3190, 600f, OC.IncomeDamage);
+            UseItem("Seraphs", 3040, 450f, OC.IncomeDamage, true);
+            UseItem("Zhonyas", 3157, 450f, OC.IncomeDamage, true);
+            UseItem("Randuins", 3143, 450f, OC.IncomeDamage);
+            UseItem("Mountain", 3401, 700f, OC.IncomeDamage, false, true);
 
-                if (Game.MapId != GameMapId.CrystalScar)
-                    return;
+            if (Game.MapId != GameMapId.CrystalScar)
+                return;
 
-                UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
-                UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
-   
-            }
+            UseItem("Odyns", 3180, 450f, OC.IncomeDamage);
+            UseItem("Wooglets", 3090, 450f, OC.IncomeDamage, true);
         }
 
         private static void UseItem(string name, int itemId, float itemRange, float incdmg = 0, bool selfuse = false, bool targeted = false)
@@ -163,7 +162,7 @@ namespace Oracle
             var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
             var iDamagePercent = (int) (incdmg/target.MaxHealth*100);
 
-            if (!me.HasBuff("Recall") && !me.HasBuff("OdinRecall") && mainmenu.Item("DefenseOn" + target.SkinName).GetValue<bool>())
+            if (me.Allowed() && mainmenu.Item("DefenseOn" + target.SkinName).GetValue<bool>())
             {
                 if (aHealthPercent <= mainmenu.Item("use" + name + "Pct").GetValue<Slider>().Value)
                 {
@@ -207,21 +206,34 @@ namespace Oracle
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsEnemy && sender.Type == me.Type)
-            {
-                var target = OC.FriendlyTarget();
-                if (OracleLists.DangerousList.Any(spell => spell.Contains(args.SData.Name)))
-                    if (target.Distance(args.End) <= 200f && target.Distance(sender.Position) <= 600f)
-                        danger = true;
+            if (!sender.IsMe || sender.Type != me.Type)
+                return;
 
-                else if (OracleLists.InvisibleList.Any(spell => spell.Contains(args.SData.Name)))
-                    if (target.Distance(sender.Position) <= 600f)
-                        stealth = true;
-                else
+            var target = OC.FriendlyTarget();
+            var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
+            var attackerslot = attacker.GetSpellSlot(args.SData.Name);
+
+            foreach (var data in OracleLib.Database)
+            {
+                if (attackerslot != data.Slot)
+                    return;
+
+                if (target.Distance(attacker.Position) > 750f)
+                    return;
+
+                if (data.DangerLevel == RiskLevel.Stealth)
                 {
-                    stealth = false;
-                    danger = false;
+                    stealth = true;
                 }
+
+                if (data.DangerLevel == RiskLevel.Extreme && attackerslot == SpellSlot.R)
+                {
+                    danger = true;
+                    dangerpos = args.End;
+                }
+
+                stealth = false;
+                danger = false;
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using OC = Oracle.Program;
 
 namespace Oracle
@@ -138,52 +139,49 @@ namespace Oracle
             if (!menuconfig.Item("ason" + target.SkinName).GetValue<bool>())
                 return;
 
-            if (OC.AggroTarget.Distance(me.Position) > spell.Range)
+            if (OC.AggroTarget.Distance(me.Position) > spell.Range || !me.Allowed())
                 return;
 
-            if (!me.HasBuff("Recall") && !me.HasBuff("OdinRecall") && !Utility.InFountain())
+            if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
             {
-                if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
+                if (usemana && aManaPercent <= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+                    return;
+
+                if (me.SkinName == "Soraka" && (me.Health/me.MaxHealth*100 <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value || target.IsMe))
+                    return;
+
+                if ((iDamagePercent >= 1 || incdmg >= target.Health) && OC.AggroTarget.NetworkId == target.NetworkId)
                 {
-                    if (usemana && aManaPercent <= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
-                        return;
-
-                    if (me.SkinName == "Soraka" && (me.Health/me.MaxHealth*100 <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value || target.IsMe))
-                        return;
-
-                    if ((iDamagePercent >= 1 || incdmg >= target.Health) && OC.AggroTarget.NetworkId == target.NetworkId)
+                    if (menuvar == "luxshield" || menuvar == "rivenshield")
                     {
-                        if (menuvar == "luxshield" || menuvar == "rivenshield")
-                        {
-                            var po = spell.GetPrediction(target);
-                            if (po.Hitchance >= HitChance.Medium && !target.IsMe)
-                                spell.Cast(po.CastPosition);
-                            else
-                            {
-                                spell.Cast(Game.CursorPos);
-                            }
-                        }
-
+                        var po = spell.GetPrediction(target);
+                        if (po.Hitchance >= HitChance.Medium && !target.IsMe)
+                            spell.Cast(po.CastPosition);
                         else
                         {
-                            spell.Cast(target);
+                            spell.Cast(Game.CursorPos);
                         }
                     }
-                }
 
-                else if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
-                {
-                    if (me.SkinName == "Soraka" && (int)(me.Health/me.MaxHealth*100) <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value)
-                        return;
-
-                    if (aManaPercent >= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
+                    else
+                    {
                         spell.Cast(target);
+                    }
                 }
+            }
 
-                else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
-                {
+            else if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
+            {
+                if (me.SkinName == "Soraka" && (int)(me.Health/me.MaxHealth*100) <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value)
+                    return;
+
+                if (aManaPercent >= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                     spell.Cast(target);
-                }
+            }
+
+            else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+            {
+                spell.Cast(target);
             }
         }
 

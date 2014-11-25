@@ -222,14 +222,17 @@ namespace Oracle
                 var manaPercent = (int)((me.Mana / me.MaxMana) * 100);
                 if (me.Spellbook.CanUseSpell(manamuneslot) != SpellState.Ready)
                     return;
-                if (OracleLists.OnHitEffectList.Any(spell => spell.Contains(args.SData.Name)))
+
+                var myslot = me.GetSpellSlot(args.SData.Name);
+                foreach (var spell in OracleLib.Database)
                 {
-                    if (!me.HasBuff("Muramana"))
+                    if (myslot == spell.Slot && spell.OnHit && me.HasBuff("Muramana"))
                     {
                         if (manaPercent <= mainmenu.Item("useMuramanaMana").GetValue<Slider>().Value)
                             return;
+
                         me.Spellbook.CastSpell(manamuneslot);
-                        casttime = Environment.TickCount;
+                        casttime = Environment.TickCount;                      
                     }
                 }
             }

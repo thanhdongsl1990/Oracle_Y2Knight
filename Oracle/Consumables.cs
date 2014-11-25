@@ -36,7 +36,7 @@ namespace Oracle
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            if (!me.HasBuff(name, true) && !me.HasBuff("Recall"))
+            if (!me.HasBuff(name, true) && me.Allowed())
             {
                 if (!mainmenu.Item("use" + menuvar).GetValue<bool>())
                     return;
@@ -57,6 +57,7 @@ namespace Oracle
                         if (OC.AggroTarget.NetworkId == me.NetworkId)
                             Items.UseItem(itemId);
                     }
+
                     else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
                     {
                         if (OC.AggroTarget.NetworkId == me.NetworkId)

@@ -57,7 +57,7 @@
   <ItemGroup>
     <Compile Include="Cleansers.cs" />
     <Compile Include="Defensives.cs" />
-    <Compile Include="OracleLists.cs" />
+    <Compile Include="OracleLib.cs" />
     <Compile Include="Offensives.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

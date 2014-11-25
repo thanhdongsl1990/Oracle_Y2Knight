@@ -24,7 +24,7 @@ namespace Oracle
 
             mainmenu = new Menu("Summoners", "summoners");
             menuconfig = new Menu("Summoner Config", "sconfig");
-            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
+            isjungling = OracleLib.SmiteAll.Any(Items.HasItem);
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly))
                 menuconfig.AddItem(new MenuItem("suseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
@@ -96,7 +96,7 @@ namespace Oracle
         }
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            isjungling = OracleLists.SmiteAll.Any(Items.HasItem);
+            isjungling = OracleLib.SmiteAll.Any(Items.HasItem);
 
             FindSmite();
             CheckExhaust();
@@ -129,17 +129,17 @@ namespace Oracle
                     if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
                     {
                         valid = m.IsHPBarRendered && !m.IsDead &&
-                                (OracleLists.LargeMinions.Any(n => m.Name.Substring(0, m.Name.Length - 5).Equals(n) ||
-                                                                   OracleLists.EpicMinions.Any(
+                                (OracleLib.LargeMinions.Any(n => m.Name.Substring(0, m.Name.Length - 5).Equals(n) ||
+                                                                   OracleLib.EpicMinions.Any(
                                                                        nx => m.Name.Substring(0, m.Name.Length - 5).Equals(nx))));
                     }
                     else
                     {
                         valid = m.IsHPBarRendered && !m.IsDead &&
                                 (!m.Name.Contains("Mini") &&
-                                 (OracleLists.SmallMinions.Any(z => m.Name.StartsWith(z)) ||
-                                  OracleLists.LargeMinions.Any(n => m.Name.StartsWith(n)) ||
-                                  OracleLists.EpicMinions.Any(nx => m.Name.StartsWith(nx))));
+                                 (OracleLib.SmallMinions.Any(z => m.Name.StartsWith(z)) ||
+                                  OracleLib.LargeMinions.Any(n => m.Name.StartsWith(n)) ||
+                                  OracleLib.EpicMinions.Any(nx => m.Name.StartsWith(nx))));
                     }
 
                     if (valid)
@@ -185,11 +185,12 @@ namespace Oracle
                     }
                 }
             }
+
             else if (mainmenu.Item("dotMode").GetValue<StringList>().SelectedIndex == 1 &&
                      OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
             {
-                float aaDmg = 0f;
-                float aSpeed = me.AttackSpeedMod;
+                var aaDmg = 0f;
+                var aSpeed = me.AttackSpeedMod;
                 if (aSpeed < 0.8f)
                     aaDmg = me.FlatPhysicalDamageMod*3;
                 else if (aSpeed > 1f && aSpeed < 1.3f)
@@ -201,7 +202,7 @@ namespace Oracle
                 else if (aSpeed > 2.0f)
                     aaDmg = me.FlatPhysicalDamageMod*11;
 
-                Obj_AI_Hero target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
+                var target = SimpleTs.GetTarget(900f, SimpleTs.DamageType.Physical);
                 if (target == null)
                     return;
 
@@ -239,6 +240,9 @@ namespace Oracle
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
             var mHealthPercent = (int) ((me.Health/me.MaxHealth)*100);
 
+            if (!me.Allowed())
+                return;
+
             if (mHealthPercent <= mainmenu.Item("useBarrierPct").GetValue<Slider>().Value &&
                 menuconfig.Item("suseOn" + me.SkinName).GetValue<bool>())
             {
@@ -272,25 +276,25 @@ namespace Oracle
             Obj_AI_Hero target = OC.FriendlyTarget();
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
 
-            if (target.Distance(me.Position) <= 500f)
+            if (target.Distance(me.Position) <= 700f)
             {
+                if (!me.Allowed())
+                    return;
+
                 var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
                 if (aHealthPercent <= mainmenu.Item("useHealPct").GetValue<Slider>().Value &&
                     menuconfig.Item("suseOn" + target.SkinName).GetValue<bool>())
                 {
-                    if (!Utility.InFountain() && !me.HasBuff("Recall"))
-                    {
-                        if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuff("summonerdot"))
-                            && OC.AggroTarget.NetworkId == target.NetworkId)
-                            me.SummonerSpellbook.CastSpell(heal, target);
-                    }
+                    if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuff("summonerdot"))
+                        && OC.AggroTarget.NetworkId == target.NetworkId)
+                        me.SummonerSpellbook.CastSpell(heal, target);
+    
                 }
 
                 else if (iDamagePercent >= mainmenu.Item("useHealDmg").GetValue<Slider>().Value &&
                          menuconfig.Item("suseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
                 {
-                    if (!Utility.InFountain() && !me.HasBuff("Recall"))
-                        me.SummonerSpellbook.CastSpell(heal, target);
+                    me.SummonerSpellbook.CastSpell(heal, target);
                 }
             }
         }
@@ -329,13 +333,13 @@ namespace Oracle
         #region Smite
         private static void FindSmite()
         {
-            if (OracleLists.SmiteBlue.Any(Items.HasItem))
+            if (OracleLib.SmiteBlue.Any(Items.HasItem))
                 smiteslot = "s5_summonersmiteplayerganker";
-            else if (OracleLists.SmiteRed.Any(Items.HasItem))
+            else if (OracleLib.SmiteRed.Any(Items.HasItem))
                 smiteslot = "s5_summonersmiteduel";
-            else if (OracleLists.SmiteGrey.Any(Items.HasItem))
+            else if (OracleLib.SmiteGrey.Any(Items.HasItem))
                 smiteslot = "s5_summonersmitequick";
-            else if (OracleLists.SmitePurple.Any(Items.HasItem))
+            else if (OracleLib.SmitePurple.Any(Items.HasItem))
                 smiteslot = "itemsmiteaoe";
             else
                 smiteslot = "summonersmite";
@@ -379,7 +383,7 @@ namespace Oracle
                     var damage = 
                         (float) me.GetSummonerSpellDamage(minion, Damage.SummonerSpell.Smite);
 
-                    if (OracleLists.LargeMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
+                    if (OracleLib.LargeMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
                     {
                         if (minion.Health <= damage)
                         {
@@ -388,14 +392,14 @@ namespace Oracle
                         }
                     }
 
-                    else if (OracleLists.SmallMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
+                    else if (OracleLib.SmallMinions.Any(name => minion.Name.StartsWith(name) && !minion.Name.Contains("Mini")))
                     {
                         if (minion.Health <= damage)
                             if (mainmenu.Item("smiteSmall").GetValue<bool>())
                                 me.SummonerSpellbook.CastSpell(smite, minion);
                     }
 
-                    else if (OracleLists.EpicMinions.Any(name => minion.Name.StartsWith(name)))
+                    else if (OracleLib.EpicMinions.Any(name => minion.Name.StartsWith(name)))
                     {
                         if (minion.Health <= damage)
                             if (mainmenu.Item("smiteEpic").GetValue<bool>())
@@ -431,7 +435,7 @@ namespace Oracle
                 if (me.Distance(minion.Position) > range)
                     return;
 
-                if (OracleLists.EpicMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
+                if (OracleLib.EpicMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
                     if (mainmenu.Item("smiteEpic").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
@@ -450,7 +454,7 @@ namespace Oracle
                     }
                 }
 
-                else if (OracleLists.LargeMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
+                else if (OracleLib.LargeMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
@@ -474,7 +478,7 @@ namespace Oracle
         #endregion
 
         #region Exhaust
-        // Exhaust Basic
+
         private static void CheckExhaust()
         {
             var exhaust = me.GetSpellSlot("summonerexhaust");
@@ -528,12 +532,18 @@ namespace Oracle
             {
                 if (sender.IsEnemy && sender.Type == me.Type)
                 {
-                    if (sender.Distance(me.Position) > 750f)
+                    var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
+                    var attackerslot = attacker.GetSpellSlot(args.SData.Name);
+
+                    if (attacker.Distance(me.Position) > 650f)
                         return;
 
-                    if (OracleLists.ExhaustList.Any(spell => spell.Contains(args.SData.Name)))
+                    foreach (var spell in OracleLib.Database)
                     {
-                        me.SummonerSpellbook.CastSpell(exhaust, sender);
+                        if (spell.DangerLevel == RiskLevel.Extreme && attackerslot == SpellSlot.R)
+                        {
+                            me.SummonerSpellbook.CastSpell(exhaust, attacker);
+                        }
                     }
                 }
             }
