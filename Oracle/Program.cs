@@ -1,6 +1,6 @@
 using System;
-using System.Net;
 using System.Linq;
+using System.Net;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -33,10 +33,10 @@ namespace Oracle
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;
-        private static Obj_AI_Hero Viktor, Fiddle, Anivia, Ziggs, Cass, Lux;
-        private static GameObj Satchel, Miasma, Minefield, ViktorStorm, Glacialstorm, Crowstorm, Lightstrike;
+        private static Obj_AI_Hero viktor, fiddle, anivia, ziggs, cass, lux;
+        private static GameObj satchel, miasma, minefield, viktorstorm, glacialstorm, crowstorm, lightstrike;
 
-        public const string Revision = "163";
+        public const string Revision = "165";
         private static void Main(string[] args)
         {
             Console.WriteLine("Oracle is loading...");
@@ -47,7 +47,6 @@ namespace Oracle
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
             Origin = new Menu("Oracle", "oracle", true);
-
             Cleansers.Initialize(Origin);
             Defensives.Initialize(Origin);
             Summoners.Initialize(Origin);
@@ -55,22 +54,25 @@ namespace Oracle
             Consumables.Initialize(Origin);
             AutoSpells.Initialize(Origin);
 
-            Origin.AddItem(new MenuItem("ComboKey", "Combo (Active)").SetValue(new KeyBind(32, KeyBindType.Press)));
-            Origin.AddToMainMenu();
+            Origin.AddItem(
+                new MenuItem("ComboKey", "Combo (Active)")
+                    .SetValue(new KeyBind(32, KeyBindType.Press)));
 
-            LoadObjSenders();
+            Origin.AddToMainMenu();
+            CreateSenders();
 
             GameObject.OnCreate += GameObject_OnCreate;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_MainProcessSpellCast;
-            
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+
             var wc = new WebClient { Proxy = null };
             wc.DownloadString("http://league.square7.ch/put.php?name=Oracle");
- 
+
             var amount = wc.DownloadString("http://league.square7.ch/get.php?name=Oracle");
-            var intamount = Convert.ToInt32(amount);
+            var intamount = Convert.ToInt32(amount).ToString("#,##0");
 
             Game.PrintChat("<font color=\"#1FFF8F\">Oracle r." + Revision + " -</font> by Kurisu");
             Game.PrintChat("<font color=\"#1FFF8F\">Oracle</font> has been used in <font color=\"#1FFF8F\">" + intamount + "</font> games."); // Post Counter Data
+          
         }
 
         private static void GameObject_OnCreate(GameObject obj, EventArgs args)
@@ -80,45 +82,45 @@ namespace Oracle
                 return;
 
             // Particle Objects
-            if (obj.Name.Contains("Crowstorm_red") && Fiddle != null)
+            if (obj.Name.Contains("Crowstorm_red") && fiddle != null)
             {
-                var dmg = (float)Fiddle.GetSpellDamage(target, SpellSlot.R);
-                Crowstorm = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)fiddle.GetSpellDamage(target, SpellSlot.R);
+                crowstorm = new GameObj(obj.Name, obj, true, dmg);
             }
 
-            else if (obj.Name.Contains("LuxLightstrike_tar_red") && Lux != null)
+            else if (obj.Name.Contains("LuxLightstrike_tar_red") && lux != null)
             {
-                var dmg = (float)Lux.GetSpellDamage(target, SpellSlot.E);
-                Lightstrike = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)lux.GetSpellDamage(target, SpellSlot.E);
+                lightstrike = new GameObj(obj.Name, obj, true, dmg);
             }
 
-            else if (obj.Name.Contains("Viktor_ChaosStorm_red") && Viktor != null)
+            else if (obj.Name.Contains("Viktor_ChaosStorm_red") && viktor != null)
             {
-                var dmg = (float)Viktor.GetSpellDamage(target, SpellSlot.R);
-                ViktorStorm = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)viktor.GetSpellDamage(target, SpellSlot.R);
+                viktorstorm = new GameObj(obj.Name, obj, true, dmg);
             }
 
-            else if (obj.Name.Contains("cryo_storm_red") && Anivia != null)
+            else if (obj.Name.Contains("cryo_storm_red") && anivia != null)
             {
-                var dmg = (float)Anivia.GetSpellDamage(target, SpellSlot.R);
-                Glacialstorm = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)anivia.GetSpellDamage(target, SpellSlot.R);
+                glacialstorm = new GameObj(obj.Name, obj, true, dmg);
             }
 
-            else if (obj.Name.Contains("ZiggsE_red") && Ziggs != null)
+            else if (obj.Name.Contains("ZiggsE_red") && ziggs != null)
             {
-                var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.E);
-                Minefield = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)ziggs.GetSpellDamage(target, SpellSlot.E);
+                minefield = new GameObj(obj.Name, obj, true, dmg);
             }
-            else if (obj.Name.Contains("ZiggsWRingRed") && Ziggs != null)
+            else if (obj.Name.Contains("ZiggsWRingRed") && ziggs != null)
             {
-                var dmg = (float)Ziggs.GetSpellDamage(target, SpellSlot.W);
-                Satchel = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)ziggs.GetSpellDamage(target, SpellSlot.W);
+                satchel = new GameObj(obj.Name, obj, true, dmg);
             }
 
-            else if (obj.Name.Contains("CassMiasma_tar_red") && Cass != null)
+            else if (obj.Name.Contains("CassMiasma_tar_red") && cass != null)
             {
-                var dmg = (float)Cass.GetSpellDamage(target, SpellSlot.W);
-                Miasma = new GameObj(obj.Name, obj, true, dmg);
+                var dmg = (float)cass.GetSpellDamage(target, SpellSlot.W);
+                miasma = new GameObj(obj.Name, obj, true, dmg);
             }
         }
 
@@ -132,48 +134,48 @@ namespace Oracle
             if (target == null)
                 return;
 
-            if (Glacialstorm.Included)
-                if (Glacialstorm.Obj.IsValid && target.Distance(Glacialstorm.Obj.Position) <= 400 && Anivia != null)
-                    IncomeDamage = Glacialstorm.Damage;
-            if (ViktorStorm.Included)
-                if (ViktorStorm.Obj.IsValid && target.Distance(ViktorStorm.Obj.Position) <= 450 && Viktor != null)
-                    IncomeDamage = ViktorStorm.Damage;
-            if (Crowstorm.Included)
-                if (Crowstorm.Obj.IsValid && target.Distance(Crowstorm.Obj.Position) <= 600 && Fiddle != null)
-                    IncomeDamage = ViktorStorm.Damage;
+            if (glacialstorm.Included)
+                if (glacialstorm.Obj.IsValid && target.Distance(glacialstorm.Obj.Position) <= 400 && anivia != null)
+                    IncomeDamage = glacialstorm.Damage;
+            if (viktorstorm.Included)
+                if (viktorstorm.Obj.IsValid && target.Distance(viktorstorm.Obj.Position) <= 450 && viktor != null)
+                    IncomeDamage = viktorstorm.Damage;
+            if (crowstorm.Included)
+                if (crowstorm.Obj.IsValid && target.Distance(crowstorm.Obj.Position) <= 600 && fiddle != null)
+                    IncomeDamage = viktorstorm.Damage;
                 
-            if (Minefield.Included)
-                if (Minefield.Obj.IsValid && target.Distance(Minefield.Obj.Position) <= 300 && Ziggs != null)
-                    IncomeDamage = Minefield.Damage;
-            if (Satchel.Included)
-                if (Satchel.Obj.IsValid && target.Distance(Satchel.Obj.Position) <= 300 && Ziggs != null)
-                    IncomeDamage = Satchel.Damage;
+            if (minefield.Included)
+                if (minefield.Obj.IsValid && target.Distance(minefield.Obj.Position) <= 300 && ziggs != null)
+                    IncomeDamage = minefield.Damage;
+            if (satchel.Included)
+                if (satchel.Obj.IsValid && target.Distance(satchel.Obj.Position) <= 300 && ziggs != null)
+                    IncomeDamage = satchel.Damage;
                 
-            if (Miasma.Included)
-                if (Miasma.Obj.IsValid && target.Distance(Miasma.Obj.Position) <= 300 && Cass != null)
-                    IncomeDamage = Satchel.Damage;
+            if (miasma.Included)
+                if (miasma.Obj.IsValid && target.Distance(miasma.Obj.Position) <= 300 && cass != null)
+                    IncomeDamage = satchel.Damage;
 
-            if (Lightstrike.Included)
-                if (Lightstrike.Obj.IsValid && target.Distance(Lightstrike.Obj.Position) <= 300 && Lux != null)
-                    IncomeDamage = Lightstrike.Damage;
+            if (lightstrike.Included)
+                if (lightstrike.Obj.IsValid && target.Distance(lightstrike.Obj.Position) <= 300 && lux != null)
+                    IncomeDamage = lightstrike.Damage;
         }
 
-        private static void LoadObjSenders()
+        private static void CreateSenders()
         {
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.Team != ObjectManager.Player.Team))
             {
                 if (hero.SkinName == "Viktor")
-                    Viktor = hero;
+                    viktor = hero;
                 else if (hero.SkinName == "FiddleSticks")
-                    Fiddle = hero;
+                    fiddle = hero;
                 else if (hero.SkinName == "Anivia")
-                    Anivia = hero;
+                    anivia = hero;
                 else if (hero.SkinName == "Ziggs")
-                    Ziggs = hero;
+                    ziggs = hero;
                 else if (hero.SkinName == "Cassiopeia")
-                    Cass = hero;
+                    cass = hero;
                 else if (hero.SkinName == "Lux")
-                    Lux = hero;
+                    lux = hero;
             }              
         }
 
@@ -206,6 +208,15 @@ namespace Oracle
             return count;
         }
 
+        public static bool Allowed(this Obj_AI_Hero target)
+        {
+            if (!target.HasBuff("Recall") || !target.HasBuff("RecallImproved") || !target.HasBuff("OdinRecall") ||
+                !target.HasBuff("OdinRecallImproved") || !Utility.InFountain())
+                return true;
+
+            return false;
+        }
+
         public static float DamageCheck(Obj_AI_Hero player, Obj_AI_Base target)
         {
             double damage = 0;
@@ -232,7 +243,9 @@ namespace Oracle
             return (float) damage;
         }
 
-        private static void Obj_AI_Base_MainProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+
+
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
 
             IncomeDamage = 0; MinionDamage = 0;
