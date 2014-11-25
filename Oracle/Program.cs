@@ -210,8 +210,8 @@ namespace Oracle
 
         public static bool Allowed(this Obj_AI_Hero target)
         {
-            if (!target.HasBuff("Recall") || !target.HasBuff("RecallImproved") || !target.HasBuff("OdinRecall") ||
-                !target.HasBuff("OdinRecallImproved") || !Utility.InFountain())
+            if (!target.HasBuff("Recall") && !target.HasBuff("RecallImproved") && !target.HasBuff("OdinRecall") &&
+                !target.HasBuff("OdinRecallImproved") && !Utility.InFountain())
                 return true;
 
             return false;
