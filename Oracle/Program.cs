@@ -3,9 +3,16 @@ using System.Linq;
 using System.Net;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 namespace Oracle
 {
+    //  _____             _     
+    // |     |___ ___ ___| |___ 
+    // |  |  |  _| .'|  _| | -_|
+    // |_____|_| |__,|___|_|___|
+    // Copyright © Kurisu Solutions 2014
+
     public struct GameObj
     {
         public string Name;
@@ -24,19 +31,13 @@ namespace Oracle
 
     internal static class Program
     {
-        //  _____             _     
-        // |     |___ ___ ___| |___ 
-        // |  |  |  _| .'|  _| | -_|
-        // |_____|_| |__,|___|_|___|
-        // Copyright © Kurisu Solutions 2014
-
         public static Menu Origin;
         public static Obj_AI_Hero AggroTarget;
         public static float IncomeDamage, MinionDamage;
         private static Obj_AI_Hero viktor, fiddle, anivia, ziggs, cass, lux;
         private static GameObj satchel, miasma, minefield, viktorstorm, glacialstorm, crowstorm, lightstrike;
 
-        public const string Revision = "165";
+        public const string Revision = "168";
         private static void Main(string[] args)
         {
             Console.WriteLine("Oracle is loading...");
@@ -46,6 +47,7 @@ namespace Oracle
         private static void OnGameLoad(EventArgs args)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
+
             Origin = new Menu("Oracle", "oracle", true);
             Cleansers.Initialize(Origin);
             Defensives.Initialize(Origin);
@@ -59,8 +61,8 @@ namespace Oracle
                     .SetValue(new KeyBind(32, KeyBindType.Press)));
 
             Origin.AddToMainMenu();
-            CreateSenders();
 
+            CreateSenders();
             GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
 
@@ -137,6 +139,7 @@ namespace Oracle
             if (glacialstorm.Included)
                 if (glacialstorm.Obj.IsValid && target.Distance(glacialstorm.Obj.Position) <= 400 && anivia != null)
                     IncomeDamage = glacialstorm.Damage;
+            
             if (viktorstorm.Included)
                 if (viktorstorm.Obj.IsValid && target.Distance(viktorstorm.Obj.Position) <= 450 && viktor != null)
                     IncomeDamage = viktorstorm.Damage;
@@ -158,24 +161,34 @@ namespace Oracle
             if (lightstrike.Included)
                 if (lightstrike.Obj.IsValid && target.Distance(lightstrike.Obj.Position) <= 300 && lux != null)
                     IncomeDamage = lightstrike.Damage;
+
         }
 
         private static void CreateSenders()
         {
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.Team != ObjectManager.Player.Team))
             {
-                if (hero.SkinName == "Viktor")
-                    viktor = hero;
-                else if (hero.SkinName == "FiddleSticks")
-                    fiddle = hero;
-                else if (hero.SkinName == "Anivia")
-                    anivia = hero;
-                else if (hero.SkinName == "Ziggs")
-                    ziggs = hero;
-                else if (hero.SkinName == "Cassiopeia")
-                    cass = hero;
-                else if (hero.SkinName == "Lux")
-                    lux = hero;
+                switch (hero.SkinName)
+                {
+                    case "Viktor":
+                        viktor = hero;
+                        break;
+                    case "FiddleSticks":
+                        fiddle = hero;
+                        break;
+                    case "Anivia":
+                        anivia = hero;
+                        break;
+                    case "Ziggs":
+                        ziggs = hero;
+                        break;
+                    case "Cassiopeia":
+                        cass = hero;
+                        break;
+                    case "Lux":
+                        lux = hero;
+                        break;
+                }
             }              
         }
 
@@ -244,22 +257,44 @@ namespace Oracle
         }
 
 
+        // credits detuks <3 u so much for yasuomath or whom you got it from <33333
+        public static bool GoesThroughUnit(Vector2 p1, Vector2 p2, Vector2 pC, float radius)
+        {
+            var p3 = new Vector2 {X = pC.X + radius, Y = pC.Y + radius};
+            var m = ((p2.Y - p1.Y) / (p2.X - p1.X));
+            var Constant = (m * p1.X) - p1.Y;
+
+            var b = -(2f * ((m * Constant) + p3.X + (m * p3.Y)));
+            var a = (1 + (m * m));
+            var c = ((p3.X * p3.X) + (p3.Y * p3.Y) - (radius * radius) + (2f * Constant * p3.Y) + (Constant * Constant));
+            var D = ((b * b) - (4f * a * c));
+            return D > 0;
+
+        }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-
             IncomeDamage = 0; MinionDamage = 0;
-            AggroTarget = ObjectManager.Get<Obj_AI_Hero>()
-                .First(x => (x.NetworkId == args.Target.NetworkId || args.End.Distance(x.Position) <= 350)
-                            && x.IsValidTarget(float.MaxValue, false) && x.IsAlly);
+            switch (sender.Type)
+            {
+                case GameObjectType.obj_AI_Hero:
+                    foreach (var OLib in OracleLib.Database.Where(x => sender.SkinName == x.Name))
+                        AggroTarget = ObjectManager.Get<Obj_AI_Hero>()
+                            .First(x => x.Distance(sender.ServerPosition) <= OLib.Range &&
+                                        GoesThroughUnit(args.Start.To2D(), args.End.To2D(), x.Position.To2D(), x.BoundingRadius + OLib.Width) &&
+                                        x.Type == ObjectManager.Player.Type && x.IsValidTarget(float.MaxValue, false) && x.IsAlly);
+                    break;
+                    case GameObjectType.obj_AI_Minion:
+                    case GameObjectType.obj_AI_Turret:
+                        AggroTarget = ObjectManager.Get<Obj_AI_Hero>()
+                            .First(x => x.NetworkId == args.Target.NetworkId && x.IsValidTarget(float.MaxValue, false) && x.IsAlly);
+                    break;
+            }
 
             if (sender.Type == GameObjectType.obj_AI_Hero && sender.IsEnemy)
             {
                 var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
                 var attackerslot = attacker.GetSpellSlot(args.SData.Name);
-
-                if (AggroTarget == null) 
-                    return;
 
                 switch (attackerslot)
                 {
@@ -283,30 +318,31 @@ namespace Oracle
 
             else if (sender.Type == GameObjectType.obj_AI_Minion && sender.IsEnemy)
             {
-                var attacker = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);
+                var minion = ObjectManager.Get<Obj_AI_Minion>().First(x => x.NetworkId == sender.NetworkId);
                 if (args.Target.NetworkId == AggroTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
                     MinionDamage =
                         (float)
-                            attacker.CalcDamage(AggroTarget, Damage.DamageType.Physical,
-                                attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
+                            minion.CalcDamage(AggroTarget, Damage.DamageType.Physical,
+                                minion.BaseAttackDamage + minion.FlatPhysicalDamageMod);
                 }
             }
 
             else if (sender.Type == GameObjectType.obj_AI_Turret && sender.IsEnemy)
             {
-                var attacker = ObjectManager.Get<Obj_AI_Turret>().First(x => x.NetworkId == sender.NetworkId);
+                var turret = ObjectManager.Get<Obj_AI_Turret>().First(x => x.NetworkId == sender.NetworkId);
                 if (args.Target.NetworkId == AggroTarget.NetworkId && args.Target.Type == GameObjectType.obj_AI_Hero)
                 {
-                    if (attacker.Distance(ObjectManager.Player.Position) <= 900)
+                    if (turret.Distance(ObjectManager.Player.Position) <= 900)
                     {
                         IncomeDamage =
                             (float)
-                                attacker.CalcDamage(AggroTarget, Damage.DamageType.Physical,
-                                    attacker.BaseAttackDamage + attacker.FlatPhysicalDamageMod);
+                                turret.CalcDamage(AggroTarget, Damage.DamageType.Physical,
+                                    turret.BaseAttackDamage + turret.FlatPhysicalDamageMod);
                     }
                 }
             }
+
         }
     }
 }

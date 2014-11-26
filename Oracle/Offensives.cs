@@ -8,8 +8,8 @@ namespace Oracle
 {
     internal static class Offensives
     {
-        private static Menu mainmenu, menuconfig;
         private static int casttime;
+        private static Menu mainmenu, menuconfig;
         private static Obj_AI_Hero currenttarget;
         private static SpellSlot manamuneslot;
         private static readonly Obj_AI_Hero me = ObjectManager.Player;
@@ -224,7 +224,7 @@ namespace Oracle
                     return;
 
                 var myslot = me.GetSpellSlot(args.SData.Name);
-                foreach (var spell in OracleLib.Database)
+                foreach (var spell in OracleLib.Database.Where(x => x.Name == sender.SkinName))
                 {
                     if (myslot == spell.Slot && spell.OnHit && me.HasBuff("Muramana"))
                     {

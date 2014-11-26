@@ -2,19 +2,20 @@
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using OC = Oracle.Program;
 
 namespace Oracle
 {
     internal static class AutoSpells
     {
+
         private static Menu mainmenu, menuconfig;
         private static readonly Obj_AI_Hero me = ObjectManager.Player;
 
         public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
+
             mainmenu = new Menu("Auto Spells", "asmenu");
             menuconfig = new Menu("Auto Spell Config", "asconfig");
 
@@ -62,11 +63,21 @@ namespace Oracle
             CreateMenuItem(0, "EvelynnW", "Draw Frenzy", "eveslow", SpellSlot.W, false, false, true);
             CreateMenuItem(0, "GarenQ", "Decisive Strike", "garenslow", SpellSlot.Q, false, false, true);
 
+            // auto zhonya skills
+            CreateMenuItem(0, "FioraDance", "Blade Waltz", "fioradodge", SpellSlot.R, false, true);
             root.AddSubMenu(mainmenu);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
-        {
+        {     
+            if (me.HasBuffOfType(BuffType.Slow))
+            {
+                // slow removals
+                UseSpell("GarenQ", "garenslow", OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("EvelynnW", "eveslow", OC.IncomeDamage, float.MaxValue, false);
+            }
+
+            // auto heals
             UseSpell("TriumphantRoar", "troar", 0, 575f, true, true);
             UseSpell("PrimalSurge", "psurge", 0, 600f, true, true);
             UseSpell("RemoveScurvy", "rscurvy", 0, float.MaxValue, true, true);
@@ -78,7 +89,7 @@ namespace Oracle
 
             if (OC.IncomeDamage < 1)
                 return;
-
+            // auto shields
             UseSpell("BraumE", "braumshield", OC.IncomeDamage);
             UseSpell("DianaOrbs", "dianashield", OC.IncomeDamage);
             UseSpell("GalioBulwark", "galioshield", OC.IncomeDamage, 800f);
@@ -100,16 +111,15 @@ namespace Oracle
             UseSpell("FioraRiposte", "fiorashield", OC.IncomeDamage, float.MaxValue, false);
             UseSpell("Obduracy", "malphshield", OC.IncomeDamage);
             UseSpell("DefensiveBallCurl", "rammusshield", OC.IncomeDamage);
+
+            // auto ults
             UseSpell("LuluR", "luluult", OC.IncomeDamage, 900f, false);
             UseSpell("UndyingRage", "tryndult", OC.IncomeDamage, float.MaxValue, false);
             UseSpell("ChronoShift", "zilult", OC.IncomeDamage, 900f, false);
             UseSpell("YorickReviveAlly", "yorickult", OC.IncomeDamage, 900f, false);
 
-            if (me.HasBuffOfType(BuffType.Slow))
-            {
-                UseSpell("GarenQ", "garenslow", OC.IncomeDamage, float.MaxValue, false);
-                UseSpell("EvelynnW", "eveslow", OC.IncomeDamage, float.MaxValue, false);
-            }
+            // auto zhonya skills
+            //UseSpell("FioraDance", "fioradodge", OC.IncomeDamage, 300f, false);
         }
 
         private static void UseSpell(string sdataname, string menuvar, float incdmg, float range = float.MaxValue, 
@@ -129,15 +139,15 @@ namespace Oracle
             var allyuse = range.ToString() != float.MaxValue.ToString();
             var target = allyuse ? OC.FriendlyTarget() : me;
 
+            if (!menuconfig.Item("ason" + target.SkinName).GetValue<bool>())
+                return;
+
             if (target.Distance(me.Position) > range) 
                 return;
 
             var aManaPercent = (int) ((me.Mana/me.MaxMana)*100);
             var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
             var iDamagePercent = (int) ((incdmg/target.MaxHealth)*100);
-
-            if (!menuconfig.Item("ason" + target.SkinName).GetValue<bool>())
-                return;
 
             if (OC.AggroTarget.Distance(me.Position) > spell.Range || !me.NotRecalling())
                 return;
@@ -162,14 +172,12 @@ namespace Oracle
                             spell.Cast(Game.CursorPos);
                         }
                     }
-
                     else
                     {
                         spell.Cast(target);
                     }
                 }
             }
-
             else if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
             {
                 if (me.SkinName == "Soraka" && (int)(me.Health/me.MaxHealth*100) <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value)
@@ -178,7 +186,6 @@ namespace Oracle
                 if (aManaPercent >= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value && usemana)
                     spell.Cast(target);
             }
-
             else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
             {
                 spell.Cast(target);

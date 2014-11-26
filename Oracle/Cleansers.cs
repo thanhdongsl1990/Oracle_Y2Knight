@@ -45,14 +45,12 @@ namespace Oracle
             CreateMenuItem("Mikael's Crucible", "Mikaels", 1);
 
             mainmenu.AddItem(new MenuItem("cleanseMode", "QSS Mode: ")).SetValue(new StringList(new[] { "Always", "Combo" }));
-
             root.AddSubMenu(mainmenu);
         }
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
             UseItem("Mikaels", 3222, 600f, false);
-
             if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
                 mainmenu.Item("cleanseMode").GetValue<StringList>().SelectedIndex == 1)
             {

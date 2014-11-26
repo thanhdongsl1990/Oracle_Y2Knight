@@ -91,9 +91,8 @@ namespace Oracle
             }
 
             root.AddSubMenu(mainmenu);
-
-
         }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             isjungling = OracleLib.SmiteAll.Any(Items.HasItem);
@@ -114,16 +113,17 @@ namespace Oracle
             {
                 if (!mainmenu.Item("drawSmite").GetValue<bool>() || me.IsDead)
                     return;
+
                 if (mainmenu.Item("useSmite").GetValue<KeyBind>().Active)
                     Utility.DrawCircle(me.Position, 760, Color.White, 1, 1);
 
-                List<Obj_AI_Base> minionList =
+                var minionList =
                     MinionManager.GetMinions(me.Position, 760f, MinionTypes.All, MinionTeam.Neutral);
 
                 if (!minionList.Any())
                     return;
 
-                foreach (Obj_AI_Base m in minionList)
+                foreach (var m in minionList)
                 {
                     bool valid;
                     if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
@@ -273,7 +273,7 @@ namespace Oracle
             if (me.SummonerSpellbook.CanUseSpell(heal) != SpellState.Ready)
                 return;
 
-            Obj_AI_Hero target = OC.FriendlyTarget();
+            var target = OC.FriendlyTarget();
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
 
             if (target.Distance(me.Position) <= 700f)
@@ -287,10 +287,11 @@ namespace Oracle
                 {
                     if ((iDamagePercent >= 1 || incdmg >= target.Health || target.HasBuff("summonerdot"))
                         && OC.AggroTarget.NetworkId == target.NetworkId)
+                    {
                         me.SummonerSpellbook.CastSpell(heal, target);
-    
-                }
+                    }
 
+                }
                 else if (iDamagePercent >= mainmenu.Item("useHealDmg").GetValue<Slider>().Value &&
                          menuconfig.Item("suseOn" + target.SkinName).GetValue<bool>() && OC.AggroTarget.NetworkId == target.NetworkId)
                 {
@@ -314,7 +315,7 @@ namespace Oracle
 
             if (me.SummonerSpellbook.CanUseSpell(clarity) == SpellState.Ready)
             {
-                Obj_AI_Hero target = OC.FriendlyTarget();
+                var target = OC.FriendlyTarget();
                 if (target.Distance(me.Position) <= 600f)
                 {
                     var aManaPercent = (int) ((target.Mana/target.MaxMana)*100);

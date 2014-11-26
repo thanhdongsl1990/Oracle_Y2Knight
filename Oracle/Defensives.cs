@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using OC = Oracle.Program;
 
 namespace Oracle
 {
     internal static class Defensives
     {
-        private static Vector3 dangerpos;
         private static bool danger, stealth;
         private static Menu mainmenu, menuconfig;
         private static readonly Obj_AI_Hero me = ObjectManager.Player;
@@ -60,6 +58,7 @@ namespace Oracle
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+
             // Oracle's Lens
             if (Items.HasItem(3364) && Items.CanUseItem(3364) && mainmenu.Item("useOracles").GetValue<bool>())
             {
@@ -175,18 +174,8 @@ namespace Oracle
                 }
 
                 if (mainmenu.Item("use" + name + "Danger").GetValue<bool>())
-                {
-                    var enemies = target.CountHerosInRange(true, 700);
-                    var allies = target.CountHerosInRange(false, 700);
-
                     if (danger && OC.AggroTarget.NetworkId == target.NetworkId)
-                    {
-                        if (allies > enemies || incdmg >= target.Health)
-                            Items.UseItem(itemId, targeted ? target : null);
-                        else if (allies == 0 && enemies == 1 || incdmg >= target.Health)
-                            Items.UseItem(itemId, targeted ? target : null);
-                    }
-                }
+                        Items.UseItem(itemId, targeted ? target : null);             
             }
         }
 
@@ -205,34 +194,24 @@ namespace Oracle
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!sender.IsMe || sender.Type != me.Type)
+            if (!sender.IsEnemy || sender.Type != me.Type)
                 return;
 
             var target = OC.FriendlyTarget();
             var attacker = ObjectManager.Get<Obj_AI_Hero>().First(x => x.NetworkId == sender.NetworkId);
             var attackerslot = attacker.GetSpellSlot(args.SData.Name);
 
-            foreach (var data in OracleLib.Database)
+            stealth = false; danger = false;
+            foreach (var data in OracleLib.Database.Where(x => sender.SkinName == x.Name))
             {
-                if (attackerslot != data.Slot)
-                    return;
-
-                if (target.Distance(attacker.Position) > 750f)
+                if (target.Distance(attacker.Position) > data.Range)
                     return;
 
                 if (data.DangerLevel == RiskLevel.Stealth)
-                {
                     stealth = true;
-                }
 
                 if (data.DangerLevel == RiskLevel.Extreme && attackerslot == SpellSlot.R)
-                {
                     danger = true;
-                    dangerpos = args.End;
-                }
-
-                stealth = false;
-                danger = false;
             }
         }
     }
