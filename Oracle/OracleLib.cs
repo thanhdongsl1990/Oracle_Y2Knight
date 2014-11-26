@@ -184,7 +184,7 @@ namespace Oracle
                 Speed = 1100,
                 Delay = 0.5,
                 Type = CastType.Skillshot,
-                DangerLevel = RiskLevel.Extreme,
+                DangerLevel = RiskLevel.Normal,
                 CC = false,
                 CheckLine = true
             });
