@@ -539,7 +539,7 @@ namespace Oracle
                     if (attacker.Distance(me.Position) > 650f)
                         return;
 
-                    foreach (var spell in OracleLib.Database)
+                    foreach (var spell in OracleLib.Database.Where(x => sender.SkinName == x.Name))
                     {
                         if (spell.DangerLevel == RiskLevel.Extreme && attackerslot == SpellSlot.R)
                         {
