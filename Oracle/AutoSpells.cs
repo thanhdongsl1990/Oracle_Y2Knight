@@ -64,7 +64,8 @@ namespace Oracle
             CreateMenuItem(0, "GarenQ", "Decisive Strike", "garenslow", SpellSlot.Q, false, false, true);
 
             // auto zhonya skills
-            CreateMenuItem(0, "FioraDance", "Blade Waltz", "fioradodge", SpellSlot.R, false, true);
+            //CreateMenuItem(0, "FioraDance", "Blade Waltz", "fioradodge", SpellSlot.R, false, true);
+
             root.AddSubMenu(mainmenu);
         }
 
