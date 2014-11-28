@@ -44,27 +44,27 @@ namespace Oracle
             CreateMenuItem(95, "DefensiveBallCurl", "Defensive Ball Curl", "rammusshield", SpellSlot.W);
 
             // auto heals
-            CreateMenuItem(80, "TriumphantRoar", "Triumphant Roar", "troar", SpellSlot.E);
-            CreateMenuItem(80, "PrimalSurge", "Primal Surge", "psurge", SpellSlot.E);
-            CreateMenuItem(80, "RemoveScurvy", "Remove Scurvy", "rscurvy", SpellSlot.W);
-            CreateMenuItem(80, "JudicatorDivineBlessing", "Divine Blessing", "dblessing", SpellSlot.W);
-            CreateMenuItem(80, "NamiE", "Ebb and Flow", "eflow", SpellSlot.W);
+            CreateMenuItem(80, "TriumphantRoar", "Triumphant Roar", "alistarheal", SpellSlot.E);
+            CreateMenuItem(80, "PrimalSurge", "Primal Surge", "nidaleeheal", SpellSlot.E);
+            CreateMenuItem(80, "RemoveScurvy", "Remove Scurvy", "gangplankheal", SpellSlot.W);
+            CreateMenuItem(80, "JudicatorDivineBlessing", "Divine Blessing", "kayleheal", SpellSlot.W);
+            CreateMenuItem(80, "NamiE", "Ebb and Flow", "namiheal", SpellSlot.W);
             CreateMenuItem(80, "SonaW", "Aria of Perseverance", "sonaheal", SpellSlot.W);
-            CreateMenuItem(80, "SorakaW", "Astral Infusion", "ainfusion", SpellSlot.W, false);
-            CreateMenuItem(80, "Imbue", "Imbue", "imbue", SpellSlot.Q);
+            CreateMenuItem(80, "SorakaW", "Astral Infusion", "sorakaheal", SpellSlot.W, false);
+            CreateMenuItem(80, "Imbue", "Imbue", "taricheal", SpellSlot.Q);
 
             // auto ultimates
-            CreateMenuItem(35, "LuluR", "Wild Growth", "luluult", SpellSlot.R, true, true);
-            CreateMenuItem(20, "UndyingRage", "Undying Rage", "tryndult", SpellSlot.R, false, true);
-            CreateMenuItem(20, "ChronoShift", "Chorno Shift", "zilult", SpellSlot.R, true, true);
-            CreateMenuItem(20, "YorickReviveAlly", "Omen of Death", "yorickult", SpellSlot.R, true, true);
+            CreateMenuItem(35, "LuluR", "Wild Growth", "luluult", SpellSlot.R);
+            CreateMenuItem(20, "UndyingRage", "Undying Rage", "tryndult", SpellSlot.R, false);
+            CreateMenuItem(20, "ChronoShift", "Chorno Shift", "zilult", SpellSlot.R);
+            CreateMenuItem(20, "YorickReviveAlly", "Omen of Death", "yorickult", SpellSlot.R);
 
             // slow removers
-            CreateMenuItem(0, "EvelynnW", "Draw Frenzy", "eveslow", SpellSlot.W, false, false, true);
-            CreateMenuItem(0, "GarenQ", "Decisive Strike", "garenslow", SpellSlot.Q, false, false, true);
+            CreateMenuItem(0, "EvelynnW", "Draw Frenzy", "eveslow", SpellSlot.W, false);
+            CreateMenuItem(0, "GarenQ", "Decisive Strike", "garenslow", SpellSlot.Q, false);
 
             // auto zhonya skills
-            //CreateMenuItem(0, "FioraDance", "Blade Waltz", "fioradodge", SpellSlot.R, false, true);
+            //CreateMenuItem(0, "FioraDance", "Blade Waltz", "fioradodge", SpellSlot.R, false);
 
             root.AddSubMenu(mainmenu);
         }
@@ -74,57 +74,56 @@ namespace Oracle
             if (me.HasBuffOfType(BuffType.Slow))
             {
                 // slow removals
-                UseSpell("GarenQ", "garenslow", OC.IncomeDamage, float.MaxValue, false);
-                UseSpell("EvelynnW", "eveslow", OC.IncomeDamage, float.MaxValue, false);
+                UseSpell("GarenQ", "garenslow", float.MaxValue, false);
+                UseSpell("EvelynnW", "eveslow", float.MaxValue, false);
             }
 
             // auto heals
-            UseSpell("TriumphantRoar", "troar", 0, 575f, true, true);
-            UseSpell("PrimalSurge", "psurge", 0, 600f, true, true);
-            UseSpell("RemoveScurvy", "rscurvy", 0, float.MaxValue, true, true);
-            UseSpell("JudicatorDivineBlessing", "dblessing", 0, 900f, true, true);
-            UseSpell("NamiE", "eflow", 0, 725f, true, true);
-            UseSpell("SonaW", "sonaheal", 0, 1000f, true, true);
-            UseSpell("SorakaW", "ainfusion", 0, 450f, false, true);
-            UseSpell("Imbue", "imbue", 0, 750f, true, true);
+            UseSpell("TriumphantRoar", "alistarheal", 575f);
+            UseSpell("PrimalSurge", "nidaleeheal", 600f);
+            UseSpell("RemoveScurvy", "gangplankheal");
+            UseSpell("JudicatorDivineBlessing", "kayleheal", 900f);
+            UseSpell("NamiE", "namiheal", 725f);
+            UseSpell("SonaW", "sonaheal", 1000f);
+            UseSpell("SorakaW", "sorakaheal",450f, false);
+            UseSpell("Imbue", "taricheal", 750f);
 
             if (OC.IncomeDamage < 1)
                 return;
             // auto shields
-            UseSpell("BraumE", "braumshield", OC.IncomeDamage);
-            UseSpell("DianaOrbs", "dianashield", OC.IncomeDamage);
-            UseSpell("GalioBulwark", "galioshield", OC.IncomeDamage, 800f);
-            UseSpell("GarenW", "garenshield", OC.IncomeDamage, float.MaxValue, false);
-            UseSpell("EyeOfTheStorm", "jannashield", OC.IncomeDamage, 800f);
-            UseSpell("KarmaSolKimShield", "karmashield", OC.IncomeDamage, 800f);
-            UseSpell("LuxPrismaticWave", "luxshield", OC.IncomeDamage, 1075f);
-            UseSpell("NautilusPiercingGaze", "nautshield", OC.IncomeDamage);
-            UseSpell("OrianaRedactCommand", "oriannashield", 1100f, OC.IncomeDamage);
-            UseSpell("ShenFeint", "shenshield", OC.IncomeDamage, float.MaxValue, false);
-            UseSpell("JarvanIVGoldenAegis", "j4shield", OC.IncomeDamage);
-            UseSpell("BlindMonkWOne", "leeshield", OC.IncomeDamage, 700f, false);
-            UseSpell("RivenFeint", "rivenshield", OC.IncomeDamage, float.MaxValue, false);
-            UseSpell("RumbleShield", "rumbleshield", OC.IncomeDamage);
-            UseSpell("SionW", "sionshield", OC.IncomeDamage);
-            UseSpell("SkarnerExoskeleton", "skarnershield", OC.IncomeDamage);
-            UseSpell("UrgotTerrorCapacitorActive2", "urgotshield", OC.IncomeDamage);
-            UseSpell("MoltenShield", "annieshield", OC.IncomeDamage);
-            UseSpell("FioraRiposte", "fiorashield", OC.IncomeDamage, float.MaxValue, false);
-            UseSpell("Obduracy", "malphshield", OC.IncomeDamage);
-            UseSpell("DefensiveBallCurl", "rammusshield", OC.IncomeDamage);
+            UseSpell("BraumE", "braumshield");
+            UseSpell("DianaOrbs", "dianashield");
+            UseSpell("GalioBulwark", "galioshield", 800f);
+            UseSpell("GarenW", "garenshield", float.MaxValue, false);
+            UseSpell("EyeOfTheStorm", "jannashield", 800f);
+            UseSpell("KarmaSolKimShield", "karmashield", 800f);
+            UseSpell("LuxPrismaticWave", "luxshield", 1075f);
+            UseSpell("NautilusPiercingGaze", "nautshield");
+            UseSpell("OrianaRedactCommand", "oriannashield", 1100f);
+            UseSpell("ShenFeint", "shenshield", float.MaxValue, false);
+            UseSpell("JarvanIVGoldenAegis", "j4shield");
+            UseSpell("BlindMonkWOne", "leeshield", 700f, false);
+            UseSpell("RivenFeint", "rivenshield", float.MaxValue, false);
+            UseSpell("RumbleShield", "rumbleshield");
+            UseSpell("SionW", "sionshield");
+            UseSpell("SkarnerExoskeleton", "skarnershield");
+            UseSpell("UrgotTerrorCapacitorActive2", "urgotshield");
+            UseSpell("MoltenShield", "annieshield");
+            UseSpell("FioraRiposte", "fiorashield", float.MaxValue, false);
+            UseSpell("Obduracy", "malphshield");
+            UseSpell("DefensiveBallCurl", "rammusshield");
 
             // auto ults
-            UseSpell("LuluR", "luluult", OC.IncomeDamage, 900f, false);
-            UseSpell("UndyingRage", "tryndult", OC.IncomeDamage, float.MaxValue, false);
-            UseSpell("ChronoShift", "zilult", OC.IncomeDamage, 900f, false);
-            UseSpell("YorickReviveAlly", "yorickult", OC.IncomeDamage, 900f, false);
+            UseSpell("LuluR", "luluult", 900f, false);
+            UseSpell("UndyingRage", "tryndult", float.MaxValue, false);
+            UseSpell("ChronoShift", "zilult", 900f, false);
+            UseSpell("YorickReviveAlly", "yorickult", 900f, false);
 
             // auto zhonya skills
             //UseSpell("FioraDance", "fioradodge", OC.IncomeDamage, 300f, false);
         }
 
-        private static void UseSpell(string sdataname, string menuvar, float incdmg, float range = float.MaxValue, 
-            bool usemana = true, bool isheal = false)
+        private static void UseSpell(string sdataname, string menuvar, float range = float.MaxValue, bool usemana = true)
         {
             var slot = me.GetSpellSlot(sdataname);
             if (slot == SpellSlot.Unknown)
@@ -146,6 +145,8 @@ namespace Oracle
             if (target.Distance(me.Position) > range) 
                 return;
 
+            var incdmg = OC.IncomeDamage;
+
             var aManaPercent = (int) ((me.Mana/me.MaxMana)*100);
             var aHealthPercent = (int) ((target.Health/target.MaxHealth)*100);
             var iDamagePercent = (int) ((incdmg/target.MaxHealth)*100);
@@ -153,7 +154,7 @@ namespace Oracle
             if (OC.AggroTarget.Distance(me.Position) > spell.Range || !me.NotRecalling())
                 return;
 
-            if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && !isheal)
+            if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && menuvar.Contains("shield"))
             {
                 if (usemana && aManaPercent <= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
                     return;
@@ -179,7 +180,7 @@ namespace Oracle
                     }
                 }
             }
-            else if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && isheal)
+            else if (aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value && menuvar.Contains("heal"))
             {
                 if (me.SkinName == "Soraka" && (int)(me.Health/me.MaxHealth*100) <= mainmenu.Item("useSorakaMana").GetValue<Slider>().Value)
                     return;
@@ -193,8 +194,7 @@ namespace Oracle
             }
         }
 
-        private static void CreateMenuItem(int defaultvalue, string sdataname, string displayname, string menuvar, SpellSlot slot,
-            bool usemana = true, bool autoult = false, bool slowremoval = false)
+        private static void CreateMenuItem(int defaultvalue, string sdataname, string displayname, string menuvar, SpellSlot slot, bool usemana = true)
         {
             var champslot = me.GetSpellSlot(sdataname);
             if (champslot != SpellSlot.Unknown && champslot == slot)
@@ -205,13 +205,13 @@ namespace Oracle
 
                 var menuName = new Menu(displayname, menuvar.ToLower());
                 menuName.AddItem(new MenuItem("use" + menuvar, "Enable " + displayname)).SetValue(true);
-                if (slowremoval)
+                if (menuvar.Contains("slow"))
                     menuName.AddItem(new MenuItem("use" + menuvar + "Slow", "Remove slows").SetValue(true));
-                if (!slowremoval)
+                if (!menuvar.Contains("slow"))
                     menuName.AddItem(new MenuItem("use" + menuvar + "Pct", "Use spell on HP %")).SetValue(new Slider(defaultvalue));
-                if (!autoult || !slowremoval)
+                if (!menuvar.Contains("ult") || !menuvar.Contains("slow"))
                     menuName.AddItem(new MenuItem("use" + menuvar + "Dmg", "Use spell on Dmg %")).SetValue(new Slider(45));
-                if (me.SkinName == "Soraka")
+                if (menuvar.Contains("soraka"))
                     menuName.AddItem(new MenuItem("useSorakaMana", "Minimum HP % to use")).SetValue(new Slider(35));
                 if (usemana)
                     menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Minimum mana % to use")).SetValue(new Slider(45));
