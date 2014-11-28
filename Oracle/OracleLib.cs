@@ -86,6 +86,13 @@ namespace Oracle
         {
             CleanseBuffs.Add(new OracleLib
             {
+                Name = "summonerexhaust",
+                Timer = 0,
+                DangerLevel = RiskLevel.High
+            });
+
+            CleanseBuffs.Add(new OracleLib
+            {
                 Name = "fizzmarinerdoombomb",
                 Timer = 0,
                 DangerLevel = RiskLevel.Extreme

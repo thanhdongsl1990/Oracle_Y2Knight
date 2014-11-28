@@ -28,12 +28,15 @@ namespace Oracle
                 menuconfig.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             mainmenu.AddSubMenu(menuconfig);
 
+
             if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.HowlingAbyss)
-            {
                 CreateMenuItem("Entropy", "Entropy", 90, 30);
+
+            if (Game.MapId == GameMapId.HowlingAbyss)
                 CreateMenuItem("Guardians Horn", "Guardians", 90, 30);
+
+            if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.TwistedTreeline)            
                 CreateMenuItem("Blackfire Torch", "Torch", 100, 30);
-            }
 
             CreateMenuItem("Muramana", "Muramana", 90, 30, true);
             CreateMenuItem("Tiamat/Hydra", "Hydra", 90, 30);
@@ -56,12 +59,14 @@ namespace Oracle
             {
                 if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active)
                 {
-                    if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.HowlingAbyss)
-                    {
-                        UseItem("Entropy", 3184, 450f, true);
+                    if (Game.MapId == GameMapId.HowlingAbyss)
                         UseItem("Guardians", 2051, 450f);
+
+                    if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.HowlingAbyss)
+                        UseItem("Entropy", 3184, 450f, true);
+
+                    if (Game.MapId == GameMapId.CrystalScar || Game.MapId == GameMapId.TwistedTreeline)
                         UseItem("Torch", 3188, 750f, true);
-                    }
 
                     UseItem("Frostclaim", 3092, 850f, true);
                     UseItem("Youmuus", 3142, 650f);

@@ -51,13 +51,15 @@ namespace Oracle
         public static void Game_OnGameUpdate(EventArgs args)
         {
             UseItem("Mikaels", 3222, 600f, false);
-            if (OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
+
+            if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
                 mainmenu.Item("cleanseMode").GetValue<StringList>().SelectedIndex == 1)
-            {
-                UseItem("Quicksilver", 3140);
-                UseItem("Mercurial", 3139);
-                UseItem("Dervish", 3137);
-            }
+                return;
+            
+            UseItem("Quicksilver", 3140);
+            UseItem("Mercurial", 3139);
+            UseItem("Dervish", 3137);
+
         }
 
         private static void UseItem(string name, int itemId, float itemRange = float.MaxValue, bool selfuse = true)
