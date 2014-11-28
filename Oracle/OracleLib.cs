@@ -81,21 +81,26 @@ namespace Oracle
 
         public static List<OracleLib> Database = new List<OracleLib>();
         public static List<OracleLib> CleanseBuffs = new List<OracleLib>(); 
+        public static List<OracleLib> ZhonyaBuffs = new List<OracleLib>(); 
 
         static OracleLib()
         {
+            ZhonyaBuffs.Add(new OracleLib
+            {
+                Name = "zedulttargetmark",
+                Timer = 4700,
+            });
+            ZhonyaBuffs.Add(new OracleLib
+            {
+                Name = "fizzmarinerdoombomb",
+                Timer = 2800,
+            });
+
             CleanseBuffs.Add(new OracleLib
             {
                 Name = "summonerexhaust",
                 Timer = 0,
                 DangerLevel = RiskLevel.High
-            });
-
-            CleanseBuffs.Add(new OracleLib
-            {
-                Name = "fizzmarinerdoombomb",
-                Timer = 0,
-                DangerLevel = RiskLevel.Extreme
             });
 
             CleanseBuffs.Add(new OracleLib
@@ -109,7 +114,7 @@ namespace Oracle
             {
                 Name = "zedulttargetmark",
                 Timer = 1500,
-                DangerLevel = RiskLevel.High
+                DangerLevel = RiskLevel.Extreme
             });
 
             Database.Add(new OracleLib

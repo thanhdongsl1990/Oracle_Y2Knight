@@ -442,12 +442,10 @@ namespace Oracle
                     {
                         if (me.SkinName == "JarvanIV")
                             me.Spellbook.CastSpell(slot, minion.Position);
-                        else if (me.SkinName == "LeeSin" && data.Name == "blindmonkqtwo" &&
-                                 minion.HasBuff("BlindMonkSonicWave"))
-                        {
+                        else if (name == "Riven")
                             me.Spellbook.CastSpell(slot);
-                        }
-
+                        else if (me.SkinName == "LeeSin" && data.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                            me.Spellbook.CastSpell(slot);
                         else
                         {
                             me.Spellbook.CastSpell(slot, minion);
@@ -457,16 +455,15 @@ namespace Oracle
 
                 else if (OracleLib.LargeMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
+                    Game.PrintChat("ding");
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
-                        if (me.SkinName == "JarvanIV")
+                        if (name == "JarvanIV")
                             me.Spellbook.CastSpell(slot, minion.Position);
-                        else if (me.SkinName == "LeeSin" && data.Name == "blindmonkqtwo" &&
-                                 minion.HasBuff("BlindMonkSonicWave"))
-                        {
+                        else if (name == "Riven")
                             me.Spellbook.CastSpell(slot);
-                        }
-
+                        else if (name == "LeeSin" && data.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                            me.Spellbook.CastSpell(slot);
                         else
                         {
                             me.Spellbook.CastSpell(slot, minion);

@@ -9,6 +9,7 @@ namespace Oracle
 {
     internal static class Defensives
     {
+        private static int bufftick, bufftime;
         private static bool danger, stealth;
         private static Menu mainmenu, menuconfig;
         private static readonly Obj_AI_Hero me = ObjectManager.Player;
@@ -202,7 +203,7 @@ namespace Oracle
             var attackerslot = attacker.GetSpellSlot(args.SData.Name);
 
             stealth = false; danger = false;
-            foreach (var data in OracleLib.Database.Where(x => sender.SkinName == x.Name))
+            foreach (var data in OracleLib.Database.Where(data => sender.SkinName == data.Name))
             {
                 if (target.Distance(attacker.Position) > data.Range)
                     return;
@@ -213,6 +214,6 @@ namespace Oracle
                 if (data.DangerLevel == RiskLevel.Extreme && attackerslot == SpellSlot.R)
                     danger = true;
             }
-        }
+        }       
     }
 }

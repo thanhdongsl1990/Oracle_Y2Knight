@@ -50,6 +50,9 @@ namespace Oracle
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
+            Console.WriteLine("bc: " + buffcount);
+            Console.WriteLine("bd: " + Math.Ceiling(duration));
+
             UseItem("Mikaels", 3222, 600f, false);
 
             if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
@@ -69,18 +72,16 @@ namespace Oracle
 
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-
+           
             var target = selfuse ? me : OC.FriendlyTarget();
             if (target.Distance(me.Position) <= itemRange)
             {
                 if (buffcount >= mainmenu.Item(name + "Count").GetValue<Slider>().Value &&
                     menuconfig.Item("cuseOn" + target.SkinName).GetValue<bool>())
                 {
-                    if (duration >= mainmenu.Item(name + "Duration").GetValue<Slider>().Value)
-                    {
-                        if (target.NetworkId == bufftarget.NetworkId)
+                    if (Math.Ceiling(duration) >= mainmenu.Item(name + "Duration").GetValue<Slider>().Value &&
+                        target.NetworkId == bufftarget.NetworkId)
                             Items.UseItem(itemId, target);
-                    }
                 }
 
                 foreach (var buff in OracleLib.CleanseBuffs)
@@ -114,7 +115,7 @@ namespace Oracle
 
             buffcount = 0; duration = 0;
             var buff = Packet.S2C.GainBuff.Decoded(args.PacketData);
-            if (buff.Source.IsAlly)
+            if (!buff.Source.IsEnemy)
                 return;
 
             if (buff.Source.Type != me.Type || buff.Unit.Type != me.Type)

@@ -13,6 +13,7 @@ namespace Oracle
         public static void Initialize(Menu root)
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
+
             mainmenu = new Menu("Consumables", "imenu");
 
             CreateMenuItem("Mana Potion", "Mana", 40, 0);
@@ -35,7 +36,7 @@ namespace Oracle
         {
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
-
+            
             if (!me.HasBuff(name, true) && me.NotRecalling() && !Utility.InFountain())
             {
                 if (!mainmenu.Item("use" + menuvar).GetValue<bool>())

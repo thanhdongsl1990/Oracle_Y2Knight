@@ -122,7 +122,6 @@ namespace Oracle
         private static void Game_OnGameUpdate(EventArgs args)
         {
             FriendlyTarget();
-
             // Particle object update
             var target = FriendlyTarget();
             if (target == null)
