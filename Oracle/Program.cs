@@ -36,7 +36,7 @@ namespace Oracle
         private static Obj_AI_Hero viktor, fiddle, anivia, ziggs, cass, lux;
         private static GameObj satchel, miasma, minefield, viktorstorm, glacialstorm, crowstorm, lightstrike;
 
-        public const string Revision = "169";
+        public const string Revision = "170";
         private static void Main(string[] args)
         {
             Console.WriteLine("Oracle is loading...");

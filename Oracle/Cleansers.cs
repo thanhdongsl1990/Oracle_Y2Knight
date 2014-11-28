@@ -50,9 +50,6 @@ namespace Oracle
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            Console.WriteLine("bc: " + buffcount);
-            Console.WriteLine("bd: " + Math.Ceiling(duration));
-
             UseItem("Mikaels", 3222, 600f, false);
 
             if (!OC.Origin.Item("ComboKey").GetValue<KeyBind>().Active &&
