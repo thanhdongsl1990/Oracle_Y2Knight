@@ -273,7 +273,7 @@ namespace Oracle
             if (me.SummonerSpellbook.CanUseSpell(heal) != SpellState.Ready)
                 return;
 
-            var target = OC.FriendlyTarget();
+            var target = OC.FriendlyTarget;
             var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
 
             if (target.Distance(me.Position) <= 700f)
@@ -315,7 +315,7 @@ namespace Oracle
 
             if (me.SummonerSpellbook.CanUseSpell(clarity) == SpellState.Ready)
             {
-                var target = OC.FriendlyTarget();
+                var target = OC.FriendlyTarget;
                 if (target.Distance(me.Position) <= 600f)
                 {
                     var aManaPercent = (int) ((target.Mana/target.MaxMana)*100);
@@ -355,13 +355,13 @@ namespace Oracle
             if (smite != SpellSlot.Unknown && !mainmenu.Item("useSmite").GetValue<KeyBind>().Active)
                 return;
 
-            CheckChampSmite("Vi", 125f, SpellSlot.E);
+            CheckChampSmite("Vi", 125f, SpellSlot.E, true);
             CheckChampSmite("JarvanIV", 770f, SpellSlot.Q);
             CheckChampSmite("Poppy", 125f, SpellSlot.Q);
             CheckChampSmite("Nasus", 125f, SpellSlot.Q);
-            CheckChampSmite("Riven", 125f, SpellSlot.W);
+            CheckChampSmite("Riven", 125f, SpellSlot.W, true);
             CheckChampSmite("Malphite", 200f, SpellSlot.E);
-            CheckChampSmite("LeeSin", 1100f, SpellSlot.Q, 1);
+            CheckChampSmite("LeeSin", 1100f, SpellSlot.Q, true, 1);
             CheckChampSmite("Nunu", 125f, SpellSlot.Q);
             CheckChampSmite("Olaf", 325f, SpellSlot.E);
             CheckChampSmite("Elise", 425f, SpellSlot.Q);
@@ -370,6 +370,7 @@ namespace Oracle
             CheckChampSmite("Kayle", 650, SpellSlot.Q);
             CheckChampSmite("Khazix", 325f, SpellSlot.Q);
             CheckChampSmite("MonkeyKing", 300f, SpellSlot.Q);
+            CheckChampSmite("Rammus", 120f, SpellSlot.Q, true);
 
             if (me.SummonerSpellbook.CanUseSpell(smite) != SpellState.Ready)
                 return;
@@ -410,7 +411,7 @@ namespace Oracle
             }          
         }
 
-        private static void CheckChampSmite(string name, float range, SpellSlot slot, int stage = 0)
+        private static void CheckChampSmite(string name, float range, SpellSlot slot, bool selfcast = false, int stage = 0)
         {
             if (me.SkinName != name)
                 return;
@@ -442,9 +443,9 @@ namespace Oracle
                     {
                         if (me.SkinName == "JarvanIV")
                             me.Spellbook.CastSpell(slot, minion.Position);
-                        else if (name == "Riven")
-                            me.Spellbook.CastSpell(slot);
                         else if (me.SkinName == "LeeSin" && data.Name == "blindmonkqtwo" && minion.HasBuff("BlindMonkSonicWave"))
+                            me.Spellbook.CastSpell(slot);
+                        else if (selfcast)
                             me.Spellbook.CastSpell(slot);
                         else
                         {
@@ -455,7 +456,6 @@ namespace Oracle
 
                 else if (OracleLib.LargeMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
-                    Game.PrintChat("ding");
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
                         if (name == "JarvanIV")
@@ -489,7 +489,7 @@ namespace Oracle
                 mainmenu.Item("exhaustMode").GetValue<StringList>().SelectedIndex == 1)
                 return;
 
-            var target = OC.FriendlyTarget();
+            var target = OC.FriendlyTarget;
             if (me.SummonerSpellbook.CanUseSpell(exhaust) == SpellState.Ready)
             {
                 foreach (

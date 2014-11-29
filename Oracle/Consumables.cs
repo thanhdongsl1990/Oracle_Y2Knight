@@ -17,67 +17,64 @@ namespace Oracle
             mainmenu = new Menu("Consumables", "imenu");
 
             CreateMenuItem("Mana Potion", "Mana", 40, 0);
-            CreateMenuItem("Biscuit", "Biscuit", 40, 25, true, true);
-            CreateMenuItem("Health Potion", "Health", 40, 25, false, true);
-            CreateMenuItem("Crystaline Flask", "Flask", 40, 35, true, true);
+            CreateMenuItem("Biscuit", "BiscuitHealthMana", 40, 25);
+            CreateMenuItem("Health Potion", "PotionHealth", 40, 25);
+            CreateMenuItem("Crystaline Flask", "FlaskHealthMana", 40, 35);
 
             root.AddSubMenu(mainmenu);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            UseItem("FlaskOfCrystalWater", 2004, "Mana", 0, 0, false);
-            UseItem("ItemMiniRegenPotion", 2010, "Biscuit", OC.IncomeDamage, OC.MinionDamage);
-            UseItem("ItemCrystalFlask", 2041, "Flask", OC.IncomeDamage, OC.MinionDamage);
-            UseItem("RegenerationPotion", 2003, "Health", OC.IncomeDamage, OC.MinionDamage, true, false);
+            UseItem("ItemCrystalFlask", 2041, "FlaskHealthMana");
+            UseItem("ItemMiniRegenPotion", 2010, "BiscuitHealthMana");
+            UseItem("RegenerationPotion", 2003, "PotionHealth");
+            UseItem("FlaskOfCrystalWater", 2004, "Mana");
         }
 
-        private static void UseItem(string name, int itemId, string menuvar, float incdmg = 0, float mindmg = 0, bool usehealth = true, bool usemana = true)
+        private static void UseItem(string name, int itemId, string menuvar)
         {
+            var incdmg = OC.IncomeDamage;
+            var mindmg = OC.MinionDamage;
+
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
             
             if (!me.HasBuff(name, true) && me.NotRecalling() && !Utility.InFountain())
             {
-                if (!mainmenu.Item("use" + menuvar).GetValue<bool>())
-                    return;
-
-                var aHealthPercent = (int) ((me.Health/me.MaxHealth)*100);
-                var aManaPercent = (int) ((me.Mana/me.MaxMana)*100);
-                var iDamagePercent = (int) ((incdmg/me.MaxHealth)*100);
-                var mDamagePercent = (int) ((mindmg/me.MaxHealth)*100);
-
-                if (usemana && aManaPercent <= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
-                    Items.UseItem(itemId);
-
-                if (usehealth && aHealthPercent <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
+                if (mainmenu.Item("use" + menuvar).GetValue<bool>())
                 {
-                    if (iDamagePercent >= 1 || incdmg >= me.Health || me.HasBuff("summonerdot") ||
-                        mDamagePercent >= 1 || mindmg >= me.Health)
-                    {
-                        if (OC.AggroTarget.NetworkId == me.NetworkId)
-                            Items.UseItem(itemId);
-                    }
+                    if (menuvar.Contains("Mana") && me.Mana/me.MaxMana*100 <= mainmenu.Item("use" + menuvar + "Mana").GetValue<Slider>().Value)
+                        Items.UseItem(itemId);
 
-                    else if (iDamagePercent >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+                    if (menuvar.Contains("Health") && me.Health/me.MaxHealth*100 <= mainmenu.Item("use" + menuvar + "Pct").GetValue<Slider>().Value)
                     {
                         if (OC.AggroTarget.NetworkId == me.NetworkId)
-                            Items.UseItem(itemId);
+                        {
+                            var dmgpct = incdmg/me.MaxHealth*100;
+                            var minpct = mindmg/me.MaxHealth*100;
+
+                            if (dmgpct >= 1 || minpct >= 1 || incdmg >= me.Health || me.HasBuff("summonerdot"))
+                                Items.UseItem(itemId);
+
+                            if (dmgpct >= mainmenu.Item("use" + menuvar + "Dmg").GetValue<Slider>().Value)
+                                Items.UseItem(itemId);
+                        }
                     }
                 }
             }
         }
 
-        private static void CreateMenuItem(string name, string menuvar, int dvalue, int dmgvalue, bool usemana = true, bool usehealth = false)
+        private static void CreateMenuItem(string name, string menuvar, int value, int dmgvalue)
         {
             var menuName = new Menu(name, "m" + menuvar);
             menuName.AddItem(new MenuItem("use" + menuvar, "Use " + name)).SetValue(true);
-            if (usehealth)
+            if (menuvar.Contains("Health"))
             {
-                menuName.AddItem(new MenuItem("use" + menuvar + "Pct", "Use on HP &")).SetValue(new Slider(dvalue));
+                menuName.AddItem(new MenuItem("use" + menuvar + "Pct", "Use on HP &")).SetValue(new Slider(value));
                 menuName.AddItem(new MenuItem("use" + menuvar + "Dmg", "Use on Dmg %")).SetValue(new Slider(dmgvalue));
             }
-            if (usemana)
+            if (menuvar.Contains("Mana"))
                 menuName.AddItem(new MenuItem("use" + menuvar + "Mana", "Use on Mana %")).SetValue(new Slider(40));
             mainmenu.AddSubMenu(menuName);
         }

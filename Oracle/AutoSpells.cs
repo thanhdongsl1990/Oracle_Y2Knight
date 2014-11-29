@@ -88,39 +88,41 @@ namespace Oracle
             UseSpell("SorakaW", "sorakaheal",450f, false);
             UseSpell("Imbue", "taricheal", 750f);
 
-            if (OC.IncomeDamage < 1)
-                return;
+            if (OC.IncomeDamage >= 1)
+            {
+                UseSpell("BraumE", "braumshield");
+                UseSpell("DianaOrbs", "dianashield");
+                UseSpell("GalioBulwark", "galioshield", 800f);
+                UseSpell("GarenW", "garenshield", float.MaxValue, false);
+                UseSpell("EyeOfTheStorm", "jannashield", 800f);
+                UseSpell("KarmaSolKimShield", "karmashield", 800f);
+                UseSpell("LuxPrismaticWave", "luxshield", 1075f);
+                UseSpell("NautilusPiercingGaze", "nautshield");
+                UseSpell("OrianaRedactCommand", "oriannashield", 1100f);
+                UseSpell("ShenFeint", "shenshield", float.MaxValue, false);
+                UseSpell("JarvanIVGoldenAegis", "j4shield");
+                UseSpell("BlindMonkWOne", "leeshield", 700f, false);
+                UseSpell("RivenFeint", "rivenshield", float.MaxValue, false);
+                UseSpell("RumbleShield", "rumbleshield");
+                UseSpell("SionW", "sionshield");
+                UseSpell("SkarnerExoskeleton", "skarnershield");
+                UseSpell("UrgotTerrorCapacitorActive2", "urgotshield");
+                UseSpell("MoltenShield", "annieshield");
+                UseSpell("FioraRiposte", "fiorashield", float.MaxValue, false);
+                UseSpell("Obduracy", "malphshield");
+                UseSpell("DefensiveBallCurl", "rammusshield");
+
+                // auto ults
+                UseSpell("LuluR", "luluult", 900f, false);
+                UseSpell("UndyingRage", "tryndult", float.MaxValue, false);
+                UseSpell("ChronoShift", "zilult", 900f, false);
+                UseSpell("YorickReviveAlly", "yorickult", 900f, false);
+
+                // auto zhonya skills
+                //UseSpell("FioraDance", "fioradodge", OC.IncomeDamage, 300f, false);
+                
+            }
             // auto shields
-            UseSpell("BraumE", "braumshield");
-            UseSpell("DianaOrbs", "dianashield");
-            UseSpell("GalioBulwark", "galioshield", 800f);
-            UseSpell("GarenW", "garenshield", float.MaxValue, false);
-            UseSpell("EyeOfTheStorm", "jannashield", 800f);
-            UseSpell("KarmaSolKimShield", "karmashield", 800f);
-            UseSpell("LuxPrismaticWave", "luxshield", 1075f);
-            UseSpell("NautilusPiercingGaze", "nautshield");
-            UseSpell("OrianaRedactCommand", "oriannashield", 1100f);
-            UseSpell("ShenFeint", "shenshield", float.MaxValue, false);
-            UseSpell("JarvanIVGoldenAegis", "j4shield");
-            UseSpell("BlindMonkWOne", "leeshield", 700f, false);
-            UseSpell("RivenFeint", "rivenshield", float.MaxValue, false);
-            UseSpell("RumbleShield", "rumbleshield");
-            UseSpell("SionW", "sionshield");
-            UseSpell("SkarnerExoskeleton", "skarnershield");
-            UseSpell("UrgotTerrorCapacitorActive2", "urgotshield");
-            UseSpell("MoltenShield", "annieshield");
-            UseSpell("FioraRiposte", "fiorashield", float.MaxValue, false);
-            UseSpell("Obduracy", "malphshield");
-            UseSpell("DefensiveBallCurl", "rammusshield");
-
-            // auto ults
-            UseSpell("LuluR", "luluult", 900f, false);
-            UseSpell("UndyingRage", "tryndult", float.MaxValue, false);
-            UseSpell("ChronoShift", "zilult", 900f, false);
-            UseSpell("YorickReviveAlly", "yorickult", 900f, false);
-
-            // auto zhonya skills
-            //UseSpell("FioraDance", "fioradodge", OC.IncomeDamage, 300f, false);
         }
 
         private static void UseSpell(string sdataname, string menuvar, float range = float.MaxValue, bool usemana = true)
@@ -137,7 +139,7 @@ namespace Oracle
                 return;
 
             var allyuse = range.ToString() != float.MaxValue.ToString();
-            var target = allyuse ? OC.FriendlyTarget() : me;
+            var target = allyuse ? OC.FriendlyTarget : me;
 
             if (!menuconfig.Item("ason" + target.SkinName).GetValue<bool>())
                 return;

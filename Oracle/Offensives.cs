@@ -25,7 +25,7 @@ namespace Oracle
             menuconfig = new Menu("Offensive Config", "oconfig");
 
             foreach (Obj_AI_Hero x in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsEnemy))
-                menuconfig.AddItem(new MenuItem("ouseOn" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
+                menuconfig.AddItem(new MenuItem("ouseon" + x.SkinName, "Use for " + x.SkinName)).SetValue(true);
             mainmenu.AddSubMenu(menuconfig);
 
 
@@ -97,61 +97,61 @@ namespace Oracle
             if (!Items.HasItem(itemId) || !Items.CanUseItem(itemId))
                 return;
 
-            if (!mainmenu.Item("use" + name).GetValue<bool>())
-                return;
-
-            if (itemId == 3128 || itemId == 3188)
-                damage = OC.DamageCheck(me, currenttarget);
-
-            if (currenttarget.Distance(me.Position) <= range)
+            if (mainmenu.Item("use" + name).GetValue<bool>())
             {
-                var eHealthPercent = (int) ((currenttarget.Health/currenttarget.MaxHealth)*100);
-                var aHealthPercent = (int) ((me.Health/currenttarget.MaxHealth)*100);
+                if (itemId == 3128 || itemId == 3188)
+                    damage = OC.DamageCheck(me, currenttarget);
 
-                if (eHealthPercent <= mainmenu.Item("use" + name + "Pct").GetValue<Slider>().Value &&
-                    mainmenu.Item("ouseOn" + currenttarget.SkinName).GetValue<bool>())
+                if (currenttarget.Distance(me.Position) <= range)
                 {
-                    if (targeted && itemId == 3092)
+                    var eHealthPercent = (int) ((currenttarget.Health/currenttarget.MaxHealth)*100);
+                    var aHealthPercent = (int) ((me.Health/currenttarget.MaxHealth)*100);
+
+                    if (eHealthPercent <= mainmenu.Item("use" + name + "Pct").GetValue<Slider>().Value &&
+                        mainmenu.Item("ouseon" + currenttarget.SkinName).GetValue<bool>())
                     {
-                        var pi = new PredictionInput
+                        if (targeted && itemId == 3092)
                         {
-                            Aoe = true,
-                            Collision = false,
-                            Delay = 0.0f,
-                            From = me.Position,
-                            Radius = 250f,
-                            Range = 850f,
-                            Speed = 1500f,
-                            Unit = currenttarget,
-                            Type = SkillshotType.SkillshotCircle
-                        };
+                            var pi = new PredictionInput
+                            {
+                                Aoe = true,
+                                Collision = false,
+                                Delay = 0.0f,
+                                From = me.Position,
+                                Radius = 250f,
+                                Range = 850f,
+                                Speed = 1500f,
+                                Unit = currenttarget,
+                                Type = SkillshotType.SkillshotCircle
+                            };
 
-                        var po = Prediction.GetPrediction(pi);
-                        if (po.Hitchance >= HitChance.Medium)
-                            Items.UseItem(itemId, po.CastPosition);
+                            var po = Prediction.GetPrediction(pi);
+                            if (po.Hitchance >= HitChance.Medium)
+                                Items.UseItem(itemId, po.CastPosition);
+                        }
+
+                        else if (targeted)
+                        {
+                            if ((itemId == 3128 || itemId == 3188) && damage < currenttarget.Health)
+                                return;
+
+                            Items.UseItem(itemId, currenttarget);
+                        }
+
+                        else
+                        {
+                            Items.UseItem(itemId);
+                        }
                     }
 
-                    else if (targeted)
+                    else if (aHealthPercent <= mainmenu.Item("use" + name + "Me").GetValue<Slider>().Value &&
+                             mainmenu.Item("ouseon" + currenttarget.SkinName).GetValue<bool>())
                     {
-                        if ((itemId == 3128 || itemId == 3188) && damage < currenttarget.Health)
-                            return;
-
-                        Items.UseItem(itemId, currenttarget);
+                        if (targeted)
+                            Items.UseItem(itemId, currenttarget);
+                        else
+                            Items.UseItem(itemId);
                     }
-
-                    else
-                    {
-                        Items.UseItem(itemId);
-                    }
-                }
-
-                else if (aHealthPercent <= mainmenu.Item("use" + name + "Me").GetValue<Slider>().Value &&
-                         mainmenu.Item("ouseOn" + currenttarget.SkinName).GetValue<bool>())
-                {
-                    if (targeted)
-                        Items.UseItem(itemId, currenttarget);
-                    else 
-                        Items.UseItem(itemId);             
                 }
             }
         }
@@ -188,7 +188,7 @@ namespace Oracle
                     {
                         if (me.Spellbook.CanUseSpell(manamuneslot) != SpellState.Unknown)
                         {
-                            if (!me.HasBuff("Muramana") && mainmenu.Item("ouseOn" + currenttarget.SkinName).GetValue<bool>())
+                            if (!me.HasBuff("Muramana") && mainmenu.Item("ouseon" + currenttarget.SkinName).GetValue<bool>())
                                 if (manaPercent > mainmenu.Item("useMuramanaMana").GetValue<Slider>().Value)
                                     me.Spellbook.CastSpell(manamuneslot);
                         }
