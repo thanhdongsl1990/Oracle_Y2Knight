@@ -455,7 +455,7 @@ namespace Oracle
 
                 else if (OracleLib.LargeMinions.Any(xe => minion.Name.StartsWith(xe) && !minion.Name.Contains("Mini")))
                 {
-                    Game.PrintChat("ding");
+                    //Game.PrintChat("ding");
                     if (mainmenu.Item("smiteLarge").GetValue<bool>() && minion.Health <= smitedamage + champdamage)
                     {
                         if (name == "JarvanIV")
